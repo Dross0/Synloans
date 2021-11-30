@@ -1,16 +1,13 @@
 package com.sinloans.loans.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Pattern;
+import java.util.Set;
 
 @Table(name = "Company")
 @Entity
@@ -20,7 +17,7 @@ import javax.validation.constraints.Pattern;
 public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name="full_company_name")
     private String fullName;
@@ -28,13 +25,13 @@ public class Company {
     @Column(name="short_company_name")
     private String shortName;
 
-    @Column(name="tin")
+    @Column(name="inn")
     @Pattern(regexp = "\\d{10}")
-    private String tin;
+    private String inn;
 
-    @Column(name="iec")
+    @Column(name="kpp")
     @Pattern(regexp = "\\d{9}")
-    private String iec;
+    private String kpp;
 
     @Column(name="legal_address")
     private String legalAddress;
@@ -42,9 +39,9 @@ public class Company {
     @Column(name="actual_address")
     private String actualAddress;
 
-    @Column(name="psrn")
+    @Column(name="ogrn")
     @Pattern(regexp = "\\d{13}")
-    private String psrn;
+    private String ogrn;
 
     @Column(name="okpo")
     @Pattern(regexp = "\\d{10}")
@@ -53,4 +50,8 @@ public class Company {
     @Column(name="okato")
     @Pattern(regexp = "\\d{10}")
     private String okato;
+
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<User> users;
 }

@@ -2,13 +2,13 @@ CREATE TABLE Company (
                            "id" serial NOT NULL,
                            "full_company_name" varchar(250) NOT NULL,
                            "short_company_name" varchar(255) NOT NULL,
-                           "tin" varchar(10) NOT NULL UNIQUE,
-                           "iec" varchar(9) NOT NULL,
+                           "inn" varchar(10) NOT NULL UNIQUE,
+                           "kpp" varchar(9) NOT NULL,
                            "legal_address" varchar(250) NOT NULL,
                            "actual_address" varchar(250) NOT NULL,
-                           "psrn" varchar(13) NOT NULL,
-                           "okpo" varchar(10) NOT NULL,
-                           "okato" varchar(10) NOT NULL,
+                           "ogrn" varchar(13),
+                           "okpo" varchar(10),
+                           "okato" varchar(10),
                            CONSTRAINT "Company_pk" PRIMARY KEY ("id")
 ) WITH (
       OIDS=FALSE

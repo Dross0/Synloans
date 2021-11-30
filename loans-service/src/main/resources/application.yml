@@ -2,8 +2,13 @@ spring:
   jpa:
     database: POSTGRESQL
     show-sql: true
+    hibernate:
+      ddl-auto: update
   datasource:
     url: jdbc:postgresql://localhost:5432/syndicate_loans
     username: postgres
     password: postgres
     driverClassName: org.postgresql.Driver
+jwt:
+  key: secretKey
+  expiration-time: 5000000
