@@ -38,6 +38,6 @@ public class CompanyController {
 
     @PostMapping("/add")
     public Company addCompany(@RequestBody Company company){
-        return companyService.save(company);
+        return companyService.create(company);
     }
 }

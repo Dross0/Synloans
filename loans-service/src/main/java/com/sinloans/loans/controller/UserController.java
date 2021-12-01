@@ -31,6 +31,7 @@ public class UserController {
         return userService.getUserById(id);
     }
 
+
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest authenticationRequest){
         try{
@@ -55,7 +56,12 @@ public class UserController {
         company.setShortName(registrationRequest.getShortName());
         company.setActualAddress(registrationRequest.getActualAddress());
         company.setLegalAddress(registrationRequest.getLegalAddress());
-        User user = userService.saveUser(registrationRequest.getEmail(), registrationRequest.getPassword(), company);
+        User user;
+        if (registrationRequest.isCreditOrganisation()){
+            user = userService.createBankUser(registrationRequest.getEmail(), registrationRequest.getPassword(), company);
+        } else {
+            user = userService.createCorpUser(registrationRequest.getEmail(), registrationRequest.getPassword(), company);
+        }
         if (user == null){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Пользователь с email=" + registrationRequest.getEmail() + " уже зарегистрирован");
         }

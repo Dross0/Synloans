@@ -30,11 +30,15 @@ public class CompanyService {
         return Optional.ofNullable(companyRepository.findByInnAndKpp(inn, kpp));
     }
 
-    public Company save(Company company){
+    public Company create(Company company){
         if (companyRepository.existsByInnAndKpp(company.getInn(), company.getKpp())){
             log.error("Компания с инн={} и кпп={} существует", company.getInn(), company.getKpp());
             return null;
         }
+        return companyRepository.save(company);
+    }
+
+    public Company save(Company company){
         return companyRepository.save(company);
     }
 }

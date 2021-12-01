@@ -78,7 +78,7 @@ CREATE TABLE Syndicate (
 CREATE TABLE Bank (
                         "id" serial NOT NULL,
                         "company_info" integer NOT NULL,
-                        "license" integer NOT NULL,
+                        "license" integer,
                         CONSTRAINT "Bank_pk" PRIMARY KEY ("id")
 ) WITH (
       OIDS=FALSE

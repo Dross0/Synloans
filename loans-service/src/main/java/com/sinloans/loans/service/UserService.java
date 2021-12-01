@@ -1,5 +1,6 @@
 package com.sinloans.loans.service;
 
+import com.sinloans.loans.model.Bank;
 import com.sinloans.loans.model.Company;
 import com.sinloans.loans.model.User;
 import com.sinloans.loans.repositories.UserRepository;
@@ -22,6 +23,7 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final CompanyService companyService;
+    private final BankService bankService;
 
     @Setter
     private BCryptPasswordEncoder passwordEncoder;
@@ -37,6 +39,10 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
+    public User getUserByUsername(String username){
+        return userRepository.findUserByUsername(username);
+    }
+
 
     public Collection<User> getAllUsers(){
         return userRepository.findAll();
@@ -46,7 +52,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id).orElse(null);
     }
 
-    public User saveUser(User user){
+    public User createUser(User user){
         if (user == null){
             log.error("User == null");
             return null;
@@ -58,17 +64,21 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    public User saveUser(String username, String password, Company companyInfo){
+    public User saveUser(User user){
+        return userRepository.save(user);
+    }
+
+    public User createCorpUser(String username, String password, Company companyInfo){
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(username, encodedPassword);
         Company company = companyService.getByInnAndKpp(companyInfo.getInn(), companyInfo.getKpp())
-                .orElseGet(() -> companyService.save(companyInfo));
+                .orElseGet(() -> companyService.create(companyInfo));
         if (company == null){
             log.error("Не удалось найти/создать компанию с инн={} и кпп={}", companyInfo.getInn(), companyInfo.getKpp());
             return null;
         }
         user.setCompany(company);
-        return saveUser(user);
+        return createUser(user);
     }
 
     public boolean deleteById(Long id){
@@ -77,5 +87,27 @@ public class UserService implements UserDetailsService {
             return true;
         }
         return false;
+    }
+
+    public User createBankUser(String email, String password, Company companyInfo) {
+        String encodedPassword = passwordEncoder.encode(password);
+        User user = new User(email, encodedPassword);
+        Company company = companyService.getByInnAndKpp(companyInfo.getInn(), companyInfo.getKpp()).orElse(null);
+        Bank bank;
+        if (company != null){
+            bank = bankService.getByCompany(company);
+            if (bank == null){
+                throw new IllegalArgumentException("Пользователь пытается зарегистрироваться по реквизитам компании, которая не является банком");
+            }
+        } else{
+            company = companyService.create(companyInfo);
+            bank = bankService.createBank(company);
+        }
+        if (bank == null){
+            log.error("Не удалось найти/создать банк: {}", companyInfo.getFullName());
+            return null;
+        }
+        user.setCompany(company);
+        return createUser(user);
     }
 }
