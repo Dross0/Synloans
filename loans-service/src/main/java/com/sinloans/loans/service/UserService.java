@@ -1,8 +1,8 @@
 package com.sinloans.loans.service;
 
-import com.sinloans.loans.model.Bank;
-import com.sinloans.loans.model.Company;
-import com.sinloans.loans.model.User;
+import com.sinloans.loans.model.entity.Bank;
+import com.sinloans.loans.model.entity.Company;
+import com.sinloans.loans.model.entity.User;
 import com.sinloans.loans.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

@@ -1,6 +1,6 @@
 package com.sinloans.loans.service;
 
-import com.sinloans.loans.model.Company;
+import com.sinloans.loans.model.entity.Company;
 import com.sinloans.loans.repositories.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

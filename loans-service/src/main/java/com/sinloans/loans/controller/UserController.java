@@ -1,9 +1,9 @@
 package com.sinloans.loans.controller;
 
-import com.sinloans.loans.model.Company;
+import com.sinloans.loans.model.entity.Company;
 import com.sinloans.loans.model.authentication.AuthenticationRequest;
 import com.sinloans.loans.model.authentication.AuthenticationResponse;
-import com.sinloans.loans.model.User;
+import com.sinloans.loans.model.entity.User;
 import com.sinloans.loans.model.authentication.RegistrationRequest;
 import com.sinloans.loans.security.util.JwtService;
 import com.sinloans.loans.service.UserService;
@@ -27,7 +27,8 @@ public class UserController {
     private final JwtService jwtService;
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody User getUserById(@PathVariable("id") Long id){
+    @ResponseBody
+    public User getUserById(@PathVariable("id") Long id){
         return userService.getUserById(id);
     }
 

@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 @SpringBootApplication
 @EnableConfigurationProperties
-@EntityScan("com.sinloans.loans.model")
+@EntityScan("com.sinloans.loans.model.entity")
 public class LoansApplication {
 
     public static void main(String[] args) {

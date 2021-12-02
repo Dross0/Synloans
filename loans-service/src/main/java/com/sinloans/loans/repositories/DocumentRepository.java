@@ -1,6 +1,6 @@
 package com.sinloans.loans.repositories;
 
-import com.sinloans.loans.model.Document;
+import com.sinloans.loans.model.entity.Document;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

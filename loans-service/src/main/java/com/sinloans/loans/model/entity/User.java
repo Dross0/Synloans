@@ -1,4 +1,4 @@
-package com.sinloans.loans.model;
+package com.sinloans.loans.model.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

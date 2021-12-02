@@ -1,6 +1,6 @@
 package com.sinloans.loans.service;
 
-import com.sinloans.loans.model.Document;
+import com.sinloans.loans.model.entity.Document;
 import com.sinloans.loans.repositories.DocumentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

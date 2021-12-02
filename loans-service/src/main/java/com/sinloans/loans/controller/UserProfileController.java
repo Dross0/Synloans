@@ -1,7 +1,7 @@
 package com.sinloans.loans.controller;
 
-import com.sinloans.loans.model.Company;
-import com.sinloans.loans.model.User;
+import com.sinloans.loans.model.entity.Company;
+import com.sinloans.loans.model.entity.User;
 import com.sinloans.loans.model.dto.Profile;
 import com.sinloans.loans.service.BankService;
 import com.sinloans.loans.service.CompanyService;
@@ -23,16 +23,15 @@ public class UserProfileController {
     private final CompanyService companyService;
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Profile getProfile(){
-        String username = getCurrentUserName();
-        User user = userService.getUserByUsername(username);
+    @ResponseBody
+    public Profile getProfile(Authentication authentication){
+        User user = userService.getUserByUsername(authentication.getName());
         return fillProfile(user);
     }
 
     @PostMapping(value = "/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void editProfile(@RequestBody Profile newProfile){
-        String username = getCurrentUserName();
-        User user = userService.getUserByUsername(username);
+    public void editProfile(@RequestBody Profile newProfile, Authentication authentication){
+        User user = userService.getUserByUsername(authentication.getName());
         if (newProfile.getEmail() != null){
             user.setUsername(newProfile.getEmail());
             userService.saveUser(user);
@@ -66,10 +65,5 @@ public class UserProfileController {
                 .legalAddress(company.getLegalAddress())
                 .creditOrganisation(bankService.getByCompany(company) != null)
                 .build();
-    }
-
-    private String getCurrentUserName(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getName();
     }
 }

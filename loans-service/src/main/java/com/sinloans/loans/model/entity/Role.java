@@ -1,4 +1,4 @@
-package com.sinloans.loans.model;
+package com.sinloans.loans.model.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 

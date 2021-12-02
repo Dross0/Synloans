@@ -1,15 +1,10 @@
 package com.sinloans.loans.controller;
 
-import com.sinloans.loans.model.Company;
+import com.sinloans.loans.model.entity.Company;
 import com.sinloans.loans.service.CompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -23,6 +18,7 @@ public class CompanyController {
     private final CompanyService companyService;
 
     @GetMapping("/{id}")
+    @ResponseBody
     public Company getById(@PathVariable("id") Long id){
         return companyService.getById(id)
                 .orElseThrow(() ->
@@ -31,6 +27,7 @@ public class CompanyController {
     }
 
     @GetMapping("/all")
+    @ResponseBody
     public List<Company> getCompanies(){
         return new ArrayList<>(companyService.getAll());
     }

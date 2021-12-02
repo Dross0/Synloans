@@ -110,7 +110,9 @@ CREATE TABLE Loan_request (
                                 "id" serial NOT NULL,
                                 "company" integer NOT NULL,
                                 "sum" integer NOT NULL,
-                                "rate" integer NOT NULL,
+                                "rate" FLOAT NOT NULL,
+                                "term" integer NOT NULL,
+                                "create_date" date NOT NULL,
                                 CONSTRAINT "Loan_request_pk" PRIMARY KEY ("id")
 ) WITH (
       OIDS=FALSE

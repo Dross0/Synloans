@@ -1,4 +1,4 @@
-package com.sinloans.loans.model;
+package com.sinloans.loans.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -54,4 +54,8 @@ public class Company {
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<User> users;
+
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<LoanRequest> loanRequests;
 }
