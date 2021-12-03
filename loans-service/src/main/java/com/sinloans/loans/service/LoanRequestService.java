@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,5 +32,13 @@ public class LoanRequestService {
 
     public Collection<LoanRequest> getAll() {
         return loanRequestRepository.findAll();
+    }
+
+    public void deleteById(Long id) {
+        loanRequestRepository.deleteById(id);
+    }
+
+    public Optional<LoanRequest> getById(Long id){
+        return loanRequestRepository.findById(id);
     }
 }

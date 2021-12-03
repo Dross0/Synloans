@@ -1,5 +1,6 @@
 package com.sinloans.loans.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,4 +31,12 @@ public class LoanRequest {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "company", nullable = false)
     private Company company;
+
+    @OneToOne(mappedBy = "request")
+    @JsonIgnore
+    private Syndicate syndicate;
+
+    @OneToOne(mappedBy = "request")
+    @JsonIgnore
+    private Loan loan;
 }

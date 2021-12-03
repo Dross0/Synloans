@@ -8,23 +8,19 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "bank")
+@Table(name = "syndicate")
 @Getter
 @Setter
-public class Bank {
+public class Syndicate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="company_info")
-    private Company company;
+    @JoinColumn(name = "request")
+    private LoanRequest request;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "license")
-    private Document license;
-
-    @OneToMany(mappedBy = "bank")
+    @OneToMany(mappedBy = "syndicate")
     @JsonIgnore
-    private Set<SyndicateParticipant> syndicates;
+    private Set<SyndicateParticipant> participants;
 }
