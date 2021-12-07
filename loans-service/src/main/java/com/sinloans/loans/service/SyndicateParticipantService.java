@@ -14,8 +14,9 @@ import java.util.Objects;
 public class SyndicateParticipantService {
     private final SyndicateParticipantRepository participantRepository;
 
-    public SyndicateParticipant createNewParticipant(Syndicate syndicate, Bank bank, long loanSum){
+    public SyndicateParticipant createNewParticipant(Syndicate syndicate, Bank bank, long loanSum, boolean approveBankAgent){
         SyndicateParticipant participant = new SyndicateParticipant();
+        participant.setApproveBankAgent(approveBankAgent);
         participant.setSyndicate(syndicate);
         participant.setBank(bank);
         participant.setLoanSum(loanSum);
@@ -29,6 +30,5 @@ public class SyndicateParticipantService {
                 return;
             }
         }
-//        participantRepository.deleteByBankAndSyndicate_Request_Id(bank, loanRequestId);
     }
 }

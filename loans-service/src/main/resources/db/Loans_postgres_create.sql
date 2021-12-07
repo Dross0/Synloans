@@ -49,6 +49,7 @@ CREATE TABLE Loan (
                         "registration_date" DATE NOT NULL,
                         "close_date" DATE NOT NULL,
                         "request" integer NOT NULL,
+                        "bank_agent" integer NOT NULL,
                         CONSTRAINT "Loan_pk" PRIMARY KEY ("id")
 ) WITH (
       OIDS=FALSE
@@ -91,6 +92,7 @@ CREATE TABLE Syndicate_participant (
                                          "bank_id" integer NOT NULL,
                                          "syndicate_id" integer NOT NULL,
                                          "loan_sum" DECIMAL NOT NULL,
+                                         "approve_bank_agent" boolean NOT NULL,
                                          CONSTRAINT "Syndicate_participant_pk" PRIMARY KEY ("id")
 ) WITH (
       OIDS=FALSE
@@ -98,13 +100,6 @@ CREATE TABLE Syndicate_participant (
 
 
 
-CREATE TABLE Loan_history (
-                                "loan_id" integer NOT NULL,
-                                "bank_id" integer NOT NULL,
-                                "syndicate_id" integer
-) WITH (
-      OIDS=FALSE
-    );
 
 
 
@@ -127,6 +122,7 @@ ALTER TABLE Contract ADD CONSTRAINT "Contract_fk0" FOREIGN KEY ("document_id") R
 
 
 ALTER TABLE Loan ADD CONSTRAINT "Loan_fk0" FOREIGN KEY ("request") REFERENCES Loan_request("id");
+ALTER TABLE Loan ADD CONSTRAINT "Loan_fk1" FOREIGN KEY ("bank_agent") REFERENCES Bank("id");
 
 ALTER TABLE Loan_contracts ADD CONSTRAINT "Loan_contracts_fk0" FOREIGN KEY ("loan_id") REFERENCES Loan("id");
 ALTER TABLE Loan_contracts ADD CONSTRAINT "Loan_contracts_fk1" FOREIGN KEY ("contract_id") REFERENCES Contract("id");
@@ -139,9 +135,6 @@ ALTER TABLE Bank ADD CONSTRAINT "Bank_fk1" FOREIGN KEY ("license") REFERENCES Do
 ALTER TABLE Syndicate_participant ADD CONSTRAINT "Syndicate_participant_fk0" FOREIGN KEY ("bank_id") REFERENCES Bank("id");
 ALTER TABLE Syndicate_participant ADD CONSTRAINT "Syndicate_participant_fk1" FOREIGN KEY ("syndicate_id") REFERENCES Syndicate("id");
 
-ALTER TABLE Loan_history ADD CONSTRAINT "Loan_history_fk0" FOREIGN KEY ("loan_id") REFERENCES Loan("id");
-ALTER TABLE Loan_history ADD CONSTRAINT "Loan_history_fk1" FOREIGN KEY ("bank_id") REFERENCES Bank("id");
-ALTER TABLE Loan_history ADD CONSTRAINT "Loan_history_fk2" FOREIGN KEY ("syndicate_id") REFERENCES Syndicate("id");
 
 ALTER TABLE Loan_request ADD CONSTRAINT "Loan_request_fk0" FOREIGN KEY ("company") REFERENCES Company("id");
 

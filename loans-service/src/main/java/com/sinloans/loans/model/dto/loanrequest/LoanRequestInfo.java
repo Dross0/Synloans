@@ -1,15 +1,16 @@
-package com.sinloans.loans.model.dto;
+package com.sinloans.loans.model.dto.loanrequest;
 
+import com.sinloans.loans.model.dto.LoanSum;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 
-@NoArgsConstructor
+@Builder
 @Getter
 @Setter
-public class LoanRequestResponse {
+public class LoanRequestInfo {
     private long id;
 
     private LocalDate dateIssue;
@@ -21,4 +22,6 @@ public class LoanRequestResponse {
     private double maxRate;
 
     private int term;
+
+    private LoanRequestStatus status;
 }

@@ -1,8 +1,10 @@
 package com.sinloans.loans.service;
 
+import com.sinloans.loans.model.dto.loanrequest.LoanRequestDto;
+import com.sinloans.loans.model.dto.loanrequest.LoanRequestStatus;
 import com.sinloans.loans.model.entity.Company;
+import com.sinloans.loans.model.entity.Loan;
 import com.sinloans.loans.model.entity.LoanRequest;
-import com.sinloans.loans.model.dto.LoanRequestDto;
 import com.sinloans.loans.repositories.LoanRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,5 +42,16 @@ public class LoanRequestService {
 
     public Optional<LoanRequest> getById(Long id){
         return loanRequestRepository.findById(id);
+    }
+
+    public LoanRequestStatus getStatus(LoanRequest loanRequest) {
+        Loan loan = loanRequest.getLoan();
+        if (loan == null){
+            return LoanRequestStatus.OPEN;
+        }
+        if (LocalDate.now().isAfter(loan.getCloseDate())){
+            return LoanRequestStatus.CLOSE;
+        }
+        return LoanRequestStatus.ISSUE;  //FIXME Подумать как обрабатывать статус transfer
     }
 }

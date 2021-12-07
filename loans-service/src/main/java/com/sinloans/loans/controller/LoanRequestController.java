@@ -1,20 +1,30 @@
 package com.sinloans.loans.controller;
 
-import com.sinloans.loans.model.dto.LoanRequestResponse;
-import com.sinloans.loans.model.dto.LoanSum;
-import com.sinloans.loans.model.entity.*;
-import com.sinloans.loans.model.dto.LoanRequestDto;
+import com.sinloans.loans.model.dto.loanrequest.LoanRequestDto;
+import com.sinloans.loans.model.dto.loanrequest.LoanRequestInfo;
+import com.sinloans.loans.model.dto.loanrequest.LoanRequestResponse;
+import com.sinloans.loans.model.entity.LoanRequest;
+import com.sinloans.loans.model.entity.Syndicate;
+import com.sinloans.loans.model.entity.SyndicateParticipant;
+import com.sinloans.loans.model.entity.User;
+import com.sinloans.loans.model.mapper.CompanyMapper;
+import com.sinloans.loans.model.mapper.LoanRequestMapper;
+import com.sinloans.loans.model.mapper.SyndicateParticipantMapper;
+import com.sinloans.loans.security.UserRole;
 import com.sinloans.loans.service.LoanRequestService;
 import com.sinloans.loans.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -22,6 +32,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/loan/requests")
 @Slf4j
 public class LoanRequestController {
+    private final SyndicateParticipantMapper syndicateParticipantMapper = new SyndicateParticipantMapper();
+    private final LoanRequestMapper loanRequestMapper = new LoanRequestMapper();
+    private final CompanyMapper companyMapper = new CompanyMapper();
+
     private final LoanRequestService loanRequestService;
     private final UserService userService;
 
@@ -42,6 +56,7 @@ public class LoanRequestController {
         return buildCollectionResponse(user.getCompany().getLoanRequests());
     }
 
+
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public LoanRequestResponse getRequestById(@PathVariable("id") Long id, Authentication authentication){
@@ -52,7 +67,7 @@ public class LoanRequestController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Заявка на кредит с id=" + id + " не найдена");
         }
         LoanRequest loanRequest = loanRequestOpt.get();
-        if (user.getCompany().getId().equals(loanRequest.getCompany().getId())){
+        if (!user.getCompany().getId().equals(loanRequest.getCompany().getId())){
             log.error("Заявка не принадлежит текущему пользователю");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Заявка на кредит с id=" + id + " не принадлежит пользователю=" + user.getUsername());
         }
@@ -75,6 +90,7 @@ public class LoanRequestController {
         return syndicate.getParticipants();
     }
 
+    @Secured(UserRole.ROLE_BANK)
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Collection<LoanRequestResponse> getAllRequests(){
@@ -94,16 +110,23 @@ public class LoanRequestController {
 
     private LoanRequestResponse buildResponse(LoanRequest loanRequest){
         LoanRequestResponse response = new LoanRequestResponse();
-        response.setId(loanRequest.getId());
-        response.setTerm(loanRequest.getTerm());
-        response.setDateCreate(loanRequest.getCreateDate());
-        response.setMaxRate(loanRequest.getRate());
-        response.setDateIssue(null);
-        Loan loan = loanRequest.getLoan();
-        if (loan != null) {
-            response.setDateIssue(loan.getRegistrationDate());
+        LoanRequestInfo info = loanRequestMapper.entityToDto(loanRequest);
+        info.setStatus(loanRequestService.getStatus(loanRequest));
+        response.setInfo(info);
+        response.setBanks(Collections.emptyList());
+        if (loanRequest.getSyndicate() != null){
+            response.setBanks(
+                    loanRequest.getSyndicate()
+                            .getParticipants()
+                            .stream()
+                            .map(syndicateParticipantMapper::entityToDto)
+                            .collect(Collectors.toList())
+            );
         }
-        response.setSum(LoanSum.valueOf(loanRequest.getSum()));
+        response.setBorrower(
+                companyMapper.entityToDto(loanRequest.getCompany())
+        );
+
         return response;
     }
 
@@ -112,7 +135,7 @@ public class LoanRequestController {
         User curUser = userService.getUserByUsername(username);
         if (curUser == null){
             log.error("Не удалось найти текущего пользователя с username={}", username);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не удалось получить текущего пользователя с username=" + username);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Не удалось получить текущего пользователя с username=" + username);
         }
         return curUser;
     }

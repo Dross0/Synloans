@@ -1,8 +1,9 @@
 package com.sinloans.loans.controller;
 
+import com.sinloans.loans.model.dto.Profile;
 import com.sinloans.loans.model.entity.Company;
 import com.sinloans.loans.model.entity.User;
-import com.sinloans.loans.model.dto.Profile;
+import com.sinloans.loans.model.mapper.UserMapper;
 import com.sinloans.loans.service.BankService;
 import com.sinloans.loans.service.CompanyService;
 import com.sinloans.loans.service.UserService;
@@ -17,6 +18,8 @@ import java.util.function.Consumer;
 @RequestMapping("/profile")
 @RequiredArgsConstructor
 public class UserProfileController {
+    private final UserMapper userMapper = new UserMapper();
+
     private final UserService userService;
     private final BankService bankService;
     private final CompanyService companyService;
@@ -28,7 +31,7 @@ public class UserProfileController {
         return fillProfile(user);
     }
 
-    @PostMapping(value = "/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void editProfile(@RequestBody Profile newProfile, Authentication authentication){
         User user = userService.getUserByUsername(authentication.getName());
         if (newProfile.getEmail() != null){
@@ -53,16 +56,8 @@ public class UserProfileController {
     }
 
     private Profile fillProfile(User user) {
-        Company company = user.getCompany();
-        return Profile.builder()
-                .email(user.getUsername())
-                .fullName(company.getFullName())
-                .shortName(company.getShortName())
-                .inn(company.getInn())
-                .kpp(company.getKpp())
-                .actualAddress(company.getActualAddress())
-                .legalAddress(company.getLegalAddress())
-                .creditOrganisation(bankService.getByCompany(company) != null)
-                .build();
+        Profile profile = userMapper.entityToDto(user);
+        profile.setCreditOrganisation(bankService.getByCompany(user.getCompany()) != null);
+        return profile;
     }
 }

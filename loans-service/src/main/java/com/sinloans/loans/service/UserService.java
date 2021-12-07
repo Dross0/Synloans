@@ -3,7 +3,9 @@ package com.sinloans.loans.service;
 import com.sinloans.loans.model.entity.Bank;
 import com.sinloans.loans.model.entity.Company;
 import com.sinloans.loans.model.entity.User;
+import com.sinloans.loans.repositories.RoleRepository;
 import com.sinloans.loans.repositories.UserRepository;
+import com.sinloans.loans.security.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -14,7 +16,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Collection;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +28,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final CompanyService companyService;
     private final BankService bankService;
+    private final RoleRepository roleRepository;
 
     @Setter
     private BCryptPasswordEncoder passwordEncoder;
@@ -52,6 +57,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public User createUser(User user){
         if (user == null){
             log.error("User == null");
@@ -68,6 +74,7 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public User createCorpUser(String username, String password, Company companyInfo){
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(username, encodedPassword);
@@ -78,6 +85,11 @@ public class UserService implements UserDetailsService {
             return null;
         }
         user.setCompany(company);
+        user.setRoles(
+                Set.of(
+                        roleRepository.findByName(UserRole.ROLE_COMPANY)
+                )
+        );
         return createUser(user);
     }
 
@@ -89,6 +101,7 @@ public class UserService implements UserDetailsService {
         return false;
     }
 
+    @Transactional
     public User createBankUser(String email, String password, Company companyInfo) {
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(email, encodedPassword);
@@ -108,6 +121,12 @@ public class UserService implements UserDetailsService {
             return null;
         }
         user.setCompany(company);
+        user.setRoles(
+                Set.of(
+                        roleRepository.findByName(UserRole.ROLE_COMPANY),
+                        roleRepository.findByName(UserRole.ROLE_BANK)
+                )
+        );
         return createUser(user);
     }
 }

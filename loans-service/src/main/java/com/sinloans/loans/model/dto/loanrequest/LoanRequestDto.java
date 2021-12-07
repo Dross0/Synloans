@@ -1,5 +1,6 @@
-package com.sinloans.loans.model.dto;
+package com.sinloans.loans.model.dto.loanrequest;
 
+import com.sinloans.loans.model.dto.LoanSum;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

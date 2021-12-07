@@ -71,4 +71,8 @@ public class User implements UserDetails {
         return password;
     }
 
+    public boolean hasRole(String role){
+        return roles.stream().anyMatch(r -> r.getName().equals(role));
+    }
+
 }

@@ -27,4 +27,8 @@ public class Bank {
     @OneToMany(mappedBy = "bank")
     @JsonIgnore
     private Set<SyndicateParticipant> syndicates;
+
+    @OneToMany(mappedBy = "bankAgent")
+    @JsonIgnore
+    private Set<Loan> loansAsBankAgent;
 }
