@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    database: POSTGRESQL
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:postgresql://aa1ordpsxcd2yox.cr0lsxlh963g.us-east-2.rds.amazonaws.com:5432/ebdb
+    username: dross
+    password: drossDbPassword
+    driverClassName: org.postgresql.Driver
+jwt:
+  key: secretKey
+  expiration-time: 5000000
+
+server:
+  port : 5000
