@@ -1,17 +1,15 @@
 package com.synloans.loans.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class LoanSum {
-    private int value;
+    private long value;
 
     private SumUnit unit;
 
@@ -24,17 +22,17 @@ public class LoanSum {
         if (value < SumUnit.THOUSAND.getValue()){
             return null;
         } else if (value < SumUnit.MILLION.getValue()){
-            return new LoanSum((int) value / SumUnit.THOUSAND.getValue(), SumUnit.THOUSAND);
+            return new LoanSum(value / SumUnit.THOUSAND.getValue(), SumUnit.THOUSAND);
         } else if (value < SumUnit.BILLION.getValue()){
             if (value % SumUnit.MILLION.getValue() != 0){
-                return new LoanSum((int) value / SumUnit.THOUSAND.getValue(), SumUnit.THOUSAND);
+                return new LoanSum(value / SumUnit.THOUSAND.getValue(), SumUnit.THOUSAND);
             }
-            return new LoanSum((int) value / SumUnit.MILLION.getValue(), SumUnit.MILLION);
+            return new LoanSum(value / SumUnit.MILLION.getValue(), SumUnit.MILLION);
         } else {
             if (value % SumUnit.BILLION.getValue() != 0){
-                return new LoanSum((int) value / SumUnit.MILLION.getValue(), SumUnit.MILLION);
+                return new LoanSum(value / SumUnit.MILLION.getValue(), SumUnit.MILLION);
             }
-            return new LoanSum((int) value / SumUnit.BILLION.getValue(), SumUnit.BILLION);
+            return new LoanSum(value / SumUnit.BILLION.getValue(), SumUnit.BILLION);
         }
     }
 }
