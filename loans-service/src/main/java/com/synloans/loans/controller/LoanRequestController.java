@@ -24,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,7 @@ public class LoanRequestController {
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Collection<LoanRequestResponse> getCompanyRequests(Authentication authentication){
+    public List<LoanRequestResponse> getCompanyRequests(Authentication authentication){
         User user = getCurrentUser(authentication);
         return buildCollectionResponse(user.getCompany().getLoanRequests());
     }
@@ -60,18 +61,7 @@ public class LoanRequestController {
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public LoanRequestResponse getRequestById(@PathVariable("id") Long id, Authentication authentication){
-        User user = getCurrentUser(authentication);
-        Optional<LoanRequest> loanRequestOpt = loanRequestService.getById(id);
-        if (loanRequestOpt.isEmpty()){
-            log.error("Заявка на кредит с id={} не найдена", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Заявка на кредит с id=" + id + " не найдена");
-        }
-        LoanRequest loanRequest = loanRequestOpt.get();
-        if (!user.getCompany().getId().equals(loanRequest.getCompany().getId())){
-            log.error("Заявка не принадлежит текущему пользователю");
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Заявка на кредит с id=" + id + " не принадлежит пользователю=" + user.getUsername());
-        }
-        return buildResponse(loanRequest);
+        return buildResponse(getOwnedLoanRequestById(id, authentication));
     }
 
     @GetMapping(value = "/{id}/participants", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -93,16 +83,32 @@ public class LoanRequestController {
     @Secured(UserRole.ROLE_BANK)
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Collection<LoanRequestResponse> getAllRequests(){
+    public List<LoanRequestResponse> getAllRequests(){
         return buildCollectionResponse(loanRequestService.getAll());
     }
 
     @DeleteMapping(value = "/{id}")
-    public void deleteRequest(@PathVariable("id") Long id){
+    public void deleteRequest(@PathVariable("id") Long id,  Authentication authentication){
+        getOwnedLoanRequestById(id, authentication);
         loanRequestService.deleteById(id);
     }
 
-    private Collection<LoanRequestResponse> buildCollectionResponse(Collection<LoanRequest> loanRequests){
+    private LoanRequest getOwnedLoanRequestById(long id, Authentication authentication){
+        User user = getCurrentUser(authentication);
+        Optional<LoanRequest> loanRequestOpt = loanRequestService.getById(id);
+        if (loanRequestOpt.isEmpty()){
+            log.error("Заявка на кредит с id={} не найдена", id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Заявка на кредит с id=" + id + " не найдена");
+        }
+        LoanRequest loanRequest = loanRequestOpt.get();
+        if (!user.getCompany().getId().equals(loanRequest.getCompany().getId())){
+            log.error("Заявка не принадлежит текущему пользователю");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Заявка на кредит с id=" + id + " не принадлежит пользователю=" + user.getUsername());
+        }
+        return loanRequest;
+    }
+
+    private List<LoanRequestResponse> buildCollectionResponse(Collection<LoanRequest> loanRequests){
         return loanRequests.stream()
                 .map(this::buildResponse)
                 .collect(Collectors.toList());

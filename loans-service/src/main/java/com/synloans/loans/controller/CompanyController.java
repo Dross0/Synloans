@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -34,7 +34,7 @@ public class CompanyController {
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Collection<CompanyDto> getCompanies(){
+    public List<CompanyDto> getCompanies(){
         return companyService.getAll()
                 .stream()
                 .map(companyMapper::entityToDto)

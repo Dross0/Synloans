@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -36,7 +36,7 @@ public class BankController {
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Collection<CompanyDto> getAllBanks(){
+    public List<CompanyDto> getAllBanks(){
         return bankService.getAll().stream()
                 .map(bankMapper::bankToDto)
                 .collect(Collectors.toList());
