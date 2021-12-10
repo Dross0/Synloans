@@ -114,11 +114,10 @@ public class UserService implements UserDetailsService {
             }
         } else{
             company = companyService.create(companyInfo);
-            bank = bankService.createBank(company);
-        }
-        if (bank == null){
-            log.error("Не удалось найти/создать банк: {}", companyInfo.getFullName());
-            return null;
+            if (bankService.createBank(company) == null){
+                log.error("Не удалось найти/создать банк: {}", companyInfo.getFullName());
+                return null;
+            }
         }
         user.setCompany(company);
         user.setRoles(

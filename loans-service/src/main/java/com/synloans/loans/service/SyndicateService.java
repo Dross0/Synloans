@@ -28,7 +28,6 @@ public class SyndicateService {
         LoanRequest loanRequest = loanRequestService.getById(loanRequestId).orElseThrow(IllegalArgumentException::new);
         Syndicate syndicate = new Syndicate();
         syndicate.setRequest(loanRequest);
-        syndicateRepository.save(syndicate);
-        return syndicate;
+        return syndicateRepository.save(syndicate);
     }
 }
