@@ -2,8 +2,6 @@ package com.synloans.loans.controller;
 
 import com.synloans.loans.model.dto.SyndicateJoinRequest;
 import com.synloans.loans.model.entity.Bank;
-import com.synloans.loans.model.entity.Syndicate;
-import com.synloans.loans.model.entity.SyndicateParticipant;
 import com.synloans.loans.model.entity.User;
 import com.synloans.loans.security.UserRole;
 import com.synloans.loans.service.BankService;
@@ -32,19 +30,10 @@ public class SyndicateController {
     @PostMapping(value = "/join", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void joinTo(@RequestBody SyndicateJoinRequest joinRequest, Authentication authentication){
         Bank bank = getBankByUsername(authentication);
-        Syndicate syndicate = syndicateService.getByLoanRequestId(joinRequest.getRequestId(), true);
-        if (syndicate == null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не удалось получить/создать синдикат по заявке с id=" + joinRequest.getRequestId());
-        }
-        SyndicateParticipant participant = syndicateParticipantService.createNewParticipant(
-                syndicate,
-                bank,
-                joinRequest.getSum().getSum(),
-                joinRequest.isApproveBankAgent()
-        );
-        if (participant == null){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Не удалось зарегистировать участника синдиката");
-        }
+        syndicateService.joinBankToSyndicate(joinRequest, bank)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Не удалось зарегистировать участника синдиката")
+                );
     }
 
     @Secured(UserRole.ROLE_BANK)

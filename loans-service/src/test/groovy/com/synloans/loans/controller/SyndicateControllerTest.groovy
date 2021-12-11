@@ -4,7 +4,6 @@ import com.synloans.loans.model.dto.LoanSum
 import com.synloans.loans.model.dto.SyndicateJoinRequest
 import com.synloans.loans.model.entity.Bank
 import com.synloans.loans.model.entity.Company
-import com.synloans.loans.model.entity.Syndicate
 import com.synloans.loans.model.entity.SyndicateParticipant
 import com.synloans.loans.model.entity.User
 import com.synloans.loans.service.BankService
@@ -61,26 +60,6 @@ class SyndicateControllerTest extends Specification{
             e.status == HttpStatus.NOT_FOUND
     }
 
-    def "Тест. Ошибка получения/создания синдиката для заявки"(){
-        given:
-            def username = "dross"
-            def auth = Stub(Authentication)
-            auth.getName() >> username
-            def user = Stub(User){
-                company >> Stub(Company)
-            }
-            def joinRq = Stub(SyndicateJoinRequest){
-                requestId >> 20
-            }
-        when:
-            syndicateController.joinTo(joinRq, auth)
-        then:
-            1 * userService.getUserByUsername(username) >> user
-            1 * bankService.getByCompany(user.company) >> Stub(Bank)
-            1 * syndicateService.getByLoanRequestId(joinRq.requestId, true) >> null
-            def e = thrown(ResponseStatusException)
-            e.status == HttpStatus.NOT_FOUND
-    }
 
     def "Тест. Ошибка создания участника синдиката"(){
         given:
@@ -90,25 +69,14 @@ class SyndicateControllerTest extends Specification{
             def user = Stub(User){
                 company >> Stub(Company)
             }
-            def joinRq = Stub(SyndicateJoinRequest){
-                requestId >> 20
-                sum >> LoanSum.valueOf(100_000)
-                approveBankAgent >> true
-            }
-            def syndicate = Stub(Syndicate)
+            def joinRq = Stub(SyndicateJoinRequest)
             def bank = Stub(Bank)
         when:
             syndicateController.joinTo(joinRq, auth)
         then:
             1 * userService.getUserByUsername(username) >> user
             1 * bankService.getByCompany(user.company) >> bank
-            1 * syndicateService.getByLoanRequestId(joinRq.requestId, true) >> syndicate
-            1 * syndicateParticipantService.createNewParticipant(
-                    syndicate,
-                    bank,
-                    100_000,
-                    joinRq.approveBankAgent
-            ) >> null
+            1 * syndicateService.joinBankToSyndicate(joinRq, bank) >> Optional.empty()
             def e = thrown(ResponseStatusException)
             e.status == HttpStatus.INTERNAL_SERVER_ERROR
     }
@@ -126,20 +94,13 @@ class SyndicateControllerTest extends Specification{
                 sum >> LoanSum.valueOf(100_000)
                 approveBankAgent >> true
             }
-            def syndicate = Stub(Syndicate)
             def bank = Stub(Bank)
         when:
             syndicateController.joinTo(joinRq, auth)
         then:
             1 * userService.getUserByUsername(username) >> user
             1 * bankService.getByCompany(user.company) >> bank
-            1 * syndicateService.getByLoanRequestId(joinRq.requestId, true) >> syndicate
-            1 * syndicateParticipantService.createNewParticipant(
-                    syndicate,
-                    bank,
-                    100_000,
-                    joinRq.approveBankAgent
-            ) >> Stub(SyndicateParticipant)
+            1 * syndicateService.joinBankToSyndicate(joinRq, bank) >> Optional.of(Stub(SyndicateParticipant))
             noExceptionThrown()
     }
 

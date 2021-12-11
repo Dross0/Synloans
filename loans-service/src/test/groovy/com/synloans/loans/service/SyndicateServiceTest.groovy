@@ -1,8 +1,13 @@
 package com.synloans.loans.service
 
+import com.synloans.loans.model.dto.LoanSum
+import com.synloans.loans.model.dto.SyndicateJoinRequest
+import com.synloans.loans.model.entity.Bank
 import com.synloans.loans.model.entity.LoanRequest
 import com.synloans.loans.model.entity.Syndicate
+import com.synloans.loans.model.entity.SyndicateParticipant
 import com.synloans.loans.repositories.SyndicateRepository
+import com.synloans.loans.service.exception.LoanRequestNotFoundException
 import spock.lang.Specification
 
 
@@ -10,37 +15,15 @@ class SyndicateServiceTest extends Specification {
     private SyndicateService syndicateService
     private SyndicateRepository syndicateRepository
     private LoanRequestService loanRequestService
+    private SyndicateParticipantService syndicateParticipantService
 
     def setup(){
         syndicateRepository = Mock(SyndicateRepository)
         loanRequestService = Mock(LoanRequestService)
-        syndicateService = new SyndicateService(syndicateRepository, loanRequestService)
+        syndicateParticipantService = Mock(SyndicateParticipantService)
+        syndicateService = new SyndicateService(syndicateRepository, loanRequestService, syndicateParticipantService)
     }
 
-    def "Тест. Создание синдиката по id заявки"(){
-        given:
-            def loanRequestId = 101
-            def loanRequestOp = Optional.of(Stub(LoanRequest))
-        when:
-            def createdSyndicate = syndicateService.getByLoanRequestId(loanRequestId, true)
-        then:
-            1 * syndicateRepository.findByRequest_Id(loanRequestId) >> null
-            1 * loanRequestService.getById(loanRequestId) >> loanRequestOp
-            1 * syndicateRepository.save(_ as Syndicate) >> {Syndicate syndicate -> syndicate}
-            createdSyndicate.request == loanRequestOp.get()
-    }
-
-    def "Тест. Ошибка при создании синдиката по id заявки"(){
-        given:
-            def loanRequestId = 101
-        when:
-            def createdSyndicate = syndicateService.getByLoanRequestId(loanRequestId, true)
-        then:
-            1 * syndicateRepository.findByRequest_Id(loanRequestId) >> null
-            1 * loanRequestService.getById(loanRequestId) >> Optional.empty()
-            0 * syndicateRepository.save(_)
-            thrown(IllegalArgumentException)
-    }
 
     def "Тест. Получение синдиката по id заявки"(){
         when:
@@ -55,6 +38,76 @@ class SyndicateServiceTest extends Specification {
             loanRequestId || syndicate
             101           || null
             190           || Stub(Syndicate)
+    }
+
+    def "Тест. Вступление банка в существующий синдикат"(){
+        given:
+            def joinRq = Stub(SyndicateJoinRequest){
+                requestId >> 20
+                sum >> LoanSum.valueOf(100_000)
+                approveBankAgent >> true
+            }
+            def syndicate = Stub(Syndicate)
+            def bank = Stub(Bank)
+            def participant = Stub(SyndicateParticipant)
+        when:
+            def participantOp = syndicateService.joinBankToSyndicate(joinRq, bank)
+        then:
+            1 * syndicateRepository.findByRequest_Id(joinRq.requestId) >> syndicate
+            0 * syndicateRepository.save(_)
+            1 * syndicateParticipantService.createNewParticipant(
+                    syndicate,
+                    bank,
+                    100_000,
+                    joinRq.approveBankAgent
+            ) >> participant
+
+            participant == participantOp.orElse(null)
+            noExceptionThrown()
+    }
+
+    def "Тест. Вступление банка в новый синдикат"(){
+        given:
+            def joinRq = Stub(SyndicateJoinRequest){
+                requestId >> 20
+                sum >> LoanSum.valueOf(100_000)
+                approveBankAgent >> true
+            }
+            def bank = Stub(Bank)
+            def participant = Stub(SyndicateParticipant)
+        when:
+            def participantOp = syndicateService.joinBankToSyndicate(joinRq, bank)
+        then:
+            1 * syndicateRepository.findByRequest_Id(joinRq.requestId) >> null
+            1 * loanRequestService.getById(joinRq.requestId) >> Optional.of(Stub(LoanRequest))
+            1 * syndicateRepository.save(_ as Syndicate) >> {Syndicate s -> s}
+            1 * syndicateParticipantService.createNewParticipant(
+                    _ as Syndicate,
+                    bank,
+                    100_000,
+                    joinRq.approveBankAgent
+            ) >> participant
+
+            participant == participantOp.orElse(null)
+            noExceptionThrown()
+    }
+
+    def "Тест. Вступление банка в новый синдикат с несуществующей заявкой"(){
+        given:
+            def joinRq = Stub(SyndicateJoinRequest){
+                requestId >> 20
+                sum >> LoanSum.valueOf(100_000)
+                approveBankAgent >> true
+            }
+            def bank = Stub(Bank)
+        when:
+            syndicateService.joinBankToSyndicate(joinRq, bank)
+        then:
+            1 * syndicateRepository.findByRequest_Id(joinRq.requestId) >> null
+            1 * loanRequestService.getById(joinRq.requestId) >> Optional.empty()
+            0 * syndicateRepository.save(_ as Syndicate)
+            0 * syndicateParticipantService.createNewParticipant(_, _ , _, _)
+            thrown(LoanRequestNotFoundException)
     }
 
 }
