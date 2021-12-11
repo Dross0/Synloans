@@ -5,15 +5,18 @@ import com.synloans.loans.model.entity.LoanRequest
 import com.synloans.loans.model.entity.Syndicate
 import com.synloans.loans.model.entity.SyndicateParticipant
 import com.synloans.loans.repositories.SyndicateParticipantRepository
+import com.synloans.loans.service.exception.LoanRequestNotFoundException
 import spock.lang.Specification
 
 class SyndicateParticipantServiceTest extends Specification{
     private SyndicateParticipantService participantService
     private SyndicateParticipantRepository participantRepository
+    private LoanRequestService loanRequestService
 
     def setup(){
         participantRepository = Mock(SyndicateParticipantRepository)
-        participantService = new SyndicateParticipantService(participantRepository)
+        loanRequestService = Mock(LoanRequestService)
+        participantService = new SyndicateParticipantService(participantRepository, loanRequestService)
     }
 
     def "Тест. Создание участника синдиката"(){
@@ -51,6 +54,47 @@ class SyndicateParticipantServiceTest extends Specification{
 
 
 
+    }
+
+    def "Тест. Участники синдиката по id заявки"(){
+        given:
+            def loanRqId = 11
+            def participants = [Stub(SyndicateParticipant), Stub(SyndicateParticipant), Stub(SyndicateParticipant)] as Set
+            def loanRq = Stub(LoanRequest){
+                id >> loanRqId
+                syndicate >> Stub(Syndicate){
+                    it.participants >> participants
+                }
+            }
+        when:
+            def result = participantService.getSyndicateParticipantsByRequestId(loanRqId)
+        then:
+            1 * loanRequestService.getById(loanRqId) >> Optional.of(loanRq)
+            result == participants
+    }
+
+    def "Тест. Участники синдиката по id заявки когда нет синдиката"(){
+        given:
+            def loanRqId = 11
+            def loanRq = Stub(LoanRequest){
+                id >> loanRqId
+                syndicate >> null
+            }
+        when:
+            def result = participantService.getSyndicateParticipantsByRequestId(loanRqId)
+        then:
+            1 * loanRequestService.getById(loanRqId) >> Optional.of(loanRq)
+            result == []
+    }
+
+    def "Тест. Не найдена заявка по id при получении участников синдиката"(){
+        given:
+            def loanRqId = 11
+        when:
+            def result = participantService.getSyndicateParticipantsByRequestId(loanRqId)
+        then:
+            1 * loanRequestService.getById(loanRqId) >> Optional.empty()
+            thrown(LoanRequestNotFoundException)
     }
 
     SyndicateParticipant createParticipantStub(long loanRequestId){

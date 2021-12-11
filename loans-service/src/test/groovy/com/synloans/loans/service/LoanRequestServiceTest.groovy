@@ -8,6 +8,8 @@ import com.synloans.loans.model.entity.Company
 import com.synloans.loans.model.entity.Loan
 import com.synloans.loans.model.entity.LoanRequest
 import com.synloans.loans.repositories.LoanRequestRepository
+import com.synloans.loans.service.exception.ForbiddenResourceException
+import com.synloans.loans.service.exception.LoanRequestNotFoundException
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -104,5 +106,50 @@ class LoanRequestServiceTest extends Specification {
             LocalDate.of(2013, 1, 1)         || LoanRequestStatus.CLOSE
             LocalDate.now().plusMonths(1)    || LoanRequestStatus.ISSUE
         //TODO LoanRequestStatus.TRANSFER
+    }
+
+    def "Тест. Получение заявки компании по id"(){
+        given:
+            def loanRqId = 11
+            def company = Stub(Company){
+                id >> 1
+            }
+            def loanRq = Stub(LoanRequest){
+                it.company >> company
+            }
+        when:
+            def result = loanRequestService.getOwnedCompanyLoanRequestById(loanRqId, company)
+        then:
+            1 * loanRequestRepository.findById(loanRqId) >> Optional.of(loanRq)
+            result == loanRq
+    }
+
+    def  "Тест. Заявка не найдена при получении заявки компании по id"(){
+        given:
+            def loanRqId = 11
+            def company = Stub(Company)
+        when:
+            loanRequestService.getOwnedCompanyLoanRequestById(loanRqId, company)
+        then:
+            1 * loanRequestRepository.findById(loanRqId) >> Optional.empty()
+            thrown(LoanRequestNotFoundException)
+    }
+
+    def  "Тест. Найденная заявка по id не принадлежит компании"(){
+        given:
+            def loanRqId = 11
+            def company = Stub(Company){
+                id >> 1
+            }
+            def loanRq = Stub(LoanRequest){
+                it.company >> Stub(Company){
+                    it.id >> 123
+                }
+            }
+        when:
+            loanRequestService.getOwnedCompanyLoanRequestById(loanRqId, company)
+        then:
+            1 * loanRequestRepository.findById(loanRqId) >> Optional.of(loanRq)
+            thrown(ForbiddenResourceException)
     }
 }

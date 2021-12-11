@@ -6,7 +6,10 @@ import com.synloans.loans.model.entity.Company;
 import com.synloans.loans.model.entity.Loan;
 import com.synloans.loans.model.entity.LoanRequest;
 import com.synloans.loans.repositories.LoanRequestRepository;
+import com.synloans.loans.service.exception.ForbiddenResourceException;
+import com.synloans.loans.service.exception.LoanRequestNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,6 +18,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LoanRequestService {
     private final LoanRequestRepository loanRequestRepository;
 
@@ -42,6 +46,17 @@ public class LoanRequestService {
 
     public Optional<LoanRequest> getById(Long id){
         return loanRequestRepository.findById(id);
+    }
+
+    public LoanRequest getOwnedCompanyLoanRequestById(long id, Company company){
+        LoanRequest loanRequest = loanRequestRepository
+                .findById(id)
+                .orElseThrow(LoanRequestNotFoundException::new);
+        if (!company.getId().equals(loanRequest.getCompany().getId())){
+            log.error("Заявка не принадлежит компании");
+            throw new ForbiddenResourceException("Заявка с id=" + id + " не принадлежит компании=" + company.getShortName());
+        }
+        return loanRequest;
     }
 
     public LoanRequestStatus getStatus(LoanRequest loanRequest) {

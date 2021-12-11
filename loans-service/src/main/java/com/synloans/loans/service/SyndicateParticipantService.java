@@ -1,19 +1,24 @@
 package com.synloans.loans.service;
 
 import com.synloans.loans.model.entity.Bank;
+import com.synloans.loans.model.entity.LoanRequest;
 import com.synloans.loans.model.entity.Syndicate;
 import com.synloans.loans.model.entity.SyndicateParticipant;
 import com.synloans.loans.repositories.SyndicateParticipantRepository;
+import com.synloans.loans.service.exception.LoanRequestNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class SyndicateParticipantService {
     private final SyndicateParticipantRepository participantRepository;
+    private final LoanRequestService loanRequestService;
 
     @Transactional
     public SyndicateParticipant createNewParticipant(Syndicate syndicate, Bank bank, long loanSum, boolean approveBankAgent){
@@ -33,5 +38,18 @@ public class SyndicateParticipantService {
                 return;
             }
         }
+    }
+
+    public Collection<SyndicateParticipant> getSyndicateParticipantsByRequestId(long id){
+        LoanRequest loanRequest = loanRequestService
+                .getById(id)
+                .orElseThrow(
+                        () -> {throw new LoanRequestNotFoundException("Заявка с id = " + id + " не найдена");}
+                );
+        Syndicate syndicate = loanRequest.getSyndicate();
+        if (syndicate == null){
+            return Collections.emptyList();
+        }
+        return syndicate.getParticipants();
     }
 }

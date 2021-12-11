@@ -4,7 +4,6 @@ import com.synloans.loans.model.dto.loanrequest.LoanRequestDto;
 import com.synloans.loans.model.dto.loanrequest.LoanRequestInfo;
 import com.synloans.loans.model.dto.loanrequest.LoanRequestResponse;
 import com.synloans.loans.model.entity.LoanRequest;
-import com.synloans.loans.model.entity.Syndicate;
 import com.synloans.loans.model.entity.SyndicateParticipant;
 import com.synloans.loans.model.entity.User;
 import com.synloans.loans.model.mapper.CompanyMapper;
@@ -12,6 +11,7 @@ import com.synloans.loans.model.mapper.LoanRequestMapper;
 import com.synloans.loans.model.mapper.SyndicateParticipantMapper;
 import com.synloans.loans.security.UserRole;
 import com.synloans.loans.service.LoanRequestService;
+import com.synloans.loans.service.SyndicateParticipantService;
 import com.synloans.loans.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,7 +32,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/loan/requests")
 @Slf4j
 public class LoanRequestController {
-    private static final String LOAN_REQUEST_NOT_FOUND_ERROR_MESSAGE_FORMAT = "Заявка на кредит с id=%d не найдена";
 
     private final SyndicateParticipantMapper syndicateParticipantMapper = new SyndicateParticipantMapper();
     private final LoanRequestMapper loanRequestMapper = new LoanRequestMapper();
@@ -41,6 +39,7 @@ public class LoanRequestController {
 
     private final LoanRequestService loanRequestService;
     private final UserService userService;
+    private final SyndicateParticipantService syndicateParticipantService;
 
 
     @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -69,17 +68,7 @@ public class LoanRequestController {
     @GetMapping(value = "/{id}/participants", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Collection<SyndicateParticipant> getSyndicateParticipantsForRequest(@PathVariable("id") Long id){
-        Optional<LoanRequest> loanRequest = loanRequestService.getById(id);
-        if (loanRequest.isEmpty()){
-            log.error("Заявка на кредит с id={} не найдена", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format(LOAN_REQUEST_NOT_FOUND_ERROR_MESSAGE_FORMAT, id));
-        }
-        Syndicate syndicate = loanRequest.get().getSyndicate();
-        if (syndicate == null){
-            log.error("Синдикат на заявку с id={} не найден", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Синдикат на заявку с id=" + id + " не найден");
-        }
-        return syndicate.getParticipants();
+        return syndicateParticipantService.getSyndicateParticipantsByRequestId(id);
     }
 
     @Secured(UserRole.ROLE_BANK)
@@ -97,17 +86,7 @@ public class LoanRequestController {
 
     private LoanRequest getOwnedLoanRequestById(long id, Authentication authentication){
         User user = getCurrentUser(authentication);
-        Optional<LoanRequest> loanRequestOpt = loanRequestService.getById(id);
-        if (loanRequestOpt.isEmpty()){
-            log.error("Заявка на кредит с id={} не найдена", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format(LOAN_REQUEST_NOT_FOUND_ERROR_MESSAGE_FORMAT, id));
-        }
-        LoanRequest loanRequest = loanRequestOpt.get();
-        if (!user.getCompany().getId().equals(loanRequest.getCompany().getId())){
-            log.error("Заявка не принадлежит текущему пользователю");
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Заявка на кредит с id=" + id + " не принадлежит пользователю=" + user.getUsername());
-        }
-        return loanRequest;
+        return loanRequestService.getOwnedCompanyLoanRequestById(id, user.getCompany());
     }
 
     private List<LoanRequestResponse> buildCollectionResponse(Collection<LoanRequest> loanRequests){

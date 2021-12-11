@@ -3,13 +3,9 @@ package com.synloans.loans.controller
 import com.synloans.loans.model.dto.LoanSum
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto
 import com.synloans.loans.model.dto.loanrequest.LoanRequestStatus
-import com.synloans.loans.model.entity.Company
-import com.synloans.loans.model.entity.Loan
-import com.synloans.loans.model.entity.LoanRequest
-import com.synloans.loans.model.entity.Syndicate
-import com.synloans.loans.model.entity.SyndicateParticipant
-import com.synloans.loans.model.entity.User
+import com.synloans.loans.model.entity.*
 import com.synloans.loans.service.LoanRequestService
+import com.synloans.loans.service.SyndicateParticipantService
 import com.synloans.loans.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
@@ -21,12 +17,14 @@ import java.time.LocalDate
 class LoanRequestControllerTest extends Specification{
     private LoanRequestController loanRequestController
     private LoanRequestService loanRequestService
+    private SyndicateParticipantService syndicateParticipantService
     private UserService userService
 
     def setup(){
         loanRequestService = Mock(LoanRequestService)
         userService = Mock(UserService)
-        loanRequestController = new LoanRequestController(loanRequestService, userService)
+        syndicateParticipantService = Mock(SyndicateParticipantService)
+        loanRequestController = new LoanRequestController(loanRequestService, userService, syndicateParticipantService)
     }
 
     def "Тест. Ошибка в получении текущего пользователя"(){
@@ -58,85 +56,15 @@ class LoanRequestControllerTest extends Specification{
             1 * loanRequestService.createRequest(loanRqDto, curUser.company)
     }
 
-    def "Тест. Не найдена заявка при получении участников синдиката под заявкой"(){
-        given:
-            def loanRqId = 11
-        when:
-            loanRequestController.getSyndicateParticipantsForRequest(loanRqId)
-        then:
-            1 * loanRequestService.getById(loanRqId) >> Optional.empty()
-            def e = thrown(ResponseStatusException)
-            e.status == HttpStatus.NOT_FOUND
-    }
-
-    def "Тест. Не найден синдикат под заявкой при получении участников синдиката под заявкой"(){
-        given:
-            def loanRqId = 11
-            def loanRq = Stub(LoanRequest){
-                syndicate >> null
-            }
-        when:
-            loanRequestController.getSyndicateParticipantsForRequest(loanRqId)
-        then:
-            1 * loanRequestService.getById(loanRqId) >> Optional.of(loanRq)
-            def e = thrown(ResponseStatusException)
-            e.status == HttpStatus.NOT_FOUND
-    }
-
     def "Тест. Получение участников синдиката под заявкой"(){
         given:
             def loanRqId = 11
-            def syndicate = Stub(Syndicate){
-                participants >> [Stub(SyndicateParticipant), Stub(SyndicateParticipant)]
-            }
-            def loanRq = Stub(LoanRequest){
-                it.syndicate >> syndicate
-            }
+            def participants = [Stub(SyndicateParticipant), Stub(SyndicateParticipant), Stub(SyndicateParticipant)]
         when:
-            def participants = loanRequestController.getSyndicateParticipantsForRequest(loanRqId)
+            def result = loanRequestController.getSyndicateParticipantsForRequest(loanRqId)
         then:
-            1 * loanRequestService.getById(loanRqId) >> Optional.of(loanRq)
-            participants == syndicate.participants
-    }
-
-    def  "Тест. Заявка не найдена при получении заявки по id"(){
-        given:
-            def loanRqId = 11
-            def username = "dross"
-            def auth = Stub(Authentication)
-            auth.getName() >> username
-        when:
-            loanRequestController.getRequestById(loanRqId, auth)
-        then:
-            1 * userService.getUserByUsername(username) >> Stub(User)
-            1 * loanRequestService.getById(loanRqId) >> Optional.empty()
-            def e = thrown(ResponseStatusException)
-            e.status == HttpStatus.NOT_FOUND
-    }
-
-    def  "Тест. Найденная заявка по id не принадлежит текущему пользователю"(){
-        given:
-            def loanRqId = 11
-            def username = "dross"
-            def auth = Stub(Authentication)
-            auth.getName() >> username
-            def loanRq = Stub(LoanRequest){
-                company >> Stub(Company){
-                    id >> 10
-                }
-            }
-            def user = Stub(User){
-                company >> Stub(Company){
-                    id >> 44
-                }
-            }
-        when:
-            loanRequestController.getRequestById(loanRqId, auth)
-        then:
-            1 * userService.getUserByUsername(username) >> user
-            1 * loanRequestService.getById(loanRqId) >> Optional.of(loanRq)
-            def e = thrown(ResponseStatusException)
-            e.status == HttpStatus.FORBIDDEN
+            1 * syndicateParticipantService.getSyndicateParticipantsByRequestId(loanRqId) >> participants
+            result == participants
     }
 
     def  "Тест. Получение заявки по id"(){
@@ -170,7 +98,7 @@ class LoanRequestControllerTest extends Specification{
             def response = loanRequestController.getRequestById(loanRqId, auth)
         then:
             1 * userService.getUserByUsername(username) >> user
-            1 * loanRequestService.getById(loanRqId) >> Optional.of(loanRq)
+            1 * loanRequestService.getOwnedCompanyLoanRequestById(loanRqId, user.company) >> loanRq
             1 * loanRequestService.getStatus(loanRq) >> LoanRequestStatus.OPEN
             with(response){
                 with(borrower){
@@ -388,7 +316,7 @@ class LoanRequestControllerTest extends Specification{
             loanRequestController.deleteRequest(loanRqId, auth)
         then:
             1 * userService.getUserByUsername(username) >> user
-            1 * loanRequestService.getById(loanRqId) >> Optional.of(loanRq)
+            1 * loanRequestService.getOwnedCompanyLoanRequestById(loanRqId, user.company) >> loanRq
             1 * loanRequestService.deleteById(loanRqId)
     }
 }
