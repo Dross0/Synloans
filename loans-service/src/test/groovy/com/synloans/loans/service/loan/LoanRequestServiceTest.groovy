@@ -7,10 +7,9 @@ import com.synloans.loans.model.dto.loanrequest.LoanRequestStatus
 import com.synloans.loans.model.entity.Company
 import com.synloans.loans.model.entity.Loan
 import com.synloans.loans.model.entity.LoanRequest
-import com.synloans.loans.repositories.LoanRequestRepository
+import com.synloans.loans.repository.loan.LoanRequestRepository
 import com.synloans.loans.service.exception.ForbiddenResourceException
 import com.synloans.loans.service.exception.LoanRequestNotFoundException
-import com.synloans.loans.service.loan.LoanRequestService
 import spock.lang.Specification
 
 import java.time.LocalDate

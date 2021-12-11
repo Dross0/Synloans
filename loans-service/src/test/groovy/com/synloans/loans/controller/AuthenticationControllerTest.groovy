@@ -3,20 +3,20 @@ package com.synloans.loans.controller
 import com.synloans.loans.model.authentication.AuthenticationRequest
 import com.synloans.loans.model.authentication.RegistrationRequest
 import com.synloans.loans.model.entity.Company
-import com.synloans.loans.service.user.UserService
 import com.synloans.loans.service.exception.CreateUserException
+import com.synloans.loans.service.user.AuthenticationService
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.server.ResponseStatusException
 import spock.lang.Specification
 
-class UserControllerTest extends Specification {
-    private UserController userController
-    private UserService userService
+class AuthenticationControllerTest extends Specification {
+    private AuthenticationController authenticationController
+    private AuthenticationService authenticationService
 
     def setup(){
-        userService = Mock(UserService)
-        userController = new UserController(userService)
+        authenticationService = Mock(AuthenticationService)
+        authenticationController = new AuthenticationController(authenticationService)
     }
 
     def "Тест. Неуспешный логин пользователя"(){
@@ -28,9 +28,9 @@ class UserControllerTest extends Specification {
                 it.password >> password
             }
         when:
-            def authResponse = userController.login(authReq)
+            def authResponse = authenticationController.login(authReq)
         then:
-            1 * userService.login(email, password) >> {throw new BadCredentialsException("")}
+            1 * authenticationService.login(email, password) >> {throw new BadCredentialsException("")}
             def e = thrown(ResponseStatusException)
             e.status == HttpStatus.UNAUTHORIZED
     }
@@ -45,9 +45,9 @@ class UserControllerTest extends Specification {
             }
             def generatedToken = "tokenValue"
         when:
-            def authResponse = userController.login(authReq)
+            def authResponse = authenticationController.login(authReq)
         then:
-            1 * userService.login(email, password) >> generatedToken
+            1 * authenticationService.login(email, password) >> generatedToken
             authResponse.token == generatedToken
     }
 
@@ -67,9 +67,9 @@ class UserControllerTest extends Specification {
                 it.creditOrganisation >> true
             }
         when:
-            userController.registration(regReq)
+            authenticationController.registration(regReq)
         then:
-            1 * userService.createUser(email, password, _ as Company, regReq.creditOrganisation)
+            1 * authenticationService.register(email, password, _ as Company, regReq.creditOrganisation)
             noExceptionThrown()
     }
 
@@ -89,9 +89,9 @@ class UserControllerTest extends Specification {
                 it.creditOrganisation >> true
             }
         when:
-            userController.registration(regReq)
+            authenticationController.registration(regReq)
         then:
-            1 * userService.createUser(email, password, _ as Company, regReq.creditOrganisation) >> {throw new CreateUserException()}
+            1 * authenticationService.register(email, password, _ as Company, regReq.creditOrganisation) >> {throw new CreateUserException()}
             thrown(CreateUserException)
     }
 }

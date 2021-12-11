@@ -1,4 +1,4 @@
-package com.synloans.loans.repositories;
+package com.synloans.loans.repository.syndicate;
 
 import com.synloans.loans.model.entity.Syndicate;
 import org.springframework.data.jpa.repository.JpaRepository;

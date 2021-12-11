@@ -1,7 +1,7 @@
 package com.synloans.loans.service.document;
 
 import com.synloans.loans.model.entity.Document;
-import com.synloans.loans.repositories.DocumentRepository;
+import com.synloans.loans.repository.document.DocumentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

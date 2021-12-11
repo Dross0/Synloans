@@ -1,7 +1,7 @@
 package com.synloans.loans.security;
 
 import com.synloans.loans.model.entity.Role;
-import com.synloans.loans.repositories.RoleRepository;
+import com.synloans.loans.repository.user.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;

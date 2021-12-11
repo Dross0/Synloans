@@ -1,7 +1,7 @@
 package com.synloans.loans.service.company;
 
 import com.synloans.loans.model.entity.Company;
-import com.synloans.loans.repositories.CompanyRepository;
+import com.synloans.loans.repository.company.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.synloans.loans.repositories;
+package com.synloans.loans.repository.company;
 
 import com.synloans.loans.model.entity.Bank;
 import com.synloans.loans.model.entity.Company;

@@ -3,7 +3,7 @@ package com.synloans.loans.service.company;
 import com.synloans.loans.model.entity.Bank;
 import com.synloans.loans.model.entity.Company;
 import com.synloans.loans.model.entity.Document;
-import com.synloans.loans.repositories.BankRepository;
+import com.synloans.loans.repository.company.BankRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

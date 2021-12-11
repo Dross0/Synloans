@@ -1,8 +1,7 @@
 package com.synloans.loans.service.company
 
 import com.synloans.loans.model.entity.Company
-import com.synloans.loans.repositories.CompanyRepository
-import com.synloans.loans.service.company.CompanyService
+import com.synloans.loans.repository.company.CompanyRepository
 import spock.lang.Specification
 
 class CompanyServiceTest extends Specification{

@@ -3,8 +3,7 @@ package com.synloans.loans.service.company
 import com.synloans.loans.model.entity.Bank
 import com.synloans.loans.model.entity.Company
 import com.synloans.loans.model.entity.Document
-import com.synloans.loans.repositories.BankRepository
-import com.synloans.loans.service.company.BankService
+import com.synloans.loans.repository.company.BankRepository
 import spock.lang.Specification
 
 class BankServiceTest extends Specification{

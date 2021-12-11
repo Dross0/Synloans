@@ -1,8 +1,7 @@
 package com.synloans.loans.service.document
 
 import com.synloans.loans.model.entity.Document
-import com.synloans.loans.repositories.DocumentRepository
-import com.synloans.loans.service.document.DocumentService
+import com.synloans.loans.repository.document.DocumentRepository
 import spock.lang.Specification
 
 class DocumentServiceTest extends Specification{

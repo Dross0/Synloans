@@ -4,7 +4,7 @@ import com.synloans.loans.model.authentication.AuthenticationRequest;
 import com.synloans.loans.model.authentication.AuthenticationResponse;
 import com.synloans.loans.model.authentication.RegistrationRequest;
 import com.synloans.loans.model.entity.Company;
-import com.synloans.loans.service.user.UserService;
+import com.synloans.loans.service.user.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,17 +17,17 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/")
 @RequiredArgsConstructor
 @Slf4j
-public class UserController {
-    private final UserService userService;
+public class AuthenticationController {
+    private final AuthenticationService authenticationService;
 
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public AuthenticationResponse login(@RequestBody AuthenticationRequest authenticationRequest){
         try{
-            String jwt = userService.login(authenticationRequest.getEmail(), authenticationRequest.getPassword());
+            String jwt = authenticationService.login(authenticationRequest.getEmail(), authenticationRequest.getPassword());
             return new AuthenticationResponse(jwt);
         } catch (BadCredentialsException e){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Неверный логин или пароль");
@@ -43,7 +43,7 @@ public class UserController {
         company.setShortName(registrationRequest.getShortName());
         company.setActualAddress(registrationRequest.getActualAddress());
         company.setLegalAddress(registrationRequest.getLegalAddress());
-        userService.createUser(
+        authenticationService.register(
                 registrationRequest.getEmail(),
                 registrationRequest.getPassword(),
                 company,
