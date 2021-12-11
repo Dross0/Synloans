@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/loan/requests")
 @Slf4j
 public class LoanRequestController {
+    private static final String LOAN_REQUEST_NOT_FOUND_ERROR_MESSAGE_FORMAT = "Заявка на кредит с id=%d не найдена";
+
     private final SyndicateParticipantMapper syndicateParticipantMapper = new SyndicateParticipantMapper();
     private final LoanRequestMapper loanRequestMapper = new LoanRequestMapper();
     private final CompanyMapper companyMapper = new CompanyMapper();
@@ -70,7 +72,7 @@ public class LoanRequestController {
         Optional<LoanRequest> loanRequest = loanRequestService.getById(id);
         if (loanRequest.isEmpty()){
             log.error("Заявка на кредит с id={} не найдена", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Заявка на кредит с id=" + id + " не найдена");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format(LOAN_REQUEST_NOT_FOUND_ERROR_MESSAGE_FORMAT, id));
         }
         Syndicate syndicate = loanRequest.get().getSyndicate();
         if (syndicate == null){
@@ -98,7 +100,7 @@ public class LoanRequestController {
         Optional<LoanRequest> loanRequestOpt = loanRequestService.getById(id);
         if (loanRequestOpt.isEmpty()){
             log.error("Заявка на кредит с id={} не найдена", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Заявка на кредит с id=" + id + " не найдена");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format(LOAN_REQUEST_NOT_FOUND_ERROR_MESSAGE_FORMAT, id));
         }
         LoanRequest loanRequest = loanRequestOpt.get();
         if (!user.getCompany().getId().equals(loanRequest.getCompany().getId())){
