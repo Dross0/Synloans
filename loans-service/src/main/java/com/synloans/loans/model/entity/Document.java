@@ -1,5 +1,6 @@
 package com.synloans.loans.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,5 +31,9 @@ public class Document {
     @Lob
     @Column(name = "body")
     private byte[] body;
+
+    @OneToOne(mappedBy = "document")
+    @JsonIgnore
+    private Contract contract;
 
 }

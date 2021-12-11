@@ -33,8 +33,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             // -- LOGIN / REG
-            "/users/login",
-            "/users/registration"
+            "/login",
+            "/registration"
     };
 
     private final UserService userService;
