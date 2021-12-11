@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -38,6 +40,7 @@ public class CompanyService {
         return companyRepository.save(company);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public Company save(Company company){
         return companyRepository.save(company);
     }

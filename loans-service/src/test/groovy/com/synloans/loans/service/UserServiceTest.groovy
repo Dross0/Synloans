@@ -7,6 +7,11 @@ import com.synloans.loans.model.entity.User
 import com.synloans.loans.repositories.RoleRepository
 import com.synloans.loans.repositories.UserRepository
 import com.synloans.loans.security.UserRole
+import com.synloans.loans.security.util.JwtService
+import com.synloans.loans.service.exception.CreateUserException
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import spock.lang.Specification
@@ -17,6 +22,8 @@ class UserServiceTest extends Specification{
     private CompanyService companyService
     private BankService bankService
     private RoleRepository roleRepository
+    private AuthenticationManager authenticationManager
+    private JwtService jwtService
     private BCryptPasswordEncoder passwordEncoder
 
     def setup(){
@@ -25,7 +32,16 @@ class UserServiceTest extends Specification{
         bankService = Mock(BankService)
         roleRepository = Mock(RoleRepository)
         passwordEncoder = Mock(BCryptPasswordEncoder)
-        userService = new UserService(userRepository, companyService, bankService, roleRepository)
+        authenticationManager = Mock(AuthenticationManager)
+        jwtService = Mock(JwtService)
+        userService = new UserService(
+                userRepository,
+                companyService,
+                bankService,
+                roleRepository,
+                authenticationManager,
+                jwtService
+        )
         userService.setPasswordEncoder(passwordEncoder)
     }
 
@@ -85,49 +101,40 @@ class UserServiceTest extends Specification{
             allUsers == users
     }
 
+
     def "Тест. Сохранение пользователя"(){
         given:
             def user = Stub(User)
+            def username = "dross"
+            user.username >> username
         when:
             def savedUser = userService.saveUser(user)
         then:
+            1 * userRepository.findUserByUsername(username) >> null
             1 * userRepository.save(_ as User) >> {User u -> u}
             savedUser == user
     }
 
-    def "Тест. Создание пользователя"(){
+    def "Тест. Сохранение пользователя с существующим usename"(){
         given:
             def user = Stub(User)
             def username = "dross"
             user.username >> username
         when:
-            def createdUser = userService.createUser(user)
-        then:
-            1 * userRepository.findUserByUsername(username) >> null
-            1 * userRepository.save(_ as User) >> {User u -> u}
-            createdUser == user
-    }
-
-    def "Тест. Создание пользователя с существующим usename"(){
-        given:
-            def user = Stub(User)
-            def username = "dross"
-            user.username >> username
-        when:
-            def createdUser = userService.createUser(user)
+            userService.saveUser(user)
         then:
             1 * userRepository.findUserByUsername(username) >> Stub(User)
             0 * userRepository.save(_)
-            createdUser == null
+            thrown(CreateUserException)
     }
 
-    def "Тест. Создание пользователя c user == null"(){
+    def "Тест. Сохранение пользователя c user == null"(){
         when:
-            def createdUser = userService.createUser(null)
+            userService.saveUser(null)
         then:
             0 * userRepository.findUserByUsername(_)
             0 * userRepository.save(_)
-            createdUser == null
+            thrown(CreateUserException)
     }
 
     def "Тест. Удаление пользователя по id"(){
@@ -161,7 +168,7 @@ class UserServiceTest extends Specification{
             passwordEncoder.encode(password) >> encodedPassword
             def companyRole = Stub(Role)
         when:
-            def user = userService.createCorpUser(username, password, companyInfo)
+            def user = userService.createUser(username, password, companyInfo, false)
         then:
             1 * companyService.getByInnAndKpp(inn, kpp) >> companyByInnAndKppOp
             if (companyByInnAndKppOp.isEmpty()){
@@ -190,14 +197,13 @@ class UserServiceTest extends Specification{
                 it.kpp >> kpp
 
             }
-
         when:
-            def user = userService.createCorpUser(username, password, companyInfo)
+            userService.createUser(username, password, companyInfo, false)
         then:
             1 * companyService.getByInnAndKpp(inn, kpp) >> Optional.empty()
             1 * companyService.create(companyInfo) >> null
             0 * userRepository.save(_)
-            user == null
+            thrown(CreateUserException)
     }
 
 
@@ -243,11 +249,11 @@ class UserServiceTest extends Specification{
             }
             def company = Stub(Company)
         when:
-            userService.createBankUser(username, password, companyInfo)
+            userService.createUser(username, password, companyInfo, true)
         then:
             1 * companyService.getByInnAndKpp(inn, kpp) >> Optional.of(company)
             1 * bankService.getByCompany(company) >> null
-            thrown(IllegalArgumentException)
+            thrown(CreateUserException)
     }
 
     def "Тест. Ошибка при создании банка для нового пользователя"(){
@@ -262,12 +268,12 @@ class UserServiceTest extends Specification{
             }
             def company = Stub(Company)
         when:
-            def user = userService.createBankUser(username, password, companyInfo)
+            userService.createUser(username, password, companyInfo, true)
         then:
             1 * companyService.getByInnAndKpp(inn, kpp) >> Optional.empty()
             1 * companyService.create(companyInfo) >> company
             1 * bankService.createBank(company) >> null
-            user == null
+            thrown(CreateUserException)
     }
 
     def "Тест. Создание пользователя как новый банк"(){
@@ -287,7 +293,7 @@ class UserServiceTest extends Specification{
 
             def company = Stub(Company)
         when:
-            def user = userService.createBankUser(username, password, companyInfo)
+            def user = userService.createUser(username, password, companyInfo, true)
         then:
             1 * companyService.getByInnAndKpp(inn, kpp) >> Optional.empty()
             1 * companyService.create(companyInfo) >> company
@@ -299,5 +305,31 @@ class UserServiceTest extends Specification{
             user.company == company
             user.password == encodedPassword
             user.roles == [companyRole, bankRole] as Set
+    }
+
+    def "Тест. Неуспешный логин пользователя"(){
+        given:
+            def email = "email@abc.ru"
+            def password = "qwerty"
+        when:
+            def jwt = userService.login(email, password)
+        then:
+            1 * authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password)) >> {throw new BadCredentialsException("")}
+            thrown(BadCredentialsException)
+    }
+
+    def "Тест. Успешный логин пользователя"(){
+        given:
+            def email = "email@abc.ru"
+            def password = "qwerty"
+            def generatedToken = "tokenValue"
+            def user = Stub(User)
+        when:
+            def jwt = userService.login(email, password)
+        then:
+            1 * authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password))
+            1 * userRepository.findUserByUsername(email ) >> user
+            1 * jwtService.generateToken(user) >> generatedToken
+            jwt == generatedToken
     }
 }

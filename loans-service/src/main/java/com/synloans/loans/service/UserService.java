@@ -6,10 +6,14 @@ import com.synloans.loans.model.entity.User;
 import com.synloans.loans.repositories.RoleRepository;
 import com.synloans.loans.repositories.UserRepository;
 import com.synloans.loans.security.UserRole;
+import com.synloans.loans.security.util.JwtService;
+import com.synloans.loans.service.exception.CreateUserException;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,6 +33,8 @@ public class UserService implements UserDetailsService {
     private final CompanyService companyService;
     private final BankService bankService;
     private final RoleRepository roleRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Setter
     private BCryptPasswordEncoder passwordEncoder;
@@ -42,6 +48,14 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("Пользователь с username=" + username + " не найден");
         }
         return user;
+    }
+
+    public String login(String username, String password){
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password)
+        );
+        UserDetails user = loadUserByUsername(username);
+        return jwtService.generateToken(user);
     }
 
     public User getUserByUsername(String username){
@@ -58,21 +72,27 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public User createUser(User user){
+    public User createUser(String username, String password, Company companyInfo, boolean isCreditOrganisation){
+        if (isCreditOrganisation){
+            return createBankUser(username, password, companyInfo);
+        } else {
+            return createCorpUser(username, password, companyInfo);
+        }
+    }
+
+    @Transactional
+    public User saveUser(User user){
         if (user == null){
             log.error("User == null");
-            return null;
+            throw new CreateUserException("Пользователь не задан");
         }
         if (userRepository.findUserByUsername(user.getUsername()) != null){
             log.error("Пользователь с username={} уже существует", user.getUsername());
-            return null;
+            throw new CreateUserException("Пользователь с username=" + user.getUsername() + " уже существует");
         }
         return userRepository.save(user);
     }
 
-    public User saveUser(User user){
-        return userRepository.save(user);
-    }
 
     @Transactional
     public User createCorpUser(String username, String password, Company companyInfo){
@@ -82,7 +102,8 @@ public class UserService implements UserDetailsService {
                 .orElseGet(() -> companyService.create(companyInfo));
         if (company == null){
             log.error("Не удалось найти/создать компанию с инн={} и кпп={}", companyInfo.getInn(), companyInfo.getKpp());
-            return null;
+            throw new CreateUserException("Не удалось найти/создать компанию с инн="
+                    + companyInfo.getInn() + " и кпп=" + companyInfo.getKpp());
         }
         user.setCompany(company);
         user.setRoles(
@@ -90,9 +111,10 @@ public class UserService implements UserDetailsService {
                         roleRepository.findByName(UserRole.ROLE_COMPANY)
                 )
         );
-        return createUser(user);
+        return saveUser(user);
     }
 
+    @Transactional
     public boolean deleteById(Long id){
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
@@ -110,13 +132,13 @@ public class UserService implements UserDetailsService {
         if (company != null){
             bank = bankService.getByCompany(company);
             if (bank == null){
-                throw new IllegalArgumentException("Пользователь пытается зарегистрироваться по реквизитам компании, которая не является банком");
+                throw new CreateUserException("Пользователь пытается зарегистрироваться по реквизитам компании, которая не является банком");
             }
         } else{
             company = companyService.create(companyInfo);
             if (bankService.createBank(company) == null){
                 log.error("Не удалось найти/создать банк: {}", companyInfo.getFullName());
-                return null;
+                throw new CreateUserException("Ну удалось найти или создать банк = " + companyInfo.getFullName());
             }
         }
         user.setCompany(company);
@@ -126,6 +148,6 @@ public class UserService implements UserDetailsService {
                         roleRepository.findByName(UserRole.ROLE_BANK)
                 )
         );
-        return createUser(user);
+        return saveUser(user);
     }
 }
