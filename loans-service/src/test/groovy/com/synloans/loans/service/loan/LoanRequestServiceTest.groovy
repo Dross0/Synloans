@@ -1,4 +1,4 @@
-package com.synloans.loans.service
+package com.synloans.loans.service.loan
 
 import com.synloans.loans.model.dto.LoanSum
 import com.synloans.loans.model.dto.SumUnit
@@ -10,6 +10,7 @@ import com.synloans.loans.model.entity.LoanRequest
 import com.synloans.loans.repositories.LoanRequestRepository
 import com.synloans.loans.service.exception.ForbiddenResourceException
 import com.synloans.loans.service.exception.LoanRequestNotFoundException
+import com.synloans.loans.service.loan.LoanRequestService
 import spock.lang.Specification
 
 import java.time.LocalDate

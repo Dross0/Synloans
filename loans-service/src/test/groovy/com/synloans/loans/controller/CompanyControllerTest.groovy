@@ -1,7 +1,7 @@
 package com.synloans.loans.controller
 
 import com.synloans.loans.model.entity.Company
-import com.synloans.loans.service.CompanyService
+import com.synloans.loans.service.company.CompanyService
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import spock.lang.Specification

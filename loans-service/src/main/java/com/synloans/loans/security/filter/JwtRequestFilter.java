@@ -1,7 +1,7 @@
 package com.synloans.loans.security.filter;
 
 import com.synloans.loans.security.util.JwtService;
-import com.synloans.loans.service.UserService;
+import com.synloans.loans.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

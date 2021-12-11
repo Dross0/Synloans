@@ -1,9 +1,11 @@
-package com.synloans.loans.service;
+package com.synloans.loans.service.user;
 
 import com.synloans.loans.model.dto.Profile;
 import com.synloans.loans.model.entity.Company;
 import com.synloans.loans.model.entity.User;
 import com.synloans.loans.model.mapper.UserMapper;
+import com.synloans.loans.service.company.BankService;
+import com.synloans.loans.service.company.CompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

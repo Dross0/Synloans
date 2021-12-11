@@ -1,4 +1,4 @@
-package com.synloans.loans.service;
+package com.synloans.loans.service.user;
 
 import com.synloans.loans.model.entity.Bank;
 import com.synloans.loans.model.entity.Company;
@@ -7,6 +7,8 @@ import com.synloans.loans.repositories.RoleRepository;
 import com.synloans.loans.repositories.UserRepository;
 import com.synloans.loans.security.UserRole;
 import com.synloans.loans.security.util.JwtService;
+import com.synloans.loans.service.company.BankService;
+import com.synloans.loans.service.company.CompanyService;
 import com.synloans.loans.service.exception.CreateUserException;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

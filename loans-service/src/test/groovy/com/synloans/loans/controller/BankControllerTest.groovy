@@ -2,7 +2,7 @@ package com.synloans.loans.controller
 
 import com.synloans.loans.model.entity.Bank
 import com.synloans.loans.model.entity.Company
-import com.synloans.loans.service.BankService
+import com.synloans.loans.service.company.BankService
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import spock.lang.Specification

@@ -3,7 +3,7 @@ package com.synloans.loans.controller;
 import com.synloans.loans.model.dto.CompanyDto;
 import com.synloans.loans.model.entity.Bank;
 import com.synloans.loans.model.mapper.BankMapper;
-import com.synloans.loans.service.BankService;
+import com.synloans.loans.service.company.BankService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

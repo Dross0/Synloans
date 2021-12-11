@@ -1,4 +1,4 @@
-package com.synloans.loans.service
+package com.synloans.loans.service.syndicate
 
 import com.synloans.loans.model.dto.LoanSum
 import com.synloans.loans.model.dto.SyndicateJoinRequest
@@ -7,6 +7,7 @@ import com.synloans.loans.model.entity.LoanRequest
 import com.synloans.loans.model.entity.Syndicate
 import com.synloans.loans.model.entity.SyndicateParticipant
 import com.synloans.loans.repositories.SyndicateRepository
+import com.synloans.loans.service.loan.LoanRequestService
 import com.synloans.loans.service.exception.LoanRequestNotFoundException
 import spock.lang.Specification
 

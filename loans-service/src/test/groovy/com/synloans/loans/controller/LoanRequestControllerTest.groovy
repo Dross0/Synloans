@@ -4,9 +4,9 @@ import com.synloans.loans.model.dto.LoanSum
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto
 import com.synloans.loans.model.dto.loanrequest.LoanRequestStatus
 import com.synloans.loans.model.entity.*
-import com.synloans.loans.service.LoanRequestService
-import com.synloans.loans.service.SyndicateParticipantService
-import com.synloans.loans.service.UserService
+import com.synloans.loans.service.loan.LoanRequestService
+import com.synloans.loans.service.syndicate.SyndicateParticipantService
+import com.synloans.loans.service.user.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.web.server.ResponseStatusException

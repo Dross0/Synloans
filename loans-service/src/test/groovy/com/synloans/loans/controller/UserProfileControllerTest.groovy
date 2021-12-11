@@ -1,7 +1,7 @@
 package com.synloans.loans.controller
 
 import com.synloans.loans.model.dto.Profile
-import com.synloans.loans.service.ProfileService
+import com.synloans.loans.service.user.ProfileService
 import org.springframework.security.core.Authentication
 import spock.lang.Specification
 

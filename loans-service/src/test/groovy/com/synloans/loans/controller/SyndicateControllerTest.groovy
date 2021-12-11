@@ -6,10 +6,10 @@ import com.synloans.loans.model.entity.Bank
 import com.synloans.loans.model.entity.Company
 import com.synloans.loans.model.entity.SyndicateParticipant
 import com.synloans.loans.model.entity.User
-import com.synloans.loans.service.BankService
-import com.synloans.loans.service.SyndicateParticipantService
-import com.synloans.loans.service.SyndicateService
-import com.synloans.loans.service.UserService
+import com.synloans.loans.service.company.BankService
+import com.synloans.loans.service.syndicate.SyndicateParticipantService
+import com.synloans.loans.service.syndicate.SyndicateService
+import com.synloans.loans.service.user.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.web.server.ResponseStatusException

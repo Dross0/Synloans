@@ -3,7 +3,7 @@ package com.synloans.loans.controller
 import com.synloans.loans.model.authentication.AuthenticationRequest
 import com.synloans.loans.model.authentication.RegistrationRequest
 import com.synloans.loans.model.entity.Company
-import com.synloans.loans.service.UserService
+import com.synloans.loans.service.user.UserService
 import com.synloans.loans.service.exception.CreateUserException
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException

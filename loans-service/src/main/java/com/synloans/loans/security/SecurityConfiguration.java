@@ -1,7 +1,7 @@
 package com.synloans.loans.security;
 
 import com.synloans.loans.security.filter.JwtRequestFilter;
-import com.synloans.loans.service.UserService;
+import com.synloans.loans.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

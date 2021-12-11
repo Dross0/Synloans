@@ -1,4 +1,4 @@
-package com.synloans.loans.service;
+package com.synloans.loans.service.syndicate;
 
 import com.synloans.loans.model.entity.Bank;
 import com.synloans.loans.model.entity.LoanRequest;
@@ -6,6 +6,7 @@ import com.synloans.loans.model.entity.Syndicate;
 import com.synloans.loans.model.entity.SyndicateParticipant;
 import com.synloans.loans.repositories.SyndicateParticipantRepository;
 import com.synloans.loans.service.exception.LoanRequestNotFoundException;
+import com.synloans.loans.service.loan.LoanRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

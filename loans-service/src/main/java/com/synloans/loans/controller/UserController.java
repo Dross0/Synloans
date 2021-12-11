@@ -4,7 +4,7 @@ import com.synloans.loans.model.authentication.AuthenticationRequest;
 import com.synloans.loans.model.authentication.AuthenticationResponse;
 import com.synloans.loans.model.authentication.RegistrationRequest;
 import com.synloans.loans.model.entity.Company;
-import com.synloans.loans.service.UserService;
+import com.synloans.loans.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
