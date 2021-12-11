@@ -1,5 +1,6 @@
-package com.synloans.loans.controller
+package com.synloans.loans.controller.syndicate
 
+import com.synloans.loans.controller.syndicate.SyndicateController
 import com.synloans.loans.model.dto.LoanSum
 import com.synloans.loans.model.dto.SyndicateJoinRequest
 import com.synloans.loans.model.entity.Bank

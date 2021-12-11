@@ -1,5 +1,6 @@
-package com.synloans.loans.controller
+package com.synloans.loans.controller.user
 
+import com.synloans.loans.controller.user.UserProfileController
 import com.synloans.loans.model.dto.Profile
 import com.synloans.loans.service.user.ProfileService
 import org.springframework.security.core.Authentication

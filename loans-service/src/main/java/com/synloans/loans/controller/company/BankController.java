@@ -1,4 +1,4 @@
-package com.synloans.loans.controller;
+package com.synloans.loans.controller.company;
 
 import com.synloans.loans.model.dto.CompanyDto;
 import com.synloans.loans.model.entity.Bank;

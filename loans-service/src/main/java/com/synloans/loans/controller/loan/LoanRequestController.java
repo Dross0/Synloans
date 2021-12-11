@@ -1,4 +1,4 @@
-package com.synloans.loans.controller;
+package com.synloans.loans.controller.loan;
 
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto;
 import com.synloans.loans.model.dto.loanrequest.LoanRequestInfo;

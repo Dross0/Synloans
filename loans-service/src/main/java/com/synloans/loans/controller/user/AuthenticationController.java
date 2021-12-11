@@ -1,4 +1,4 @@
-package com.synloans.loans.controller;
+package com.synloans.loans.controller.user;
 
 import com.synloans.loans.model.authentication.AuthenticationRequest;
 import com.synloans.loans.model.authentication.AuthenticationResponse;
