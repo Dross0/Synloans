@@ -4,11 +4,10 @@ import com.synloans.loans.model.dto.LoanSum
 import com.synloans.loans.model.dto.SumUnit
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto
 import com.synloans.loans.model.dto.loanrequest.LoanRequestStatus
-import com.synloans.loans.model.entity.Company
-import com.synloans.loans.model.entity.Loan
-import com.synloans.loans.model.entity.LoanRequest
+import com.synloans.loans.model.entity.*
 import com.synloans.loans.repository.loan.LoanRequestRepository
 import com.synloans.loans.service.exception.ForbiddenResourceException
+import com.synloans.loans.service.exception.InvalidLoanRequestException
 import com.synloans.loans.service.exception.LoanRequestNotFoundException
 import spock.lang.Specification
 
@@ -151,5 +150,42 @@ class LoanRequestServiceTest extends Specification {
         then:
             1 * loanRequestRepository.findById(loanRqId) >> Optional.of(loanRq)
             thrown(ForbiddenResourceException)
+    }
+
+    def "Тест. Расчет доступной суммы собранной синдикатом по заявке"(){
+        given:
+            def participants = [
+                    Stub(SyndicateParticipant){
+                        loanSum >> 123_000
+                    },
+                    Stub(SyndicateParticipant){
+                        loanSum >> 1_500_000
+                    },
+                    Stub(SyndicateParticipant){
+                        loanSum >> 300_000
+                    }
+            ]
+            def syndicate = Stub(Syndicate){
+                it.participants >> participants
+            }
+            def loanRequest = Stub(LoanRequest){
+                it.syndicate >> syndicate
+            }
+        when:
+            def sum = loanRequestService.calcSumFromSyndicate(loanRequest)
+        then:
+            sum == 1_923_000
+            noExceptionThrown()
+    }
+
+    def "Тест. Отсутсвует синдикат при расчете собранной суммы"(){
+        given:
+            def loanRequest = Stub(LoanRequest){
+                syndicate >> null
+            }
+        when:
+            def sum = loanRequestService.calcSumFromSyndicate(loanRequest)
+        then:
+            thrown(InvalidLoanRequestException)
     }
 }

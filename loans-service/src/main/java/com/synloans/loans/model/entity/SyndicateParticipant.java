@@ -25,6 +25,9 @@ public class SyndicateParticipant {
     @Column(name = "loan_sum")
     private Long loanSum;
 
+    @Column(name = "issued_loan_sum")
+    private Long issuedLoanSum;
+
     @Column(name = "approve_bank_agent")
     private boolean approveBankAgent;
 }

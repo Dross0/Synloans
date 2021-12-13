@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -28,7 +29,13 @@ public class SyndicateParticipantService {
         participant.setSyndicate(syndicate);
         participant.setBank(bank);
         participant.setLoanSum(loanSum);
+        participant.setIssuedLoanSum(null);
         return participantRepository.save(participant);
+    }
+
+    @Transactional
+    public List<SyndicateParticipant> saveAll(List<SyndicateParticipant> syndicateParticipants){
+        return participantRepository.saveAll(syndicateParticipants);
     }
 
     @Transactional

@@ -92,6 +92,7 @@ CREATE TABLE Syndicate_participant (
                                          "bank_id" integer NOT NULL,
                                          "syndicate_id" integer NOT NULL,
                                          "loan_sum" DECIMAL NOT NULL,
+                                         "issued_loan_sum" DECIMAL,
                                          "approve_bank_agent" boolean NOT NULL,
                                          CONSTRAINT "Syndicate_participant_pk" PRIMARY KEY ("id")
 ) WITH (

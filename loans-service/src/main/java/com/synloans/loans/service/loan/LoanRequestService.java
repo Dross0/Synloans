@@ -2,11 +2,10 @@ package com.synloans.loans.service.loan;
 
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto;
 import com.synloans.loans.model.dto.loanrequest.LoanRequestStatus;
-import com.synloans.loans.model.entity.Company;
-import com.synloans.loans.model.entity.Loan;
-import com.synloans.loans.model.entity.LoanRequest;
+import com.synloans.loans.model.entity.*;
 import com.synloans.loans.repository.loan.LoanRequestRepository;
 import com.synloans.loans.service.exception.ForbiddenResourceException;
+import com.synloans.loans.service.exception.InvalidLoanRequestException;
 import com.synloans.loans.service.exception.LoanRequestNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,5 +67,15 @@ public class LoanRequestService {
             return LoanRequestStatus.CLOSE;
         }
         return LoanRequestStatus.ISSUE;  //FIXME Подумать как обрабатывать статус transfer
+    }
+
+    public long calcSumFromSyndicate(LoanRequest loanRequest){
+        Syndicate syndicate = loanRequest.getSyndicate();
+        if (syndicate == null){
+            throw new InvalidLoanRequestException("Синдиката на заявке нет");
+        }
+        return syndicate.getParticipants().stream()
+                .mapToLong(SyndicateParticipant::getLoanSum)
+                .sum();
     }
 }

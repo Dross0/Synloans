@@ -34,6 +34,7 @@ class SyndicateParticipantServiceTest extends Specification{
             participant.bank == bank
             participant.loanSum == loanSum
             participant.approveBankAgent == approveBankAgent
+            participant.issuedLoanSum == null
     }
 
     def "Тест. Выход участника из синдиката"(){
@@ -96,6 +97,16 @@ class SyndicateParticipantServiceTest extends Specification{
         then:
             1 * loanRequestService.getById(loanRqId) >> Optional.empty()
             thrown(LoanRequestNotFoundException)
+    }
+
+    def "Тест. Сохранение коллекции участников"(){
+        given:
+            def participants = [Stub(SyndicateParticipant), Stub(SyndicateParticipant)]
+        when:
+            def savedPart = participantService.saveAll(participants)
+        then:
+            1 * participantRepository.saveAll(participants) >> participants
+            participants == savedPart
     }
 
     SyndicateParticipant createParticipantStub(long loanRequestId){
