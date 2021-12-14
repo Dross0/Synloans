@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/")
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class AuthenticationController {
 
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public AuthenticationResponse login(@RequestBody AuthenticationRequest authenticationRequest){
+    public AuthenticationResponse login(@RequestBody @Valid AuthenticationRequest authenticationRequest){
         try{
             String jwt = authenticationService.login(authenticationRequest.getEmail(), authenticationRequest.getPassword());
             return new AuthenticationResponse(jwt);
@@ -35,7 +37,7 @@ public class AuthenticationController {
     }
 
     @PostMapping(value = "/registration", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void registration(@RequestBody RegistrationRequest registrationRequest) {
+    public void registration(@RequestBody @Valid RegistrationRequest registrationRequest) {
         Company company = new Company();
         company.setInn(registrationRequest.getInn());
         company.setKpp(registrationRequest.getKpp());

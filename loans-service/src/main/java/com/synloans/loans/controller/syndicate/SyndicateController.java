@@ -16,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/syndicates")
 @RequiredArgsConstructor
@@ -28,7 +30,10 @@ public class SyndicateController {
 
     @Secured(UserRole.ROLE_BANK)
     @PostMapping(value = "/join", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void joinTo(@RequestBody SyndicateJoinRequest joinRequest, Authentication authentication){
+    public void joinTo(
+            @RequestBody @Valid SyndicateJoinRequest joinRequest,
+            Authentication authentication
+    ){
         Bank bank = getBankByUsername(authentication);
         syndicateService.joinBankToSyndicate(joinRequest, bank)
                 .orElseThrow(() ->

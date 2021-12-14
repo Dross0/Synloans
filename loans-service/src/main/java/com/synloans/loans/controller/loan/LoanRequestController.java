@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +45,10 @@ public class LoanRequestController {
 
 
     @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void createLoanRequest(@RequestBody LoanRequestDto loanRequestDto, Authentication authentication){
+    public void createLoanRequest(
+            @RequestBody @Valid LoanRequestDto loanRequestDto,
+            Authentication authentication
+    ){
         User user = getCurrentUser(authentication);
         loanRequestService.createRequest(
                 loanRequestDto,
