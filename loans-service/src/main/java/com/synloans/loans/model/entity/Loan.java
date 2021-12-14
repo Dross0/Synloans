@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "loan")
@@ -34,4 +35,10 @@ public class Loan {
     @ManyToOne
     @JoinColumn(name = "bank_agent")
     private Bank bankAgent;
+
+    @OneToMany(mappedBy = "loan")
+    private List<PlannedPayment> plannedPayments;
+
+    @OneToMany(mappedBy = "loan")
+    private List<ActualPayment> actualPayments;
 }
