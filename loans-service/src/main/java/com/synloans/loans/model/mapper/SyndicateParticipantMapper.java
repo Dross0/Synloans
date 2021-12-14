@@ -2,7 +2,7 @@ package com.synloans.loans.model.mapper;
 
 import com.synloans.loans.model.dto.BankParticipantInfo;
 import com.synloans.loans.model.dto.LoanSum;
-import com.synloans.loans.model.entity.SyndicateParticipant;
+import com.synloans.loans.model.entity.syndicate.SyndicateParticipant;
 
 public class SyndicateParticipantMapper {
     public BankParticipantInfo entityToDto(SyndicateParticipant participant){

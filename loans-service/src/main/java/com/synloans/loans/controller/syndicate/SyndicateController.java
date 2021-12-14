@@ -1,8 +1,8 @@
 package com.synloans.loans.controller.syndicate;
 
 import com.synloans.loans.model.dto.SyndicateJoinRequest;
-import com.synloans.loans.model.entity.Bank;
-import com.synloans.loans.model.entity.User;
+import com.synloans.loans.model.entity.company.Bank;
+import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.security.UserRole;
 import com.synloans.loans.service.company.BankService;
 import com.synloans.loans.service.syndicate.SyndicateParticipantService;

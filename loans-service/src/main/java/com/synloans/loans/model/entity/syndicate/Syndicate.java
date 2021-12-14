@@ -1,6 +1,7 @@
-package com.synloans.loans.model.entity;
+package com.synloans.loans.model.entity.syndicate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.synloans.loans.model.entity.loan.LoanRequest;
 import lombok.Getter;
 import lombok.Setter;
 

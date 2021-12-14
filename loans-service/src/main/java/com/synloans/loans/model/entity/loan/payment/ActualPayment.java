@@ -1,5 +1,6 @@
-package com.synloans.loans.model.entity;
+package com.synloans.loans.model.entity.loan.payment;
 
+import com.synloans.loans.model.entity.loan.Loan;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,10 +9,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "planned_payment")
+@Table(name = "actual_payment")
 @Getter
 @Setter
-public class PlannedPayment {
+public class ActualPayment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

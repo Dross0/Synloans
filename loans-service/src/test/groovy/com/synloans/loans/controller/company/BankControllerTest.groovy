@@ -1,8 +1,8 @@
 package com.synloans.loans.controller.company
 
-import com.synloans.loans.controller.company.BankController
-import com.synloans.loans.model.entity.Bank
-import com.synloans.loans.model.entity.Company
+
+import com.synloans.loans.model.entity.company.Bank
+import com.synloans.loans.model.entity.company.Company
 import com.synloans.loans.service.company.BankService
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException

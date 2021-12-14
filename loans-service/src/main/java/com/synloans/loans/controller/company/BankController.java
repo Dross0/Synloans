@@ -1,7 +1,7 @@
 package com.synloans.loans.controller.company;
 
 import com.synloans.loans.model.dto.CompanyDto;
-import com.synloans.loans.model.entity.Bank;
+import com.synloans.loans.model.entity.company.Bank;
 import com.synloans.loans.model.mapper.BankMapper;
 import com.synloans.loans.service.company.BankService;
 import lombok.RequiredArgsConstructor;

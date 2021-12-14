@@ -2,7 +2,7 @@ package com.synloans.loans.model.mapper;
 
 import com.synloans.loans.model.dto.LoanSum;
 import com.synloans.loans.model.dto.loanrequest.LoanRequestInfo;
-import com.synloans.loans.model.entity.LoanRequest;
+import com.synloans.loans.model.entity.loan.LoanRequest;
 
 import java.time.LocalDate;
 

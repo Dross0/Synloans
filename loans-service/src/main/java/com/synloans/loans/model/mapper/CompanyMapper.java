@@ -1,7 +1,7 @@
 package com.synloans.loans.model.mapper;
 
 import com.synloans.loans.model.dto.CompanyDto;
-import com.synloans.loans.model.entity.Company;
+import com.synloans.loans.model.entity.company.Company;
 
 
 public class CompanyMapper {

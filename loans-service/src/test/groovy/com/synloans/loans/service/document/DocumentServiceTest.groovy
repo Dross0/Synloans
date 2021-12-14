@@ -1,6 +1,6 @@
 package com.synloans.loans.service.document
 
-import com.synloans.loans.model.entity.Document
+import com.synloans.loans.model.entity.document.Document
 import com.synloans.loans.repository.document.DocumentRepository
 import spock.lang.Specification
 

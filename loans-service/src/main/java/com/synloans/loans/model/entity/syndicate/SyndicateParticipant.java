@@ -1,5 +1,6 @@
-package com.synloans.loans.model.entity;
+package com.synloans.loans.model.entity.syndicate;
 
+import com.synloans.loans.model.entity.company.Bank;
 import lombok.Getter;
 import lombok.Setter;
 

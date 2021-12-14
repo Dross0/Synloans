@@ -1,8 +1,8 @@
 package com.synloans.loans.service.company
 
-import com.synloans.loans.model.entity.Bank
-import com.synloans.loans.model.entity.Company
-import com.synloans.loans.model.entity.Document
+import com.synloans.loans.model.entity.company.Bank
+import com.synloans.loans.model.entity.company.Company
+import com.synloans.loans.model.entity.document.Document
 import com.synloans.loans.repository.company.BankRepository
 import spock.lang.Specification
 

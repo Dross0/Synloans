@@ -1,12 +1,12 @@
 package com.synloans.loans.controller.syndicate
 
-import com.synloans.loans.controller.syndicate.SyndicateController
+
 import com.synloans.loans.model.dto.LoanSum
 import com.synloans.loans.model.dto.SyndicateJoinRequest
-import com.synloans.loans.model.entity.Bank
-import com.synloans.loans.model.entity.Company
-import com.synloans.loans.model.entity.SyndicateParticipant
-import com.synloans.loans.model.entity.User
+import com.synloans.loans.model.entity.company.Bank
+import com.synloans.loans.model.entity.company.Company
+import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
+import com.synloans.loans.model.entity.user.User
 import com.synloans.loans.service.company.BankService
 import com.synloans.loans.service.syndicate.SyndicateParticipantService
 import com.synloans.loans.service.syndicate.SyndicateService

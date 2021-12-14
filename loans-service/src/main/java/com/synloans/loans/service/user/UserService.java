@@ -1,6 +1,6 @@
 package com.synloans.loans.service.user;
 
-import com.synloans.loans.model.entity.User;
+import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.repository.user.UserRepository;
 import com.synloans.loans.service.exception.CreateUserException;
 import lombok.RequiredArgsConstructor;

@@ -1,5 +1,6 @@
-package com.synloans.loans.model.entity;
+package com.synloans.loans.model.entity.user;
 
+import com.synloans.loans.model.entity.company.Company;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -1,10 +1,10 @@
 package com.synloans.loans.service.syndicate
 
 import com.synloans.loans.model.dto.SyndicateJoinRequest
-import com.synloans.loans.model.entity.Bank
-import com.synloans.loans.model.entity.LoanRequest
-import com.synloans.loans.model.entity.Syndicate
-import com.synloans.loans.model.entity.SyndicateParticipant
+import com.synloans.loans.model.entity.company.Bank
+import com.synloans.loans.model.entity.loan.LoanRequest
+import com.synloans.loans.model.entity.syndicate.Syndicate
+import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
 import com.synloans.loans.repository.syndicate.SyndicateRepository
 import com.synloans.loans.service.exception.LoanRequestNotFoundException
 import com.synloans.loans.service.loan.LoanRequestService

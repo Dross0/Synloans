@@ -1,6 +1,11 @@
 package com.synloans.loans.service.loan
 
-import com.synloans.loans.model.entity.*
+
+import com.synloans.loans.model.entity.company.Bank
+import com.synloans.loans.model.entity.loan.Loan
+import com.synloans.loans.model.entity.loan.LoanRequest
+import com.synloans.loans.model.entity.syndicate.Syndicate
+import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
 import com.synloans.loans.repository.loan.LoanRepository
 import com.synloans.loans.service.exception.InvalidLoanRequestException
 import com.synloans.loans.service.syndicate.SyndicateParticipantService

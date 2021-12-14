@@ -1,4 +1,4 @@
-package com.synloans.loans.model.entity;
+package com.synloans.loans.model.entity.document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;

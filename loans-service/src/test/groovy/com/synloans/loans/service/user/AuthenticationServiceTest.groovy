@@ -1,9 +1,9 @@
 package com.synloans.loans.service.user
 
-import com.synloans.loans.model.entity.Bank
-import com.synloans.loans.model.entity.Company
-import com.synloans.loans.model.entity.Role
-import com.synloans.loans.model.entity.User
+import com.synloans.loans.model.entity.company.Bank
+import com.synloans.loans.model.entity.company.Company
+import com.synloans.loans.model.entity.user.Role
+import com.synloans.loans.model.entity.user.User
 import com.synloans.loans.repository.user.RoleRepository
 import com.synloans.loans.security.UserRole
 import com.synloans.loans.security.util.JwtService

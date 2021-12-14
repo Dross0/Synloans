@@ -1,6 +1,6 @@
 package com.synloans.loans.repository.user;
 
-import com.synloans.loans.model.entity.Role;
+import com.synloans.loans.model.entity.user.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

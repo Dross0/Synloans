@@ -1,8 +1,8 @@
 package com.synloans.loans.model.mapper;
 
 import com.synloans.loans.model.dto.Profile;
-import com.synloans.loans.model.entity.Company;
-import com.synloans.loans.model.entity.User;
+import com.synloans.loans.model.entity.company.Company;
+import com.synloans.loans.model.entity.user.User;
 
 public class UserMapper {
     public Profile entityToDto(User user){

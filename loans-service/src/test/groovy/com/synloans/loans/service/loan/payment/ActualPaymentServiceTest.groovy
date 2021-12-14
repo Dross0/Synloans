@@ -1,6 +1,6 @@
 package com.synloans.loans.service.loan.payment
 
-import com.synloans.loans.model.entity.ActualPayment
+import com.synloans.loans.model.entity.loan.payment.ActualPayment
 import com.synloans.loans.repository.loan.payment.ActualPaymentRepository
 import spock.lang.Specification
 

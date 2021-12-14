@@ -1,9 +1,9 @@
 package com.synloans.loans.service.user
 
 import com.synloans.loans.model.dto.Profile
-import com.synloans.loans.model.entity.Bank
-import com.synloans.loans.model.entity.Company
-import com.synloans.loans.model.entity.User
+import com.synloans.loans.model.entity.company.Bank
+import com.synloans.loans.model.entity.company.Company
+import com.synloans.loans.model.entity.user.User
 import com.synloans.loans.service.company.BankService
 import com.synloans.loans.service.company.CompanyService
 import spock.lang.Specification

@@ -2,7 +2,11 @@ package com.synloans.loans.service.loan
 
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto
 import com.synloans.loans.model.dto.loanrequest.LoanRequestStatus
-import com.synloans.loans.model.entity.*
+import com.synloans.loans.model.entity.company.Company
+import com.synloans.loans.model.entity.loan.Loan
+import com.synloans.loans.model.entity.loan.LoanRequest
+import com.synloans.loans.model.entity.syndicate.Syndicate
+import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
 import com.synloans.loans.repository.loan.LoanRequestRepository
 import com.synloans.loans.service.exception.ForbiddenResourceException
 import com.synloans.loans.service.exception.InvalidLoanRequestException

@@ -1,6 +1,6 @@
 package com.synloans.loans.service.loan.payment;
 
-import com.synloans.loans.model.entity.PlannedPayment;
+import com.synloans.loans.model.entity.loan.payment.PlannedPayment;
 import com.synloans.loans.repository.loan.payment.PlannedPaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

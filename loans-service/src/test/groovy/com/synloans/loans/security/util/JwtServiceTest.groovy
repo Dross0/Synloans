@@ -1,6 +1,6 @@
 package com.synloans.loans.security.util
 
-import com.synloans.loans.model.entity.User
+import com.synloans.loans.model.entity.user.User
 import com.synloans.loans.security.config.JwtConfig
 import spock.lang.Specification
 

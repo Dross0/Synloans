@@ -1,6 +1,6 @@
 package com.synloans.loans.repository.company;
 
-import com.synloans.loans.model.entity.Company;
+import com.synloans.loans.model.entity.company.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

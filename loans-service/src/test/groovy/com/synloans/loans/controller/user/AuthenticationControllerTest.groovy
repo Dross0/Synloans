@@ -1,9 +1,9 @@
 package com.synloans.loans.controller.user
 
-import com.synloans.loans.controller.user.AuthenticationController
+
 import com.synloans.loans.model.authentication.AuthenticationRequest
 import com.synloans.loans.model.authentication.RegistrationRequest
-import com.synloans.loans.model.entity.Company
+import com.synloans.loans.model.entity.company.Company
 import com.synloans.loans.service.exception.CreateUserException
 import com.synloans.loans.service.user.AuthenticationService
 import org.springframework.http.HttpStatus
