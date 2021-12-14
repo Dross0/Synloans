@@ -1,7 +1,5 @@
 package com.synloans.loans.service.loan
 
-import com.synloans.loans.model.dto.LoanSum
-import com.synloans.loans.model.dto.SumUnit
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto
 import com.synloans.loans.model.dto.loanrequest.LoanRequestStatus
 import com.synloans.loans.model.entity.*
@@ -75,7 +73,7 @@ class LoanRequestServiceTest extends Specification {
         then:
             1 * loanRequestRepository.save(_ as LoanRequest) >> {LoanRequest l -> l}
             with(loanRequest){
-                sum == sumVal.getSum()
+                sum == sumVal
                 term == termVal
                 company == companyArg
                 rate == maxRateVal
@@ -86,7 +84,7 @@ class LoanRequestServiceTest extends Specification {
         where:
             termVal = 10
             maxRateVal = 14.2d
-            sumVal = new LoanSum(123, SumUnit.MILLION)
+            sumVal = 123_000_000
     }
 
     def "Тест. Получение статуса по заявке"(){

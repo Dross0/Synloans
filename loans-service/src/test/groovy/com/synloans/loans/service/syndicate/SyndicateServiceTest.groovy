@@ -1,6 +1,5 @@
 package com.synloans.loans.service.syndicate
 
-import com.synloans.loans.model.dto.LoanSum
 import com.synloans.loans.model.dto.SyndicateJoinRequest
 import com.synloans.loans.model.entity.Bank
 import com.synloans.loans.model.entity.LoanRequest
@@ -44,7 +43,7 @@ class SyndicateServiceTest extends Specification {
         given:
             def joinRq = Stub(SyndicateJoinRequest){
                 requestId >> 20
-                sum >> LoanSum.valueOf(100_000)
+                sum >> 100_000
                 approveBankAgent >> true
             }
             def syndicate = Stub(Syndicate)
@@ -70,7 +69,7 @@ class SyndicateServiceTest extends Specification {
         given:
             def joinRq = Stub(SyndicateJoinRequest){
                 requestId >> 20
-                sum >> LoanSum.valueOf(100_000)
+                sum >> 100_000
                 approveBankAgent >> true
             }
             def bank = Stub(Bank)
@@ -96,7 +95,7 @@ class SyndicateServiceTest extends Specification {
         given:
             def joinRq = Stub(SyndicateJoinRequest){
                 requestId >> 20
-                sum >> LoanSum.valueOf(100_000)
+                sum >> 100_000
                 approveBankAgent >> true
             }
             def bank = Stub(Bank)

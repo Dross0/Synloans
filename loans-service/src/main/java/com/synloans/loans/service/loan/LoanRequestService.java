@@ -26,7 +26,7 @@ public class LoanRequestService {
         loanRequest.setCompany(company);
         loanRequest.setTerm(loanRequestDto.getTerm());
         loanRequest.setRate(loanRequestDto.getMaxRate());
-        loanRequest.setSum(loanRequestDto.getSum().getSum());
+        loanRequest.setSum(loanRequestDto.getSum());
         loanRequest.setCreateDate(LocalDate.now());
         return loanRequestRepository.save(loanRequest);
     }

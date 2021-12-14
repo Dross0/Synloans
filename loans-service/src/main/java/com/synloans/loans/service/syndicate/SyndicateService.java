@@ -41,7 +41,7 @@ public class SyndicateService {
         return Optional.ofNullable(syndicateParticipantService.createNewParticipant(
                 syndicate,
                 bank,
-                joinRequest.getSum().getSum(),
+                joinRequest.getSum(),
                 joinRequest.isApproveBankAgent()
         ));
     }

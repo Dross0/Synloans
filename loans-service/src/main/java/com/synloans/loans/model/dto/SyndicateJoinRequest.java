@@ -10,7 +10,7 @@ import lombok.Setter;
 public class SyndicateJoinRequest {
     private long requestId;
 
-    private LoanSum sum;
+    private long sum;
 
     private boolean approveBankAgent;
 }
