@@ -1,2 +1,3 @@
 rootProject.name = 'sinloans'
 include 'loans-service'
+include 'loan-calculator'
