@@ -1,10 +1,10 @@
 package com.synloans.loans.controller.loan
 
-import com.synloans.loans.controller.loan.LoanRequestController
 import com.synloans.loans.model.dto.LoanSum
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto
 import com.synloans.loans.model.dto.loanrequest.LoanRequestStatus
 import com.synloans.loans.model.entity.*
+import com.synloans.loans.service.exception.LoanRequestNotFoundException
 import com.synloans.loans.service.loan.LoanRequestService
 import com.synloans.loans.service.syndicate.SyndicateParticipantService
 import com.synloans.loans.service.user.UserService
@@ -68,7 +68,7 @@ class LoanRequestControllerTest extends Specification{
             result == participants
     }
 
-    def  "Тест. Получение заявки по id"(){
+    def  "Тест. Получение личной заявки по id"(){
         given:
             def loanRqId = 11
             def username = "dross"
@@ -98,7 +98,7 @@ class LoanRequestControllerTest extends Specification{
         when:
             def response = loanRequestController.getRequestById(loanRqId, auth)
         then:
-            1 * userService.getUserByUsername(username) >> user
+            2 * userService.getUserByUsername(username) >> user
             1 * loanRequestService.getOwnedCompanyLoanRequestById(loanRqId, user.company) >> loanRq
             1 * loanRequestService.getStatus(loanRq) >> LoanRequestStatus.OPEN
             with(response){
@@ -123,6 +123,85 @@ class LoanRequestControllerTest extends Specification{
                 }
             }
 
+    }
+
+    def  "Тест. Получение банком заявки по id"(){
+        given:
+            def loanRqId = 11
+            def username = "dross"
+            def auth = Stub(Authentication)
+            auth.getName() >> username
+            def company = Stub(Company){
+                it.id >> 10
+                it.inn >> "123"
+                it.kpp >> "345"
+                it.fullName >> "SberBank"
+                it.shortName >> "Sber"
+                it.actualAddress >> "Act Address"
+                it.legalAddress >> "Leg Address"
+            }
+            def loanRq = Stub(LoanRequest){
+                it.company >> company
+                it.id >> loanRqId
+                it.term >> 14
+                it.createDate >> LocalDate.now()
+                it.rate >> 10.2d
+                it.sum >> 100_000
+                it.syndicate >> null
+            }
+            def user = Mock(User){
+                it.company >> Stub(Company)
+            }
+        when:
+            def response = loanRequestController.getRequestById(loanRqId, auth)
+        then:
+            1 * userService.getUserByUsername(username) >> user
+            1 * user.hasRole("ROLE_BANK") >> true
+            1 * loanRequestService.getById(loanRq.id) >> Optional.of(loanRq)
+            1 * loanRequestService.getStatus(loanRq) >> LoanRequestStatus.OPEN
+
+            with(response){
+                with(borrower){
+                    id == company.id
+                    inn == company.inn
+                    kpp == company.kpp
+                    fullName == company.fullName
+                    shortName == company.shortName
+                    actualAddress == company.actualAddress
+                    legalAddress == company.legalAddress
+                }
+                banks.isEmpty()
+                with(info){
+                    status == LoanRequestStatus.OPEN
+                    id == loanRq.id
+                    term == loanRq.term
+                    maxRate == loanRq.rate
+                    dateIssue == null
+                    dateCreate == loanRq.createDate
+                    sum == LoanSum.valueOf(loanRq.sum)
+                }
+            }
+    }
+
+    def "Тест. Не найдена заявка при получении банком заявки по id"(){
+        given:
+            def loanRqId = 11
+            def username = "dross"
+            def auth = Stub(Authentication)
+            auth.getName() >> username
+            def loanRq = Stub(LoanRequest){
+                it.id >> loanRqId
+            }
+            def user = Mock(User){
+                it.company >> Stub(Company)
+            }
+        when:
+            def response = loanRequestController.getRequestById(loanRqId, auth)
+        then:
+            1 * userService.getUserByUsername(username) >> user
+            1 * user.hasRole("ROLE_BANK") >> true
+            1 * loanRequestService.getById(loanRq.id) >> Optional.empty()
+            thrown(LoanRequestNotFoundException)
     }
 
     def  "Тест. Получение всех заявок пользователя"(){

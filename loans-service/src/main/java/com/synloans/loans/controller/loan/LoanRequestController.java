@@ -10,6 +10,7 @@ import com.synloans.loans.model.mapper.CompanyMapper;
 import com.synloans.loans.model.mapper.LoanRequestMapper;
 import com.synloans.loans.model.mapper.SyndicateParticipantMapper;
 import com.synloans.loans.security.UserRole;
+import com.synloans.loans.service.exception.LoanRequestNotFoundException;
 import com.synloans.loans.service.loan.LoanRequestService;
 import com.synloans.loans.service.syndicate.SyndicateParticipantService;
 import com.synloans.loans.service.user.UserService;
@@ -62,6 +63,13 @@ public class LoanRequestController {
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public LoanRequestResponse getRequestById(@PathVariable("id") Long id, Authentication authentication){
+        User user = getCurrentUser(authentication);
+        if (user.hasRole(UserRole.ROLE_BANK)){
+            return buildResponse(
+                    loanRequestService.getById(id)
+                            .orElseThrow(LoanRequestNotFoundException::new)
+            );
+        }
         return buildResponse(getOwnedLoanRequestById(id, authentication));
     }
 
