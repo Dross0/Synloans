@@ -8,6 +8,7 @@ import com.synloans.loans.model.entity.syndicate.Syndicate
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
 import com.synloans.loans.repository.loan.LoanRepository
 import com.synloans.loans.service.exception.InvalidLoanRequestException
+import com.synloans.loans.service.loan.payment.PlannedPaymentService
 import com.synloans.loans.service.syndicate.SyndicateParticipantService
 import spock.lang.Specification
 
@@ -18,12 +19,19 @@ class LoanServiceTest extends Specification{
     private LoanRepository loanRepository
     private LoanRequestService loanRequestService
     private SyndicateParticipantService participantService
+    private PlannedPaymentService paymentService
 
     def setup(){
         loanRepository = Mock(LoanRepository)
         loanRequestService = Mock(LoanRequestService)
         participantService = Mock(SyndicateParticipantService)
-        loanService = new LoanService(loanRepository, loanRequestService, participantService)
+        paymentService = Mock(PlannedPaymentService)
+        loanService = new LoanService(
+                loanRepository,
+                loanRequestService,
+                participantService,
+                paymentService
+        )
     }
 
     def "Тест. Ошибка при старте кредита по заявке. Кредит уже существует"(){
@@ -93,6 +101,7 @@ class LoanServiceTest extends Specification{
             1 * loanRequestService.calcSumFromSyndicate(loanRq) >> 1_150_000
             1 * participantService.saveAll(_)
             1 * loanRepository.save(_ as Loan) >> {Loan l -> l}
+            1 * paymentService.save(_)
             loan.rate == loanRq.rate
             loan.registrationDate == LocalDate.now()
             loan.closeDate == LocalDate.now().plusMonths(loanRq.term)
