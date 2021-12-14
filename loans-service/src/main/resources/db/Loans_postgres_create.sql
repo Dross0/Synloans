@@ -117,6 +117,31 @@ CREATE TABLE Loan_request (
     );
 
 
+CREATE TABLE Planned_payment (
+                                          "id" serial NOT NULL,
+                                          "principal" DECIMAL NOT NULL,
+                                          "percent" DECIMAL NOT NULL,
+                                          "date" DATE NOT NULL,
+                                          "loan_id" integer NOT NULL,
+                                          CONSTRAINT "Planned_payment_pk" PRIMARY KEY ("id")
+) WITH (
+      OIDS=FALSE
+    );
+
+
+
+CREATE TABLE Actual_payment (
+                                         "id" serial NOT NULL,
+                                         "principal" DECIMAL NOT NULL,
+                                         "percent" DECIMAL NOT NULL,
+                                         "date" DATE NOT NULL,
+                                         "loan_id" integer NOT NULL,
+                                         CONSTRAINT "Actual_payment_pk" PRIMARY KEY ("id")
+) WITH (
+      OIDS=FALSE
+    );
+
+
 
 
 ALTER TABLE Contract ADD CONSTRAINT "Contract_fk0" FOREIGN KEY ("document_id") REFERENCES Document("id");
@@ -138,6 +163,10 @@ ALTER TABLE Syndicate_participant ADD CONSTRAINT "Syndicate_participant_fk1" FOR
 
 
 ALTER TABLE Loan_request ADD CONSTRAINT "Loan_request_fk0" FOREIGN KEY ("company") REFERENCES Company("id");
+
+ALTER TABLE Planned_payment ADD CONSTRAINT "Planned_payment_fk0" FOREIGN KEY ("loan_id") REFERENCES Loan("id");
+
+ALTER TABLE Actual_payment ADD CONSTRAINT "Actual_payment_fk0" FOREIGN KEY ("loan_id") REFERENCES Loan("id");
 
 
 
