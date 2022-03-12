@@ -1,14 +1,15 @@
 package com.synloans.loans.controller.loan;
 
+import com.synloans.loans.mapper.Mapper;
+import com.synloans.loans.model.dto.BankParticipantInfo;
+import com.synloans.loans.model.dto.CompanyDto;
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto;
 import com.synloans.loans.model.dto.loanrequest.LoanRequestInfo;
 import com.synloans.loans.model.dto.loanrequest.LoanRequestResponse;
+import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.model.entity.loan.LoanRequest;
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant;
 import com.synloans.loans.model.entity.user.User;
-import com.synloans.loans.model.mapper.CompanyMapper;
-import com.synloans.loans.model.mapper.LoanRequestMapper;
-import com.synloans.loans.model.mapper.SyndicateParticipantMapper;
 import com.synloans.loans.security.UserRole;
 import com.synloans.loans.service.exception.LoanRequestNotFoundException;
 import com.synloans.loans.service.loan.LoanRequestService;
@@ -16,6 +17,7 @@ import com.synloans.loans.service.syndicate.SyndicateParticipantService;
 import com.synloans.loans.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
@@ -35,14 +37,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LoanRequestController {
 
-    private final SyndicateParticipantMapper syndicateParticipantMapper = new SyndicateParticipantMapper();
-    private final LoanRequestMapper loanRequestMapper = new LoanRequestMapper();
-    private final CompanyMapper companyMapper = new CompanyMapper();
-
     private final LoanRequestService loanRequestService;
     private final UserService userService;
     private final SyndicateParticipantService syndicateParticipantService;
 
+    private final Converter<SyndicateParticipant, BankParticipantInfo>  syndicateParticipantConverter;
+    private final Converter<LoanRequest, LoanRequestInfo> loanRequestConverter;
+    private final Mapper<Company, CompanyDto> companyMapper;
 
     @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void createLoanRequest(
@@ -109,7 +110,7 @@ public class LoanRequestController {
 
     private LoanRequestResponse buildResponse(LoanRequest loanRequest){
         LoanRequestResponse response = new LoanRequestResponse();
-        LoanRequestInfo info = loanRequestMapper.entityToDto(loanRequest);
+        LoanRequestInfo info = loanRequestConverter.convert(loanRequest);
         info.setStatus(loanRequestService.getStatus(loanRequest));
         response.setInfo(info);
         response.setBanks(Collections.emptyList());
@@ -118,12 +119,12 @@ public class LoanRequestController {
                     loanRequest.getSyndicate()
                             .getParticipants()
                             .stream()
-                            .map(syndicateParticipantMapper::entityToDto)
+                            .map(syndicateParticipantConverter::convert)
                             .collect(Collectors.toList())
             );
         }
         response.setBorrower(
-                companyMapper.entityToDto(loanRequest.getCompany())
+                companyMapper.mapFrom(loanRequest.getCompany())
         );
 
         return response;

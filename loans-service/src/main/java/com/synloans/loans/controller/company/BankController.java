@@ -2,10 +2,10 @@ package com.synloans.loans.controller.company;
 
 import com.synloans.loans.model.dto.CompanyDto;
 import com.synloans.loans.model.entity.company.Bank;
-import com.synloans.loans.model.mapper.BankMapper;
 import com.synloans.loans.service.company.BankService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class BankController {
     private final BankService bankService;
 
-    private final BankMapper bankMapper = new BankMapper();
+    private final Converter<Bank, CompanyDto> bankToCompanyConverter;
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public CompanyDto getBankById(@PathVariable("id") Long id){
@@ -32,13 +32,13 @@ public class BankController {
         if (bank == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Банк с id=" + id + " не найден");
         }
-        return bankMapper.bankToDto(bank);
+        return bankToCompanyConverter.convert(bank);
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<CompanyDto> getAllBanks(){
         return bankService.getAll().stream()
-                .map(bankMapper::bankToDto)
+                .map(bankToCompanyConverter::convert)
                 .collect(Collectors.toList());
     }
 }

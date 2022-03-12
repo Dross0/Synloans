@@ -1,13 +1,18 @@
-package com.synloans.loans.model.mapper;
+package com.synloans.loans.mapper.converter;
 
 import com.synloans.loans.model.dto.LoanSum;
 import com.synloans.loans.model.dto.loanrequest.LoanRequestInfo;
 import com.synloans.loans.model.entity.loan.LoanRequest;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
-public class LoanRequestMapper {
-    public LoanRequestInfo entityToDto(LoanRequest loanRequest){
+@Component
+public class LoanRequestConverter implements Converter<LoanRequest, LoanRequestInfo> {
+
+    @Override
+    public LoanRequestInfo convert(LoanRequest loanRequest){
         LocalDate issueDate = null;
         if (loanRequest.getLoan() != null){
             issueDate = loanRequest.getLoan().getRegistrationDate();

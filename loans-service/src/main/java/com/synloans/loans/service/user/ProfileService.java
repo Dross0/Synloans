@@ -3,10 +3,10 @@ package com.synloans.loans.service.user;
 import com.synloans.loans.model.dto.Profile;
 import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.model.entity.user.User;
-import com.synloans.loans.model.mapper.UserMapper;
 import com.synloans.loans.service.company.BankService;
 import com.synloans.loans.service.company.CompanyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -15,11 +15,11 @@ import java.util.function.Consumer;
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
-    private final UserMapper userMapper = new UserMapper();
-
     private final UserService userService;
     private final BankService bankService;
     private final CompanyService companyService;
+
+    private final Converter<User, Profile> userProfileConverter;
 
     public Profile getProfile(String username){
         User user = userService.getUserByUsername(username);
@@ -51,7 +51,7 @@ public class ProfileService {
     }
 
     private Profile fillProfile(User user) {
-        Profile profile = userMapper.entityToDto(user);
+        Profile profile = userProfileConverter.convert(user);
         profile.setCreditOrganisation(bankService.getByCompany(user.getCompany()) != null);
         return profile;
     }

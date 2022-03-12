@@ -1,6 +1,6 @@
 package com.synloans.loans.controller.company
 
-
+import com.synloans.loans.mapper.CompanyMapper
 import com.synloans.loans.model.entity.company.Company
 import com.synloans.loans.service.company.CompanyService
 import org.springframework.http.HttpStatus
@@ -13,7 +13,7 @@ class CompanyControllerTest extends Specification{
 
     def setup(){
         companyService = Mock(CompanyService)
-        companyController = new CompanyController(companyService)
+        companyController = new CompanyController(companyService, new CompanyMapper())
     }
 
     def "Тест. Получение компании по id"(){

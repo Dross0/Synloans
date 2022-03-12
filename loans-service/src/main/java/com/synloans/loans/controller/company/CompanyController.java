@@ -1,8 +1,8 @@
 package com.synloans.loans.controller.company;
 
+import com.synloans.loans.mapper.Mapper;
 import com.synloans.loans.model.dto.CompanyDto;
 import com.synloans.loans.model.entity.company.Company;
-import com.synloans.loans.model.mapper.CompanyMapper;
 import com.synloans.loans.service.company.CompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,9 +18,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/companies")
 @RequiredArgsConstructor
 public class CompanyController {
-    private final CompanyMapper companyMapper = new CompanyMapper();
 
     private final CompanyService companyService;
+
+    private final Mapper<Company, CompanyDto> companyMapper;
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -29,7 +30,7 @@ public class CompanyController {
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "Компания с id=" + id + " не найдена")
                 );
-        return companyMapper.entityToDto(company);
+        return companyMapper.mapFrom(company);
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -37,7 +38,7 @@ public class CompanyController {
     public List<CompanyDto> getCompanies(){
         return companyService.getAll()
                 .stream()
-                .map(companyMapper::entityToDto)
+                .map(companyMapper::mapFrom)
                 .collect(Collectors.toList());
     }
 }

@@ -1,5 +1,6 @@
 package com.synloans.loans.service.user
 
+import com.synloans.loans.mapper.converter.UserProfileConverter
 import com.synloans.loans.model.dto.Profile
 import com.synloans.loans.model.entity.company.Bank
 import com.synloans.loans.model.entity.company.Company
@@ -18,7 +19,7 @@ class ProfileServiceTest extends Specification {
         userService = Mock(UserService)
         bankService = Mock(BankService)
         companyService = Mock(CompanyService)
-        profileService = new ProfileService(userService, bankService, companyService)
+        profileService = new ProfileService(userService, bankService, companyService, new UserProfileConverter())
     }
 
     def "Тест. Получение профиля"(){

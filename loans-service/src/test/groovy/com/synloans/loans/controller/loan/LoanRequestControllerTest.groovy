@@ -1,5 +1,9 @@
 package com.synloans.loans.controller.loan
 
+
+import com.synloans.loans.mapper.CompanyMapper
+import com.synloans.loans.mapper.converter.LoanRequestConverter
+import com.synloans.loans.mapper.converter.SyndicateParticipantConverter
 import com.synloans.loans.model.dto.LoanSum
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto
 import com.synloans.loans.model.dto.loanrequest.LoanRequestStatus
@@ -29,7 +33,14 @@ class LoanRequestControllerTest extends Specification{
         loanRequestService = Mock(LoanRequestService)
         userService = Mock(UserService)
         syndicateParticipantService = Mock(SyndicateParticipantService)
-        loanRequestController = new LoanRequestController(loanRequestService, userService, syndicateParticipantService)
+        loanRequestController = new LoanRequestController(
+                loanRequestService,
+                userService,
+                syndicateParticipantService,
+                new SyndicateParticipantConverter(),
+                new LoanRequestConverter(),
+                new CompanyMapper()
+        )
     }
 
     def "Тест. Ошибка в получении текущего пользователя"(){

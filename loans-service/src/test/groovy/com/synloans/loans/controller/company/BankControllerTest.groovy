@@ -1,6 +1,7 @@
 package com.synloans.loans.controller.company
 
-
+import com.synloans.loans.mapper.CompanyMapper
+import com.synloans.loans.mapper.converter.BankToCompanyConverter
 import com.synloans.loans.model.entity.company.Bank
 import com.synloans.loans.model.entity.company.Company
 import com.synloans.loans.service.company.BankService
@@ -14,7 +15,7 @@ class BankControllerTest extends Specification{
 
     def setup(){
         bankService = Mock(BankService)
-        bankController = new BankController(bankService)
+        bankController = new BankController(bankService, new BankToCompanyConverter(new CompanyMapper()))
     }
 
     def "Тест. Получение банка по id"(){
