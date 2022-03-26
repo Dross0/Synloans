@@ -3,17 +3,22 @@ package com.synloans.loans.service.loan;
 import com.synloans.loans.AnnuityLoan;
 import com.synloans.loans.factory.AnnuityLoanFactory;
 import com.synloans.loans.info.LoanInfo;
+import com.synloans.loans.model.dto.loan.payments.PaymentRequest;
 import com.synloans.loans.model.entity.company.Bank;
 import com.synloans.loans.model.entity.loan.Loan;
 import com.synloans.loans.model.entity.loan.LoanRequest;
+import com.synloans.loans.model.entity.loan.payment.ActualPayment;
 import com.synloans.loans.model.entity.loan.payment.PlannedPayment;
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant;
+import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.payment.LoanPayment;
 import com.synloans.loans.repository.loan.LoanRepository;
-import com.synloans.loans.service.exception.InvalidLoanRequestException;
+import com.synloans.loans.service.exception.*;
+import com.synloans.loans.service.loan.payment.ActualPaymentService;
 import com.synloans.loans.service.loan.payment.PlannedPaymentService;
 import com.synloans.loans.service.syndicate.SyndicateParticipantService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.javamoney.moneta.Money;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +28,12 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LoanService {
     private static final String CURRENCY_CODE = "RUR";
 
@@ -34,6 +41,37 @@ public class LoanService {
     private final LoanRequestService loanRequestService;
     private final SyndicateParticipantService participantService;
     private final PlannedPaymentService plannedPaymentService;
+    private final ActualPaymentService actualPaymentService;
+
+    @Transactional
+    public Loan getLoanByRequestId(long loanRequestId){
+        LoanRequest loanRequest = loanRequestService.getById(loanRequestId)
+                .orElseThrow(LoanRequestNotFoundException::new);
+        if (loanRequest.getLoan() == null){
+            log.error("Кредит с заявкой с id='{}' не найден", loanRequest);
+            throw new LoanNotFoundException("Кредит с заявкой с id=" + loanRequestId + " не найден");
+        }
+        return loanRequest.getLoan();
+    }
+
+    @Transactional
+    public List<PlannedPayment> getPlannedPaymentsByRequestId(long loanRequestId){
+        return getLoanByRequestId(loanRequestId).getPlannedPayments();
+    }
+
+
+    @Transactional
+    public List<ActualPayment> getActualPaymentsByRequestId(long loanRequestId) {
+        return getLoanByRequestId(loanRequestId).getActualPayments();
+    }
+
+    @Transactional
+    public Loan startLoanByRequestId(long loanRequestId, User user) {
+        LoanRequest loanRequest = loanRequestService.getById(loanRequestId)
+                .orElseThrow(LoanRequestNotFoundException::new);
+        validateBorrower(user, loanRequest);
+        return startLoan(loanRequest);
+    }
 
     @Transactional
     public Loan startLoan(LoanRequest loanRequest){
@@ -43,6 +81,28 @@ public class LoanService {
         Loan loan = save(buildLoan(loanRequest, bankAgent));
         plannedPaymentService.save(buildPlannedPayments(loan));
         return loan;
+    }
+
+    public Loan save(Loan loan){
+        return loanRepository.save(loan);
+    }
+
+    @Transactional
+    public ActualPayment acceptPayment(long loanRequestId, PaymentRequest paymentRequest, User user) {
+        Loan loan = getLoanByRequestId(loanRequestId);
+        validateBorrower(user, loan.getRequest());
+        try {
+            return actualPaymentService.createPayment(loan, paymentRequest);
+        } catch (Exception e) {
+            log.error("Ошибка создания платежа по кредиту с id='{}'", loanRequestId, e);
+            throw new AcceptPaymentException("Ошибка создания платежа по кредиту с id=" + loanRequestId, e);
+        }
+    }
+
+    private void validateBorrower(User borrower, LoanRequest loanRequest){
+        if (!Objects.equals(loanRequest.getCompany().getId(), borrower.getCompany().getId())) {
+            throw new ForbiddenResourceException("Операция выполняется не от создателя заявки");
+        }
     }
 
     private List<PlannedPayment> buildPlannedPayments(Loan loan) {
@@ -85,12 +145,8 @@ public class LoanService {
         loan.setRegistrationDate(registrationDate);
         loan.setRate(loanRequest.getRate());
         loan.setCloseDate(registrationDate.plusMonths(loanRequest.getTerm()));
-        loan.setSum((double) loanRequest.getSum());
+        loan.setSum(loanRequest.getSum());
         return loan;
-    }
-
-    public Loan save(Loan loan){
-        return loanRepository.save(loan);
     }
 
     private Bank findBankAgent(List<SyndicateParticipant> finalSyndicateParticipants) {

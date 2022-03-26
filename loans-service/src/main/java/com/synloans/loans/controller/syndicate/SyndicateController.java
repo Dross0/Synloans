@@ -42,8 +42,8 @@ public class SyndicateController {
     }
 
     @Secured(UserRole.ROLE_BANK)
-    @DeleteMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void quitFrom(@PathVariable("id") Long id, Authentication authentication){
+    @DeleteMapping(value = "/{loanRequestId}")
+    public void quitFrom(@PathVariable("loanRequestId") Long id, Authentication authentication){
         syndicateParticipantService.quitFromSyndicate(id,  getBankByUsername(authentication));
     }
 

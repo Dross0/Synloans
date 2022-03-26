@@ -3,9 +3,11 @@ package com.synloans.loans.service.user;
 import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.repository.user.UserRepository;
 import com.synloans.loans.service.exception.CreateUserException;
+import com.synloans.loans.service.exception.UserUnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,6 +32,17 @@ public class UserService implements UserDetailsService {
         }
         return user;
     }
+
+    public User getCurrentUser(Authentication authentication){
+        String username = authentication.getName();
+        User curUser = getUserByUsername(username);
+        if (curUser == null){
+            log.error("Не удалось найти текущего пользователя с username={}", username);
+            throw new UserUnauthorizedException("Не удалось найти текущего пользователя с username=" + username);
+        }
+        return curUser;
+    }
+
 
     public User getUserByUsername(String username){
         return userRepository.findUserByUsername(username);

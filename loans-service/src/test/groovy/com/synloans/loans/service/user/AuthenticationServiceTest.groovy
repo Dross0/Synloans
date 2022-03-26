@@ -40,9 +40,9 @@ class AuthenticationServiceTest extends Specification{
                 bankService,
                 roleRepository,
                 authenticationManager,
-                jwtService
+                jwtService,
+                passwordEncoder
         )
-        authenticationService.setPasswordEncoder(passwordEncoder)
     }
 
 

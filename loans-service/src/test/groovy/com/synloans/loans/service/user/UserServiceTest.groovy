@@ -4,6 +4,8 @@ package com.synloans.loans.service.user
 import com.synloans.loans.model.entity.user.User
 import com.synloans.loans.repository.user.UserRepository
 import com.synloans.loans.service.exception.CreateUserException
+import com.synloans.loans.service.exception.UserUnauthorizedException
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import spock.lang.Specification
 
@@ -122,5 +124,39 @@ class UserServiceTest extends Specification{
             id || exist
             1  || true
             13 || false
+    }
+
+    def "Тест. Получение текущего пользователя"(){
+        given:
+            User expectedUser = new User()
+            expectedUser.username = "123dr"
+
+            Authentication auth = Stub(Authentication){
+                name >> expectedUser.username
+            }
+
+        when:
+            User user = userService.getCurrentUser(auth)
+
+        then:
+            1 * userRepository.findUserByUsername(expectedUser.username) >> expectedUser
+            user == expectedUser
+    }
+
+    def "Тест. Ошибка при полПолучение текущего пользователя"(){
+        given:
+            User expectedUser = new User()
+            expectedUser.username = "123dr"
+
+            Authentication auth = Stub(Authentication){
+                name >> expectedUser.username
+            }
+
+        when:
+            userService.getCurrentUser(auth)
+
+        then:
+            1 * userRepository.findUserByUsername(expectedUser.username) >> null
+            thrown(UserUnauthorizedException)
     }
 }

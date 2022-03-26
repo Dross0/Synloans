@@ -1,6 +1,5 @@
 package com.synloans.loans.controller.loan
 
-
 import com.synloans.loans.mapper.CompanyMapper
 import com.synloans.loans.mapper.converter.LoanRequestConverter
 import com.synloans.loans.mapper.converter.SyndicateParticipantConverter
@@ -13,12 +12,11 @@ import com.synloans.loans.model.entity.loan.LoanRequest
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
 import com.synloans.loans.model.entity.user.User
 import com.synloans.loans.service.exception.LoanRequestNotFoundException
+import com.synloans.loans.service.exception.UserUnauthorizedException
 import com.synloans.loans.service.loan.LoanRequestService
 import com.synloans.loans.service.syndicate.SyndicateParticipantService
 import com.synloans.loans.service.user.UserService
-import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
-import org.springframework.web.server.ResponseStatusException
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -38,7 +36,7 @@ class LoanRequestControllerTest extends Specification{
                 userService,
                 syndicateParticipantService,
                 new SyndicateParticipantConverter(),
-                new LoanRequestConverter(),
+                new LoanRequestConverter(loanRequestService),
                 new CompanyMapper()
         )
     }
@@ -51,25 +49,67 @@ class LoanRequestControllerTest extends Specification{
         when:
             loanRequestController.createLoanRequest(Stub(LoanRequestDto), auth)
         then:
-            1 * userService.getUserByUsername(username) >> null
-            def e = thrown(ResponseStatusException)
-            e.status == HttpStatus.UNAUTHORIZED
+            1 * userService.getCurrentUser(auth) >> {throw new UserUnauthorizedException()}
+            thrown(UserUnauthorizedException)
     }
 
     def "Тест. Создание заявки"(){
         given:
+            def loanRqId = 11
             def username = "dross"
             def auth = Stub(Authentication)
             auth.getName() >> username
             def loanRqDto = Stub(LoanRequestDto)
-            def curUser = Stub(User){
-                company >> Stub(Company)
+
+        def company = Stub(Company){
+                it.id >> 10
+                it.inn >> "123"
+                it.kpp >> "345"
+                it.fullName >> "SberBank"
+                it.shortName >> "Sber"
+                it.actualAddress >> "Act Address"
+                it.legalAddress >> "Leg Address"
+            }
+            def loanRq = Stub(LoanRequest){
+                it.company >> company
+                it.id >> loanRqId
+                it.term >> 14
+                it.createDate >> LocalDate.now()
+                it.rate >> 10.2d
+                it.sum >> 100_000
+                it.syndicate >> null
+            }
+            def user = Stub(User){
+                it.company >> company
             }
         when:
-            loanRequestController.createLoanRequest(loanRqDto, auth)
+            def response = loanRequestController.createLoanRequest(loanRqDto, auth)
+
         then:
-            1 * userService.getUserByUsername(username) >> curUser
-            1 * loanRequestService.createRequest(loanRqDto, curUser.company)
+            1 * userService.getCurrentUser(auth) >> user
+            1 * loanRequestService.createRequest(loanRqDto, user.company) >> loanRq
+            1 * loanRequestService.getStatus(loanRq) >> LoanRequestStatus.OPEN
+            with(response){
+                with(borrower){
+                    id == company.id
+                    inn == company.inn
+                    kpp == company.kpp
+                    fullName == company.fullName
+                    shortName == company.shortName
+                    actualAddress == company.actualAddress
+                    legalAddress == company.legalAddress
+                }
+                banks.isEmpty()
+                with(info){
+                    status == LoanRequestStatus.OPEN
+                    id == loanRq.id
+                    term == loanRq.term
+                    maxRate == loanRq.rate
+                    dateIssue == null
+                    dateCreate == loanRq.createDate
+                    sum == LoanSum.valueOf(loanRq.sum)
+                }
+            }
     }
 
     def "Тест. Получение участников синдиката под заявкой"(){
@@ -113,7 +153,7 @@ class LoanRequestControllerTest extends Specification{
         when:
             def response = loanRequestController.getRequestById(loanRqId, auth)
         then:
-            2 * userService.getUserByUsername(username) >> user
+            2 * userService.getCurrentUser(auth) >> user
             1 * loanRequestService.getOwnedCompanyLoanRequestById(loanRqId, user.company) >> loanRq
             1 * loanRequestService.getStatus(loanRq) >> LoanRequestStatus.OPEN
             with(response){
@@ -170,7 +210,7 @@ class LoanRequestControllerTest extends Specification{
         when:
             def response = loanRequestController.getRequestById(loanRqId, auth)
         then:
-            1 * userService.getUserByUsername(username) >> user
+            1 * userService.getCurrentUser(auth) >> user
             1 * user.hasRole("ROLE_BANK") >> true
             1 * loanRequestService.getById(loanRq.id) >> Optional.of(loanRq)
             1 * loanRequestService.getStatus(loanRq) >> LoanRequestStatus.OPEN
@@ -213,7 +253,7 @@ class LoanRequestControllerTest extends Specification{
         when:
             def response = loanRequestController.getRequestById(loanRqId, auth)
         then:
-            1 * userService.getUserByUsername(username) >> user
+            1 * userService.getCurrentUser(auth) >> user
             1 * user.hasRole("ROLE_BANK") >> true
             1 * loanRequestService.getById(loanRq.id) >> Optional.empty()
             thrown(LoanRequestNotFoundException)
@@ -262,7 +302,7 @@ class LoanRequestControllerTest extends Specification{
         when:
             def response = loanRequestController.getCompanyRequests(auth)
         then:
-            1 * userService.getUserByUsername(username) >> user
+            1 * userService.getCurrentUser(auth) >> user
             1 * loanRequestService.getStatus(loanRq1) >> LoanRequestStatus.OPEN
             1 * loanRequestService.getStatus(loanRq2) >> LoanRequestStatus.ISSUE
             with(response[0]){
@@ -410,7 +450,7 @@ class LoanRequestControllerTest extends Specification{
         when:
             loanRequestController.deleteRequest(loanRqId, auth)
         then:
-            1 * userService.getUserByUsername(username) >> user
+            1 * userService.getCurrentUser(auth) >> user
             1 * loanRequestService.getOwnedCompanyLoanRequestById(loanRqId, user.company) >> loanRq
             1 * loanRequestService.deleteById(loanRqId)
     }

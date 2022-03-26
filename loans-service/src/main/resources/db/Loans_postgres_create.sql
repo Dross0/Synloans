@@ -44,8 +44,8 @@ CREATE TABLE Document (
 
 CREATE TABLE Loan (
                         "id" serial NOT NULL,
-                        "sum" FLOAT NOT NULL,
-                        "rate" FLOAT NOT NULL,
+                        "sum" bigint NOT NULL,
+                        "rate" DECIMAL NOT NULL,
                         "registration_date" DATE NOT NULL,
                         "close_date" DATE NOT NULL,
                         "request" integer NOT NULL,
@@ -91,8 +91,8 @@ CREATE TABLE Syndicate_participant (
                                          "id" serial NOT NULL,
                                          "bank_id" integer NOT NULL,
                                          "syndicate_id" integer NOT NULL,
-                                         "loan_sum" DECIMAL NOT NULL,
-                                         "issued_loan_sum" DECIMAL,
+                                         "loan_sum" bigint NOT NULL,
+                                         "issued_loan_sum" bigint,
                                          "approve_bank_agent" boolean NOT NULL,
                                          CONSTRAINT "Syndicate_participant_pk" PRIMARY KEY ("id")
 ) WITH (
@@ -107,8 +107,8 @@ CREATE TABLE Syndicate_participant (
 CREATE TABLE Loan_request (
                                 "id" serial NOT NULL,
                                 "company" integer NOT NULL,
-                                "sum" integer NOT NULL,
-                                "rate" FLOAT NOT NULL,
+                                "sum" bigint NOT NULL,
+                                "rate" DECIMAL NOT NULL,
                                 "term" integer NOT NULL,
                                 "create_date" date NOT NULL,
                                 CONSTRAINT "Loan_request_pk" PRIMARY KEY ("id")
@@ -132,8 +132,7 @@ CREATE TABLE Planned_payment (
 
 CREATE TABLE Actual_payment (
                                          "id" serial NOT NULL,
-                                         "principal" DECIMAL NOT NULL,
-                                         "percent" DECIMAL NOT NULL,
+                                         "payment" bigint NOT NULL,
                                          "date" DATE NOT NULL,
                                          "loan_id" integer NOT NULL,
                                          CONSTRAINT "Actual_payment_pk" PRIMARY KEY ("id")

@@ -18,12 +18,10 @@ import com.synloans.loans.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -33,7 +31,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/loan/requests")
+@RequestMapping("/loans/requests")
 @Slf4j
 public class LoanRequestController {
 
@@ -46,21 +44,22 @@ public class LoanRequestController {
     private final Mapper<Company, CompanyDto> companyMapper;
 
     @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void createLoanRequest(
+    public LoanRequestResponse createLoanRequest(
             @RequestBody @Valid LoanRequestDto loanRequestDto,
             Authentication authentication
     ){
-        User user = getCurrentUser(authentication);
-        loanRequestService.createRequest(
+        User user = userService.getCurrentUser(authentication);
+        LoanRequest loanRequest = loanRequestService.createRequest(
                 loanRequestDto,
                 user.getCompany()
         );
+        return buildResponse(loanRequest);
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<LoanRequestResponse> getCompanyRequests(Authentication authentication){
-        User user = getCurrentUser(authentication);
+        User user = userService.getCurrentUser(authentication);
         return buildCollectionResponse(user.getCompany().getLoanRequests());
     }
 
@@ -68,7 +67,7 @@ public class LoanRequestController {
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public LoanRequestResponse getRequestById(@PathVariable("id") Long id, Authentication authentication){
-        User user = getCurrentUser(authentication);
+        User user = userService.getCurrentUser(authentication);
         if (user.hasRole(UserRole.ROLE_BANK)){
             return buildResponse(
                     loanRequestService.getById(id)
@@ -98,7 +97,7 @@ public class LoanRequestController {
     }
 
     private LoanRequest getOwnedLoanRequestById(long id, Authentication authentication){
-        User user = getCurrentUser(authentication);
+        User user = userService.getCurrentUser(authentication);
         return loanRequestService.getOwnedCompanyLoanRequestById(id, user.getCompany());
     }
 
@@ -111,7 +110,6 @@ public class LoanRequestController {
     private LoanRequestResponse buildResponse(LoanRequest loanRequest){
         LoanRequestResponse response = new LoanRequestResponse();
         LoanRequestInfo info = loanRequestConverter.convert(loanRequest);
-        info.setStatus(loanRequestService.getStatus(loanRequest));
         response.setInfo(info);
         response.setBanks(Collections.emptyList());
         if (loanRequest.getSyndicate() != null){
@@ -128,15 +126,5 @@ public class LoanRequestController {
         );
 
         return response;
-    }
-
-    private User getCurrentUser(Authentication authentication){
-        String username = authentication.getName();
-        User curUser = userService.getUserByUsername(username);
-        if (curUser == null){
-            log.error("Не удалось найти текущего пользователя с username={}", username);
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Не удалось получить текущего пользователя с username=" + username);
-        }
-        return curUser;
     }
 }

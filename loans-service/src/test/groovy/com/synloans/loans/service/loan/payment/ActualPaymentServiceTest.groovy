@@ -1,8 +1,12 @@
 package com.synloans.loans.service.loan.payment
 
+import com.synloans.loans.model.dto.loan.payments.PaymentRequest
+import com.synloans.loans.model.entity.loan.Loan
 import com.synloans.loans.model.entity.loan.payment.ActualPayment
 import com.synloans.loans.repository.loan.payment.ActualPaymentRepository
 import spock.lang.Specification
+
+import java.time.LocalDate
 
 class ActualPaymentServiceTest extends Specification {
     private ActualPaymentService paymentService
@@ -43,5 +47,27 @@ class ActualPaymentServiceTest extends Specification {
             id  || resultPayment
             2   || Optional.empty()
             10  || Optional.of(Stub(ActualPayment))
+    }
+
+    def "Тест. Создание фактического платежа"(){
+        given:
+        Loan loan = new Loan()
+        loan.actualPayments = []
+
+        PaymentRequest paymentRequest = new PaymentRequest()
+        paymentRequest.payment = 1000l
+        paymentRequest.date = LocalDate.now()
+
+        when:
+            ActualPayment actualPayment = paymentService.createPayment(loan, paymentRequest)
+
+        then:
+            1 * paymentRepository.save(_) >> {ActualPayment payment ->
+                return payment
+            }
+            assert loan.actualPayments.contains(actualPayment)
+            assert actualPayment.payment == paymentRequest.payment
+            assert actualPayment.date == paymentRequest.date
+            assert actualPayment.loan == loan
     }
 }

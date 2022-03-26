@@ -20,7 +20,7 @@ public class Loan {
     private Long id;
 
     @Column(name = "sum")
-    private Double sum;
+    private Long sum;
 
     @Column(name = "rate")
     private Double rate;
