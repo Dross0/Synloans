@@ -39,5 +39,8 @@ public final class RequirementsUtils {
         requireThat(Objects.equals(obj1, obj2), message);
     }
 
+    public static void requirePositive(Number number, String message){
+        requireThat(number.doubleValue() > 0.0, message);
+    }
 
 }

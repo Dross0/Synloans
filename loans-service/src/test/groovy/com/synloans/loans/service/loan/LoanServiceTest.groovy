@@ -11,7 +11,11 @@ import com.synloans.loans.model.entity.syndicate.Syndicate
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
 import com.synloans.loans.model.entity.user.User
 import com.synloans.loans.repository.loan.LoanRepository
-import com.synloans.loans.service.exception.*
+import com.synloans.loans.service.exception.AcceptPaymentException
+import com.synloans.loans.service.exception.ForbiddenResourceException
+import com.synloans.loans.service.exception.InvalidLoanRequestException
+import com.synloans.loans.service.exception.notfound.LoanNotFoundException
+import com.synloans.loans.service.exception.notfound.LoanRequestNotFoundException
 import com.synloans.loans.service.loan.payment.ActualPaymentService
 import com.synloans.loans.service.loan.payment.PlannedPaymentService
 import com.synloans.loans.service.syndicate.SyndicateParticipantService

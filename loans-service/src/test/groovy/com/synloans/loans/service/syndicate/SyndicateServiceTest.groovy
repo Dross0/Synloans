@@ -6,7 +6,7 @@ import com.synloans.loans.model.entity.loan.LoanRequest
 import com.synloans.loans.model.entity.syndicate.Syndicate
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
 import com.synloans.loans.repository.syndicate.SyndicateRepository
-import com.synloans.loans.service.exception.LoanRequestNotFoundException
+import com.synloans.loans.service.exception.notfound.LoanRequestNotFoundException
 import com.synloans.loans.service.loan.LoanRequestService
 import spock.lang.Specification
 

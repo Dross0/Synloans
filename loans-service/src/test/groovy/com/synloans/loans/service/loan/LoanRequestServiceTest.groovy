@@ -10,7 +10,7 @@ import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
 import com.synloans.loans.repository.loan.LoanRequestRepository
 import com.synloans.loans.service.exception.ForbiddenResourceException
 import com.synloans.loans.service.exception.InvalidLoanRequestException
-import com.synloans.loans.service.exception.LoanRequestNotFoundException
+import com.synloans.loans.service.exception.notfound.LoanRequestNotFoundException
 import spock.lang.Specification
 
 import java.time.LocalDate

@@ -22,22 +22,6 @@ sourceSets {
             srcDir rootProject.file("config/dev")
         }
     }
-    test {
-        java {
-            srcDir 'src/test/java'
-            java.outputDir = file('bin/main')
-        }
-        resources {
-            srcDir rootProject.file("config/test")
-        }
-    }
-    integrationTest {
-        java {
-            compileClasspath += main.output + test.output
-            runtimeClasspath += main.output + test.output
-            srcDir file('src/integrationTest/java')
-        }
-    }
 }
 
 configurations {
@@ -61,7 +45,7 @@ dependencies {
     cordapp project(":contracts")
 }
 
-task integrationTest(type: Test, dependsOn: []) {
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-}
+//task integrationTest(type: Test, dependsOn: []) {
+//    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+//    classpath = sourceSets.integrationTest.runtimeClasspath
+//}

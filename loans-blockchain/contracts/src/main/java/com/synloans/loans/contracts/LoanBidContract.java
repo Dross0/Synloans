@@ -21,19 +21,10 @@ public class LoanBidContract implements Contract {
     @Override
     public void verify(@NotNull LedgerTransaction tx) throws IllegalArgumentException {
         CommandData commandData = tx.getCommands().get(0).getValue();
-        log.warn("Contract loan bid");
         if (commandData instanceof LoanBidContract.Commands.Submit) {
-            try {
-                verifySubmitCommand(tx);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
+            verifySubmitCommand(tx);
         } else if (commandData instanceof LoanBidContract.Commands.Approve) {
-            try {
-                verifyApproveCommand(tx);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
+            verifyApproveCommand(tx);
         } else {
             log.error("Unknown command - {}", commandData.getClass().getName());
             throw new UnsupportedOperationException(commandData.getClass().getName() + " - unknown");
@@ -143,8 +134,8 @@ public class LoanBidContract implements Contract {
 
     public interface Commands extends CommandData {
 
-        class Submit implements ProjectContract.Commands {}
+        class Submit implements Commands {}
 
-        class Approve implements ProjectContract.Commands {}
+        class Approve implements Commands {}
     }
 }

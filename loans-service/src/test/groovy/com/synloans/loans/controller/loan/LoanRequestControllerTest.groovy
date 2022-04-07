@@ -11,8 +11,8 @@ import com.synloans.loans.model.entity.loan.Loan
 import com.synloans.loans.model.entity.loan.LoanRequest
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
 import com.synloans.loans.model.entity.user.User
-import com.synloans.loans.service.exception.LoanRequestNotFoundException
 import com.synloans.loans.service.exception.UserUnauthorizedException
+import com.synloans.loans.service.exception.notfound.LoanRequestNotFoundException
 import com.synloans.loans.service.loan.LoanRequestService
 import com.synloans.loans.service.syndicate.SyndicateParticipantService
 import com.synloans.loans.service.user.UserService
