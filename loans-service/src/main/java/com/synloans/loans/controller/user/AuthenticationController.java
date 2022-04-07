@@ -4,17 +4,19 @@ import com.synloans.loans.model.authentication.AuthenticationRequest;
 import com.synloans.loans.model.authentication.AuthenticationResponse;
 import com.synloans.loans.model.authentication.RegistrationRequest;
 import com.synloans.loans.model.entity.company.Company;
+import com.synloans.loans.service.exception.UserUnauthorizedException;
 import com.synloans.loans.service.user.AuthenticationService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 
@@ -32,10 +34,16 @@ public class AuthenticationController {
             String jwt = authenticationService.login(authenticationRequest.getEmail(), authenticationRequest.getPassword());
             return new AuthenticationResponse(jwt);
         } catch (BadCredentialsException e){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Неверный логин или пароль");
+            throw new UserUnauthorizedException("Неверный логин или пароль");
         }
     }
 
+    @ApiOperation(value = "Registration of new user")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "User successfully register"),
+            @ApiResponse(code = 404, message = "Failed search or creating user company"),
+            @ApiResponse(code = 401, message = "Error while register new user")
+    })
     @PostMapping(value = "/registration", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void registration(@RequestBody @Valid RegistrationRequest registrationRequest) {
         Company company = new Company();

@@ -141,7 +141,19 @@ CREATE TABLE Actual_payment (
     );
 
 
+CREATE TABLE company_nodes (
+                                         "id" serial NOT NULL,
+                                         "node_address" varchar(512) NOT NULL,
+                                         "node_user" varchar(256) NOT NULL,
+                                         "node_password" varchar(256) NOT NULL,
+                                         "company_id" integer NOT NULL,
+                                         CONSTRAINT "company_nodes_pk" PRIMARY KEY ("id")
+) WITH (
+      OIDS=FALSE
+    );
 
+
+ALTER TABLE company_nodes ADD CONSTRAINT "Company_nodes_fk0" FOREIGN KEY ("company_id") REFERENCES Company("id");
 
 ALTER TABLE Contract ADD CONSTRAINT "Contract_fk0" FOREIGN KEY ("document_id") REFERENCES Document("id");
 

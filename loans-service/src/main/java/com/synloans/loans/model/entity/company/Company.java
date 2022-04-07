@@ -2,6 +2,7 @@ package com.synloans.loans.model.entity.company;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.synloans.loans.model.entity.loan.LoanRequest;
+import com.synloans.loans.model.entity.node.CompanyNode;
 import com.synloans.loans.model.entity.user.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Table(name = "Company")
@@ -60,4 +63,25 @@ public class Company {
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<LoanRequest> loanRequests;
+
+    @OneToMany(
+            mappedBy = "company",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @JsonIgnore
+    private List<CompanyNode> nodes;
+
+    public void addNode(CompanyNode node){
+        Objects.requireNonNull(node, "Node cant be null");
+        nodes.add(node);
+        node.setCompany(this);
+    }
+
+    public void removeNode(CompanyNode node){
+        Objects.requireNonNull(node, "Node cant be null");
+        nodes.remove(node);
+        node.setCompany(null);
+    }
 }

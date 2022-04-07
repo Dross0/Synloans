@@ -44,4 +44,21 @@ public class Loan {
 
     @OneToMany(mappedBy = "loan")
     private List<ActualPayment> actualPayments;
+
+    @OneToOne(
+            mappedBy = "loan",
+            cascade = CascadeType.ALL
+    )
+    private BlockchainLoanId blockchainLoanId;
+
+    public void setBlockchainLoanId(BlockchainLoanId blockchainLoanId) {
+        if (blockchainLoanId == null){
+            if (this.blockchainLoanId != null){
+                this.blockchainLoanId.setLoan(null);
+            }
+        } else {
+            blockchainLoanId.setLoan(this);
+        }
+        this.blockchainLoanId = blockchainLoanId;
+    }
 }

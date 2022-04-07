@@ -9,3 +9,15 @@ spring:
     username: postgres
     password: postgres
     driverClassName: org.postgresql.Driver
+
+blockchain:
+  service:
+    host:
+      http://localhost:9393
+
+jwt:
+  key: secretKey
+  expiration-time: 5000000
+
+server:
+  port: 8080

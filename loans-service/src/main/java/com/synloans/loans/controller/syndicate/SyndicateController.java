@@ -5,22 +5,25 @@ import com.synloans.loans.model.entity.company.Bank;
 import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.security.UserRole;
 import com.synloans.loans.service.company.BankService;
+import com.synloans.loans.service.exception.SyndicateJoinException;
+import com.synloans.loans.service.exception.UserUnauthorizedException;
+import com.synloans.loans.service.exception.notfound.BankNotFoundException;
 import com.synloans.loans.service.syndicate.SyndicateParticipantService;
 import com.synloans.loans.service.syndicate.SyndicateService;
 import com.synloans.loans.service.user.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/syndicates")
 @RequiredArgsConstructor
+@Slf4j
 public class SyndicateController {
     private final UserService userService;
     private final BankService bankService;
@@ -37,7 +40,7 @@ public class SyndicateController {
         Bank bank = getBankByUsername(authentication);
         syndicateService.joinBankToSyndicate(joinRequest, bank)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Не удалось зарегистировать участника синдиката")
+                        new SyndicateJoinException("Не удалось зарегистировать участника синдиката")
                 );
     }
 
@@ -50,11 +53,13 @@ public class SyndicateController {
     private Bank getBankByUsername(Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
         if (user == null){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            log.error("Not found current user by username='{}'", authentication.getName());
+            throw new UserUnauthorizedException("User with name=" + authentication.getName() + " is unauthorized");
         }
         Bank bank = bankService.getByCompany(user.getCompany());
         if (bank == null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не найден банк пользователя");
+            log.error("Not found bank at user='{}' with company='{}'", user.getUsername(), user.getCompany().getFullName());
+            throw new BankNotFoundException("Не найден банк пользователя");
         }
         return bank;
     }

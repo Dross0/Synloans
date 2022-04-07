@@ -1,10 +1,8 @@
-package com.synloans.loans.service.exception;
+package com.synloans.loans.service.exception.notfound;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import com.synloans.loans.service.exception.notfound.base.NotFoundException;
 
-@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Кредит не найден")
-public class LoanNotFoundException extends RuntimeException{
+public class LoanNotFoundException extends NotFoundException {
 
     public LoanNotFoundException() {
     }

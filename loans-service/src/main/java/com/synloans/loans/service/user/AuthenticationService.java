@@ -9,6 +9,8 @@ import com.synloans.loans.security.util.JwtService;
 import com.synloans.loans.service.company.BankService;
 import com.synloans.loans.service.company.CompanyService;
 import com.synloans.loans.service.exception.CreateUserException;
+import com.synloans.loans.service.exception.notfound.BankNotFoundException;
+import com.synloans.loans.service.exception.notfound.CompanyNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -60,7 +62,7 @@ public class AuthenticationService {
                 .orElseGet(() -> companyService.create(companyInfo));
         if (company == null){
             log.error("Не удалось найти/создать компанию с инн={} и кпп={}", companyInfo.getInn(), companyInfo.getKpp());
-            throw new CreateUserException("Не удалось найти/создать компанию с инн="
+            throw new CompanyNotFoundException("Не удалось найти/создать компанию с инн="
                     + companyInfo.getInn() + " и кпп=" + companyInfo.getKpp());
         }
         user.setCompany(company);
@@ -88,7 +90,7 @@ public class AuthenticationService {
             company = companyService.create(companyInfo);
             if (bankService.createBank(company) == null){
                 log.error("Не удалось найти/создать банк: {}", companyInfo.getFullName());
-                throw new CreateUserException("Ну удалось найти или создать банк = " + companyInfo.getFullName());
+                throw new BankNotFoundException("Ну удалось найти или создать банк = " + companyInfo.getFullName());
             }
         }
         user.setCompany(company);

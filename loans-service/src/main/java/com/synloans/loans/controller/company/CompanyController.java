@@ -4,11 +4,10 @@ import com.synloans.loans.mapper.Mapper;
 import com.synloans.loans.model.dto.CompanyDto;
 import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.service.company.CompanyService;
+import com.synloans.loans.service.exception.notfound.CompanyNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +27,7 @@ public class CompanyController {
     public CompanyDto getById(@PathVariable("id") Long id){
         Company company = companyService.getById(id)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Компания с id=" + id + " не найдена")
+                        new CompanyNotFoundException("Компания с id=" + id + " не найдена")
                 );
         return companyMapper.mapFrom(company);
     }

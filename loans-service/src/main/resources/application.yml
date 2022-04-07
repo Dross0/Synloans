@@ -1,3 +1,17 @@
 jwt:
-  key: secretKey
-  expiration-time: 5000000
+  key: ${JWT_SECRET_KEY}
+  expiration-time: ${JWT_EXPIRATION_TIME}
+
+server:
+  port : ${LOANS_SERVICE_PORT}
+
+spring:
+  jpa:
+    database: POSTGRESQL
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: ${LOANS_SERVICE_DB_URL}
+    username: ${LOANS_SERVICE_DB_USERNAME}
+    password: ${LOANS_SERVICE_DB_PASSWORD}
+    driverClassName: org.postgresql.Driver
