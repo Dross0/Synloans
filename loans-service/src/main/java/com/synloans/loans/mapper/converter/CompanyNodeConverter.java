@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class CompanyNodeUserInfo implements Converter<Company, NodeUserInfo> {
+public class CompanyNodeConverter implements Converter<Company, NodeUserInfo> {
 
 
     @Override

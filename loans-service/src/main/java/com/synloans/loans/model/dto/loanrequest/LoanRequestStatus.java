@@ -2,7 +2,7 @@ package com.synloans.loans.model.dto.loanrequest;
 
 public enum LoanRequestStatus {
     OPEN("Заявка создана, идет присоединение к синдикату банков"),
-    TRANSFER("Заявка закрыта, банки переводят деньги заемщику"),
+    READY_TO_ISSUE("Заявка открыта, требуемая сумма кредита собрана"),
     ISSUE("Кредит выдан, заемщик в процессе выплаты"),
     CLOSE("Кредит выплачен");
 

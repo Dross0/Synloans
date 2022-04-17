@@ -5,7 +5,7 @@ plugins {
     id 'groovy'
 }
 
-group = 'com.sinloans'
+group = 'com.synloans'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
@@ -21,7 +21,7 @@ repositories {
 
 jar {
     manifest {
-        attributes "Main-Class": "com.sinloans.loans.LoansApplication"
+        attributes "Main-Class": "com.synloans.loans.LoansApplication"
     }
 }
 

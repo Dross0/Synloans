@@ -1,5 +1,6 @@
 package com.synloans.loans.service.loan;
 
+import com.synloans.loans.model.dto.collection.LoanRequestCollection;
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto;
 import com.synloans.loans.model.dto.loanrequest.LoanRequestStatus;
 import com.synloans.loans.model.entity.company.Company;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -39,8 +41,27 @@ public class LoanRequestService {
         return loanRequestRepository.save(loanRequest);
     }
 
-    public Collection<LoanRequest> getAll() {
-        return loanRequestRepository.findAll();
+    public LoanRequestCollection getAll(Company company) {
+        LoanRequestCollection loanRequestCollection = new LoanRequestCollection();
+        Collection<LoanRequest> allRequest = loanRequestRepository.findAll();
+        for (LoanRequest loanRequest: allRequest){
+            if (loanRequest.getSyndicate() != null){
+                boolean isOwn = loanRequest.getSyndicate().getParticipants()
+                        .stream()
+                        .anyMatch(syndicateParticipant ->
+                                Objects.equals(syndicateParticipant.getBank().getCompany(), company)
+                        );
+                if (isOwn){
+                    loanRequestCollection.addOwn(loanRequest);
+                } else {
+                    loanRequestCollection.addOther(loanRequest);
+                }
+            }
+            else {
+                loanRequestCollection.addOther(loanRequest);
+            }
+        }
+        return loanRequestCollection;
     }
 
     public void deleteById(Long id) {
@@ -65,15 +86,27 @@ public class LoanRequestService {
     public LoanRequestStatus getStatus(LoanRequest loanRequest) {
         Loan loan = loanRequest.getLoan();
         if (loan == null){
+            if (isReadyToIssue(loanRequest)){
+                return LoanRequestStatus.READY_TO_ISSUE;
+            }
             return LoanRequestStatus.OPEN;
         }
         if (LocalDate.now().isAfter(loan.getCloseDate())){
             return LoanRequestStatus.CLOSE;
         }
-        return LoanRequestStatus.ISSUE;  //FIXME Подумать как обрабатывать статус transfer
+        return LoanRequestStatus.ISSUE;
     }
 
-    public long calcSumFromSyndicate(LoanRequest loanRequest){
+    private boolean isReadyToIssue(LoanRequest loanRequest){
+        try {
+            return calcSumFromSyndicate(loanRequest) >= loanRequest.getSum();
+        } catch (InvalidLoanRequestException e){
+            return false;
+        }
+    }
+
+
+    private long calcSumFromSyndicate(LoanRequest loanRequest){
         Syndicate syndicate = loanRequest.getSyndicate();
         if (syndicate == null){
             throw new InvalidLoanRequestException("Синдиката на заявке нет");

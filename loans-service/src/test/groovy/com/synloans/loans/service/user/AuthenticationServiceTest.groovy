@@ -10,6 +10,8 @@ import com.synloans.loans.security.util.JwtService
 import com.synloans.loans.service.company.BankService
 import com.synloans.loans.service.company.CompanyService
 import com.synloans.loans.service.exception.CreateUserException
+import com.synloans.loans.service.exception.notfound.BankNotFoundException
+import com.synloans.loans.service.exception.notfound.CompanyNotFoundException
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -96,7 +98,7 @@ class AuthenticationServiceTest extends Specification{
             1 * companyService.getByInnAndKpp(inn, kpp) >> Optional.empty()
             1 * companyService.create(companyInfo) >> null
             0 * userService.saveUser(_ as User)
-            thrown(CreateUserException)
+            thrown(CompanyNotFoundException)
     }
 
 
@@ -166,7 +168,7 @@ class AuthenticationServiceTest extends Specification{
             1 * companyService.getByInnAndKpp(inn, kpp) >> Optional.empty()
             1 * companyService.create(companyInfo) >> company
             1 * bankService.createBank(company) >> null
-            thrown(CreateUserException)
+            thrown(BankNotFoundException)
     }
 
     def "Тест. Регистрация пользователя как новый банк"(){

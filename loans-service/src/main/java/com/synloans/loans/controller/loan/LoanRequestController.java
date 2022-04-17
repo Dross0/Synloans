@@ -1,12 +1,9 @@
 package com.synloans.loans.controller.loan;
 
-import com.synloans.loans.mapper.Mapper;
-import com.synloans.loans.model.dto.BankParticipantInfo;
-import com.synloans.loans.model.dto.CompanyDto;
+import com.synloans.loans.model.dto.collection.LoanRequestCollection;
+import com.synloans.loans.model.dto.collection.LoanRequestCollectionResponse;
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto;
-import com.synloans.loans.model.dto.loanrequest.LoanRequestInfo;
 import com.synloans.loans.model.dto.loanrequest.LoanRequestResponse;
-import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.model.entity.loan.LoanRequest;
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant;
 import com.synloans.loans.model.entity.user.User;
@@ -25,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,9 +35,8 @@ public class LoanRequestController {
     private final UserService userService;
     private final SyndicateParticipantService syndicateParticipantService;
 
-    private final Converter<SyndicateParticipant, BankParticipantInfo>  syndicateParticipantConverter;
-    private final Converter<LoanRequest, LoanRequestInfo> loanRequestConverter;
-    private final Mapper<Company, CompanyDto> companyMapper;
+    private final Converter<LoanRequest, LoanRequestResponse> loanRequestConverter;
+    private final Converter<LoanRequestCollection, LoanRequestCollectionResponse> requestCollectionConverter;
 
     @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
     public LoanRequestResponse createLoanRequest(
@@ -53,7 +48,7 @@ public class LoanRequestController {
                 loanRequestDto,
                 user.getCompany()
         );
-        return buildResponse(loanRequest);
+        return loanRequestConverter.convert(loanRequest);
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -69,12 +64,12 @@ public class LoanRequestController {
     public LoanRequestResponse getRequestById(@PathVariable("id") Long id, Authentication authentication){
         User user = userService.getCurrentUser(authentication);
         if (user.hasRole(UserRole.ROLE_BANK)){
-            return buildResponse(
+            return loanRequestConverter.convert(
                     loanRequestService.getById(id)
                             .orElseThrow(LoanRequestNotFoundException::new)
             );
         }
-        return buildResponse(getOwnedLoanRequestById(id, authentication));
+        return loanRequestConverter.convert(getOwnedLoanRequestById(id, authentication));
     }
 
     @GetMapping(value = "/{id}/participants", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -86,8 +81,9 @@ public class LoanRequestController {
     @Secured(UserRole.ROLE_BANK)
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public List<LoanRequestResponse> getAllRequests(){
-        return buildCollectionResponse(loanRequestService.getAll());
+    public LoanRequestCollectionResponse getAllRequests(Authentication authentication){
+        User user = userService.getCurrentUser(authentication);
+        return requestCollectionConverter.convert(loanRequestService.getAll(user.getCompany()));
     }
 
     @DeleteMapping(value = "/{id}")
@@ -103,28 +99,7 @@ public class LoanRequestController {
 
     private List<LoanRequestResponse> buildCollectionResponse(Collection<LoanRequest> loanRequests){
         return loanRequests.stream()
-                .map(this::buildResponse)
+                .map(loanRequestConverter::convert)
                 .collect(Collectors.toList());
-    }
-
-    private LoanRequestResponse buildResponse(LoanRequest loanRequest){
-        LoanRequestResponse response = new LoanRequestResponse();
-        LoanRequestInfo info = loanRequestConverter.convert(loanRequest);
-        response.setInfo(info);
-        response.setBanks(Collections.emptyList());
-        if (loanRequest.getSyndicate() != null){
-            response.setBanks(
-                    loanRequest.getSyndicate()
-                            .getParticipants()
-                            .stream()
-                            .map(syndicateParticipantConverter::convert)
-                            .collect(Collectors.toList())
-            );
-        }
-        response.setBorrower(
-                companyMapper.mapFrom(loanRequest.getCompany())
-        );
-
-        return response;
     }
 }

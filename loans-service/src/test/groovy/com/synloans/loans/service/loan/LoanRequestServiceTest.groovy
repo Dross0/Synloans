@@ -2,6 +2,7 @@ package com.synloans.loans.service.loan
 
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto
 import com.synloans.loans.model.dto.loanrequest.LoanRequestStatus
+import com.synloans.loans.model.entity.company.Bank
 import com.synloans.loans.model.entity.company.Company
 import com.synloans.loans.model.entity.loan.Loan
 import com.synloans.loans.model.entity.loan.LoanRequest
@@ -36,12 +37,47 @@ class LoanRequestServiceTest extends Specification {
 
     def "Тест. Получение всех заявок"(){
         given:
-            def requests = [Stub(LoanRequest), Stub(LoanRequest), Stub(LoanRequest)]
+            SyndicateParticipant curr = buildParticipant()
+            SyndicateParticipant otherParticipant1 = buildParticipant()
+            SyndicateParticipant otherParticipant2 = buildParticipant()
+            SyndicateParticipant otherParticipant3 = buildParticipant()
+            SyndicateParticipant otherParticipant4 = buildParticipant()
+
+            LoanRequest own1 = new LoanRequest()
+            Syndicate ownSynd1 = new Syndicate()
+            ownSynd1.participants = [curr, otherParticipant1, otherParticipant2, otherParticipant3, otherParticipant4]
+            own1.syndicate = ownSynd1
+
+            LoanRequest own2 = new LoanRequest()
+            Syndicate ownSynd2 = new Syndicate()
+            ownSynd2.participants = [curr]
+            own2.syndicate = ownSynd2
+
+            LoanRequest other1 = new LoanRequest()
+            Syndicate otherSyndicate = new Syndicate()
+            otherSyndicate.participants = [otherParticipant1, otherParticipant2, otherParticipant3, otherParticipant4]
+            other1.syndicate = otherSyndicate
+
+            LoanRequest other2 = new LoanRequest()
         when:
-            def allRequests = loanRequestService.getAll()
+            def requests = loanRequestService.getAll(curr.getBank().getCompany())
         then:
-            allRequests == requests
-            1 * loanRequestRepository.findAll() >> requests
+            1 * loanRequestRepository.findAll() >> [own1, other1, own2, other2]
+            requests.getOtherRequests().size() == 2
+            requests.getOtherRequests().containsAll([other1, other2])
+
+            requests.getOwnRequests().size() == 2
+            requests.getOwnRequests().containsAll([own1, own2])
+
+    }
+
+    static def buildParticipant(){
+        Company company = new Company()
+        Bank bank = new Bank()
+        bank.company = company
+        SyndicateParticipant participant = new SyndicateParticipant()
+        participant.bank = bank
+        return participant
     }
 
     def "Тест. Получение заявки по id"(){
@@ -93,10 +129,12 @@ class LoanRequestServiceTest extends Specification {
 
     def "Тест. Получение статуса по заявке"(){
         given:
-            def loanStub = Stub(Loan)
-            loanStub.closeDate >> closeDate
-            def loanRequest = Stub(LoanRequest)
-            loanRequest.loan >> (closeDate == null ? null : loanStub)
+            def loan = new Loan()
+            loan.closeDate = closeDate
+            def loanRequest = new LoanRequest()
+            if (closeDate != null) {
+                loanRequest.loan = loan
+            }
         when:
             def status = loanRequestService.getStatus(loanRequest)
         then:
@@ -106,7 +144,6 @@ class LoanRequestServiceTest extends Specification {
             null                             || LoanRequestStatus.OPEN
             LocalDate.of(2013, 1, 1)         || LoanRequestStatus.CLOSE
             LocalDate.now().plusMonths(1)    || LoanRequestStatus.ISSUE
-        //TODO LoanRequestStatus.TRANSFER
     }
 
     def "Тест. Получение заявки компании по id"(){

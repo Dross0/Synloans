@@ -9,6 +9,7 @@ import com.synloans.loans.model.blockchain.LoanId;
 import com.synloans.loans.model.blockchain.PaymentBlockchainRequest;
 import com.synloans.loans.model.dto.NodeUserInfo;
 import com.synloans.loans.model.dto.loan.payments.PaymentRequest;
+import com.synloans.loans.model.dto.loanrequest.LoanRequestStatus;
 import com.synloans.loans.model.entity.company.Bank;
 import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.model.entity.loan.BlockchainLoanId;
@@ -88,7 +89,7 @@ public class LoanService {
                 .orElseThrow(LoanRequestNotFoundException::new);
         validateBorrower(user, loanRequest);
         Loan loan = startLoan(loanRequest);
-        persistToBlockchain(loan);
+        //persistToBlockchain(loan);
         return loan;
     }
 
@@ -169,7 +170,7 @@ public class LoanService {
         validateBorrower(user, loan.getRequest());
         try {
             ActualPayment payment = actualPaymentService.createPayment(loan, paymentRequest);
-            persistPaymentToBlockchain(loan, payment);
+            //persistPaymentToBlockchain(loan, payment);
             return payment;
         } catch (Exception e) {
             log.error("Ошибка создания платежа по кредиту с id='{}'", loanRequestId, e);
@@ -284,11 +285,12 @@ public class LoanService {
     }
 
     private void validateLoanRequest(LoanRequest loanRequest) {
-        if (loanRequest.getLoan() != null){
+        LoanRequestStatus loanRequestStatus = loanRequestService.getStatus(loanRequest);
+        if (loanRequestStatus == LoanRequestStatus.ISSUE){
             throw new InvalidLoanRequestException("Кредит уже существует");
-        }
-        long sumFromSyndicate = loanRequestService.calcSumFromSyndicate(loanRequest);
-        if (sumFromSyndicate < loanRequest.getSum()){
+        } else if (loanRequestStatus == LoanRequestStatus.CLOSE){
+            throw new InvalidLoanRequestException("Кредит уже погашен");
+        } else if (loanRequestStatus != LoanRequestStatus.READY_TO_ISSUE){
             throw new InvalidLoanRequestException("Собранной суммы недостаточно для выдачи кредита");
         }
     }

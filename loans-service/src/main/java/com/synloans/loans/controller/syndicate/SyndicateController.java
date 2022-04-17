@@ -6,7 +6,6 @@ import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.security.UserRole;
 import com.synloans.loans.service.company.BankService;
 import com.synloans.loans.service.exception.SyndicateJoinException;
-import com.synloans.loans.service.exception.UserUnauthorizedException;
 import com.synloans.loans.service.exception.notfound.BankNotFoundException;
 import com.synloans.loans.service.syndicate.SyndicateParticipantService;
 import com.synloans.loans.service.syndicate.SyndicateService;
@@ -51,11 +50,7 @@ public class SyndicateController {
     }
 
     private Bank getBankByUsername(Authentication authentication) {
-        User user = userService.getUserByUsername(authentication.getName());
-        if (user == null){
-            log.error("Not found current user by username='{}'", authentication.getName());
-            throw new UserUnauthorizedException("User with name=" + authentication.getName() + " is unauthorized");
-        }
+        User user = userService.getCurrentUser(authentication);
         Bank bank = bankService.getByCompany(user.getCompany());
         if (bank == null){
             log.error("Not found bank at user='{}' with company='{}'", user.getUsername(), user.getCompany().getFullName());

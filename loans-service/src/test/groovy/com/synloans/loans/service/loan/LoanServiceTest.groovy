@@ -1,6 +1,8 @@
 package com.synloans.loans.service.loan
 
+import com.synloans.loans.mapper.converter.CompanyNodeConverter
 import com.synloans.loans.model.dto.loan.payments.PaymentRequest
+import com.synloans.loans.model.dto.loanrequest.LoanRequestStatus
 import com.synloans.loans.model.entity.company.Bank
 import com.synloans.loans.model.entity.company.Company
 import com.synloans.loans.model.entity.loan.Loan
@@ -11,6 +13,7 @@ import com.synloans.loans.model.entity.syndicate.Syndicate
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
 import com.synloans.loans.model.entity.user.User
 import com.synloans.loans.repository.loan.LoanRepository
+import com.synloans.loans.service.blockchain.BlockchainService
 import com.synloans.loans.service.exception.AcceptPaymentException
 import com.synloans.loans.service.exception.ForbiddenResourceException
 import com.synloans.loans.service.exception.InvalidLoanRequestException
@@ -30,6 +33,8 @@ class LoanServiceTest extends Specification{
     private SyndicateParticipantService participantService
     private PlannedPaymentService plannedPaymentService
     private ActualPaymentService actualPaymentService
+    private BlockchainService blockchainService
+    private CompanyNodeConverter companyNodeConverter
 
     def setup(){
         loanRepository = Mock(LoanRepository)
@@ -37,12 +42,17 @@ class LoanServiceTest extends Specification{
         participantService = Mock(SyndicateParticipantService)
         plannedPaymentService = Mock(PlannedPaymentService)
         actualPaymentService = Mock(ActualPaymentService)
+        blockchainService = Mock(BlockchainService)
+        companyNodeConverter = Mock(CompanyNodeConverter)
+
         loanService = new LoanService(
                 loanRepository,
                 loanRequestService,
                 participantService,
                 plannedPaymentService,
-                actualPaymentService
+                actualPaymentService,
+                blockchainService,
+                companyNodeConverter
         )
     }
 
@@ -57,17 +67,20 @@ class LoanServiceTest extends Specification{
             thrown(InvalidLoanRequestException)
     }
 
-    def "Тест. Ошибка при старте кредита по заявке. Суммы набранной в синдикате недостаточно"(){
+    def "Тест. Ошибка при старте кредита по заявке. Кредит не готов к выдаче"(){
         given:
             def loanRq = Stub(LoanRequest){
                 loan >> null
                 sum >> 1_000_000
             }
         when:
-            def loan = loanService.startLoan(loanRq)
+            loanService.startLoan(loanRq)
         then:
-            1 * loanRequestService.calcSumFromSyndicate(loanRq) >> 880_000
+            1 * loanRequestService.getStatus(loanRq) >> status
             thrown(InvalidLoanRequestException)
+
+        where:
+            status << [LoanRequestStatus.OPEN, LoanRequestStatus.CLOSE, LoanRequestStatus.ISSUE]
     }
 
     def "Тест. Старт кредита по заявке"(){
@@ -110,7 +123,7 @@ class LoanServiceTest extends Specification{
         when:
             def loan = loanService.startLoan(loanRq)
         then:
-            1 * loanRequestService.calcSumFromSyndicate(loanRq) >> 1_150_000
+            1 * loanRequestService.getStatus(loanRq) >> LoanRequestStatus.READY_TO_ISSUE
             1 * participantService.saveAll(_)
             1 * loanRepository.save(_ as Loan) >> {Loan l -> l}
             1 * plannedPaymentService.save(_)
@@ -178,7 +191,7 @@ class LoanServiceTest extends Specification{
             def loan = loanService.startLoanByRequestId(loanRq.id, user)
         then:
             1 * loanRequestService.getById(loanRq.id) >> Optional.of(loanRq)
-            1 * loanRequestService.calcSumFromSyndicate(loanRq) >> 1_150_000
+            1 * loanRequestService.getStatus(loanRq) >> LoanRequestStatus.READY_TO_ISSUE
             1 * participantService.saveAll(_)
             1 * loanRepository.save(_ as Loan) >> {Loan l -> l}
             1 * plannedPaymentService.save(_)
@@ -478,4 +491,6 @@ class LoanServiceTest extends Specification{
             1 * actualPaymentService.createPayment(loan, paymentRequest) >> {throw new IllegalArgumentException()}
             thrown(AcceptPaymentException)
     }
+
+    //FIXME add test to blockchain persist
 }

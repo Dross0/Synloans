@@ -1,14 +1,12 @@
 package com.synloans.loans.controller.user
 
-
 import com.synloans.loans.model.authentication.AuthenticationRequest
 import com.synloans.loans.model.authentication.RegistrationRequest
 import com.synloans.loans.model.entity.company.Company
 import com.synloans.loans.service.exception.CreateUserException
+import com.synloans.loans.service.exception.UserUnauthorizedException
 import com.synloans.loans.service.user.AuthenticationService
-import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.web.server.ResponseStatusException
 import spock.lang.Specification
 
 class AuthenticationControllerTest extends Specification {
@@ -29,11 +27,10 @@ class AuthenticationControllerTest extends Specification {
                 it.password >> password
             }
         when:
-            def authResponse = authenticationController.login(authReq)
+            authenticationController.login(authReq)
         then:
             1 * authenticationService.login(email, password) >> {throw new BadCredentialsException("")}
-            def e = thrown(ResponseStatusException)
-            e.status == HttpStatus.UNAUTHORIZED
+            thrown(UserUnauthorizedException)
     }
 
     def "Тест. Успешный логин пользователя"(){

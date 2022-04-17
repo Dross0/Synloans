@@ -1,19 +1,19 @@
 package com.synloans.loans.controller.syndicate
 
 
-import com.synloans.loans.model.dto.LoanSum
 import com.synloans.loans.model.dto.SyndicateJoinRequest
 import com.synloans.loans.model.entity.company.Bank
 import com.synloans.loans.model.entity.company.Company
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
 import com.synloans.loans.model.entity.user.User
 import com.synloans.loans.service.company.BankService
+import com.synloans.loans.service.exception.SyndicateJoinException
+import com.synloans.loans.service.exception.UserUnauthorizedException
+import com.synloans.loans.service.exception.notfound.BankNotFoundException
 import com.synloans.loans.service.syndicate.SyndicateParticipantService
 import com.synloans.loans.service.syndicate.SyndicateService
 import com.synloans.loans.service.user.UserService
-import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
-import org.springframework.web.server.ResponseStatusException
 import spock.lang.Specification
 
 class SyndicateControllerTest extends Specification{
@@ -33,32 +33,26 @@ class SyndicateControllerTest extends Specification{
 
     def "Тест. Ошибка получения текущего банковского пользователя"(){
         given:
-            def username = "dross"
             def auth = Stub(Authentication)
-            auth.getName() >> username
         when:
             syndicateController.joinTo(Stub(SyndicateJoinRequest), auth)
         then:
-            1 * userService.getUserByUsername(username) >> null
-            def e = thrown(ResponseStatusException)
-            e.status == HttpStatus.UNAUTHORIZED
+            1 * userService.getCurrentUser(auth) >> {throw new UserUnauthorizedException()}
+            thrown(UserUnauthorizedException)
     }
 
     def "Тест. Ошибка получения банка у текущего банковского пользователя"(){
         given:
-            def username = "dross"
             def auth = Stub(Authentication)
-            auth.getName() >> username
-            def user = Stub(User){
-                company >> Stub(Company)
-            }
+            def user = new User()
+            user.company = new Company()
+
         when:
             syndicateController.joinTo(Stub(SyndicateJoinRequest), auth)
         then:
-            1 * userService.getUserByUsername(username) >> user
+            1 * userService.getCurrentUser(auth) >> user
             1 * bankService.getByCompany(user.company) >> null
-            def e = thrown(ResponseStatusException)
-            e.status == HttpStatus.NOT_FOUND
+            thrown(BankNotFoundException)
     }
 
 
@@ -67,39 +61,30 @@ class SyndicateControllerTest extends Specification{
             def username = "dross"
             def auth = Stub(Authentication)
             auth.getName() >> username
-            def user = Stub(User){
-                company >> Stub(Company)
-            }
-            def joinRq = Stub(SyndicateJoinRequest)
-            def bank = Stub(Bank)
+            def user = new User()
+            user.company = new Company()
+            def joinRq = new SyndicateJoinRequest()
+            def bank = new Bank()
         when:
             syndicateController.joinTo(joinRq, auth)
         then:
-            1 * userService.getUserByUsername(username) >> user
+            1 * userService.getCurrentUser(auth) >> user
             1 * bankService.getByCompany(user.company) >> bank
             1 * syndicateService.joinBankToSyndicate(joinRq, bank) >> Optional.empty()
-            def e = thrown(ResponseStatusException)
-            e.status == HttpStatus.INTERNAL_SERVER_ERROR
+            thrown(SyndicateJoinException)
     }
 
     def "Тест. Присоединение к синдикату"(){
         given:
-            def username = "dross"
             def auth = Stub(Authentication)
-            auth.getName() >> username
-            def user = Stub(User){
-                company >> Stub(Company)
-            }
-            def joinRq = Stub(SyndicateJoinRequest){
-                requestId >> 20
-                sum >> LoanSum.valueOf(100_000)
-                approveBankAgent >> true
-            }
-            def bank = Stub(Bank)
+            def user = new User()
+            user.company = new Company()
+            def joinRq = new SyndicateJoinRequest()
+            def bank = new Bank()
         when:
             syndicateController.joinTo(joinRq, auth)
         then:
-            1 * userService.getUserByUsername(username) >> user
+            1 * userService.getCurrentUser(auth) >> user
             1 * bankService.getByCompany(user.company) >> bank
             1 * syndicateService.joinBankToSyndicate(joinRq, bank) >> Optional.of(Stub(SyndicateParticipant))
             noExceptionThrown()
@@ -108,17 +93,14 @@ class SyndicateControllerTest extends Specification{
     def "Тест. Выход из синдиката"(){
         given:
             def loanRqId = 11
-            def username = "dross"
             def auth = Stub(Authentication)
-            auth.getName() >> username
-            def user = Stub(User){
-                company >> Stub(Company)
-            }
-            def bank = Stub(Bank)
+            def user = new User()
+            user.company = new Company()
+            def bank = new Bank()
         when:
             syndicateController.quitFrom(loanRqId, auth)
         then:
-            1 * userService.getUserByUsername(username) >> user
+            1 * userService.getCurrentUser(auth) >> user
             1 * bankService.getByCompany(user.company) >> bank
             1 * syndicateParticipantService.quitFromSyndicate(loanRqId, bank)
             noExceptionThrown()

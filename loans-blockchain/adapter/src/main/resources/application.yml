@@ -1,2 +1,2 @@
 server:
-  port: 9393
+  port: ${BLOCKCHAIN_ADAPTER_SERVER_PORT}
