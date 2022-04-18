@@ -18,7 +18,7 @@ class SyndicateParticipantConverterTest extends Specification{
     def "Тест. Участник синдиката в информацию о банке"(){
         given:
             Company company = new Company()
-            company.shortName = "aaa"
+            company.fullName = "Company Co."
 
             Bank bank = new Bank()
             bank.id = 14
@@ -35,7 +35,7 @@ class SyndicateParticipantConverterTest extends Specification{
         then:
             verifyAll(bankParticipantInfo){
                 id == bank.id
-                name == company.shortName
+                name == company.fullName
                 sum == LoanSum.valueOf(syndicateParticipant.loanSum)
                 approveBankAgent == syndicateParticipant.approveBankAgent
             }

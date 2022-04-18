@@ -13,7 +13,7 @@ public class SyndicateParticipantConverter implements Converter<SyndicatePartici
     public BankParticipantInfo convert(SyndicateParticipant participant){
         return BankParticipantInfo.builder()
                 .id(participant.getBank().getId())
-                .name(participant.getBank().getCompany().getShortName())
+                .name(participant.getBank().getCompany().getFullName())
                 .sum(LoanSum.valueOf(participant.getLoanSum()))
                 .approveBankAgent(participant.isApproveBankAgent())
                 .build();

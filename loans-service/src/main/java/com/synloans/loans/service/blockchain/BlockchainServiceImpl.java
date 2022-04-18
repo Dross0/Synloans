@@ -26,9 +26,10 @@ public class BlockchainServiceImpl implements BlockchainService {
 
     @Override
     public LoanId createLoan(LoanCreateRequest loanCreateRequest) {
+        URI uri = blockchainServiceUrlFactory.getLoanCreatePostUrl();
         try{
             return restTemplate.postForObject(
-                    blockchainServiceUrlFactory.getLoanCreatePostUrl(),
+                    uri,
                     loanCreateRequest,
                     LoanId.class
             );
@@ -40,9 +41,8 @@ public class BlockchainServiceImpl implements BlockchainService {
             );
             throw new BlockchainPersistException("Loan create failed at blockchain", e);
         } catch (ResourceAccessException e){
-            URI resourceUrl = blockchainServiceUrlFactory.getLoanCreatePostUrl();
-            log.error("Resource-'{}' is unavailable, while loan create", resourceUrl);
-            throw new BlockchainPersistException("Resource is unavailable: " + resourceUrl, e);
+            log.error("Resource-'{}' is unavailable, while loan create", uri);
+            throw new BlockchainPersistException("Resource is unavailable: " + uri, e);
         } catch (Exception e){
             log.error("Unexpected error while creating loan with borrower='{}'", loanCreateRequest.getBorrower());
             throw new BlockchainPersistException("Unexpected error while creating loan", e);
@@ -51,9 +51,10 @@ public class BlockchainServiceImpl implements BlockchainService {
 
     @Override
     public void joinBank(BankJoinRequest bankJoinRequest) {
+        URI uri = blockchainServiceUrlFactory.getBankJoinPostUrl();
         try{
             restTemplate.postForLocation(
-                    blockchainServiceUrlFactory.getBankJoinPostUrl(),
+                    uri,
                     bankJoinRequest
             );
         } catch (HttpStatusCodeException e){
@@ -65,9 +66,8 @@ public class BlockchainServiceImpl implements BlockchainService {
             );
             throw new BlockchainPersistException("Bank join failed at blockchain", e);
         } catch (ResourceAccessException e){
-            URI resourceUrl = blockchainServiceUrlFactory.getBankJoinPostUrl();
-            log.error("Resource-'{}' is unavailable, while bank joining", resourceUrl);
-            throw new BlockchainPersistException("Resource is unavailable: " + resourceUrl, e);
+            log.error("Resource-'{}' is unavailable, while bank joining", uri);
+            throw new BlockchainPersistException("Resource is unavailable: " + uri, e);
         } catch (Exception e){
             log.error("Unexpected error while bank joining to loan with id='{}'", bankJoinRequest.getLoanId().getId());
             throw new BlockchainPersistException("Unexpected error while joining bank", e);
@@ -76,9 +76,10 @@ public class BlockchainServiceImpl implements BlockchainService {
 
     @Override
     public void makePayment(PaymentBlockchainRequest paymentRequest) {
+        URI uri = blockchainServiceUrlFactory.getPaymentPostUrl();
         try{
             restTemplate.postForLocation(
-                    blockchainServiceUrlFactory.getPaymentPostUrl(),
+                    uri,
                     paymentRequest
             );
         } catch (HttpStatusCodeException e){
@@ -90,9 +91,8 @@ public class BlockchainServiceImpl implements BlockchainService {
             );
             throw new BlockchainPersistException("Payment failed at blockchain", e);
         } catch (ResourceAccessException e){
-            URI resourceUrl = blockchainServiceUrlFactory.getPaymentPostUrl();
-            log.error("Resource-'{}' is unavailable, while make payment", resourceUrl);
-            throw new BlockchainPersistException("Resource is unavailable: " + resourceUrl, e);
+            log.error("Resource-'{}' is unavailable, while make payment", uri);
+            throw new BlockchainPersistException("Resource is unavailable: " + uri, e);
         } catch (Exception e){
             log.error("Unexpected error while make payment to loan with id='{}'", paymentRequest.getLoanId().getId());
             throw new BlockchainPersistException("Unexpected error while make payment", e);

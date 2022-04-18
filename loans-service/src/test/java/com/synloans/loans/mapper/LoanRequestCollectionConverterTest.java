@@ -58,7 +58,7 @@ class LoanRequestCollectionConverterTest {
 
         assertThat(collectionResponse).isNotNull();
 
-        assertThat(collectionResponse.getOwned())
+        assertThat(collectionResponse.getOwn())
                 .hasSize(2)
                 .contains(own1Response, own2Response);
 

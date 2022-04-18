@@ -26,7 +26,7 @@ public class LoanRequestCollectionResponse {
         other.add(loanRequestResponse);
     }
 
-    public Collection<LoanRequestResponse> getOwned(){
+    public Collection<LoanRequestResponse> getOwn(){
         return Collections.unmodifiableCollection(own);
     }
 
