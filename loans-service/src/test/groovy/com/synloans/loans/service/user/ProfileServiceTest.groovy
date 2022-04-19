@@ -1,7 +1,7 @@
 package com.synloans.loans.service.user
 
 import com.synloans.loans.mapper.converter.UserProfileConverter
-import com.synloans.loans.model.dto.Profile
+import com.synloans.loans.model.dto.profile.ProfileUpdateRequest
 import com.synloans.loans.model.entity.company.Bank
 import com.synloans.loans.model.entity.company.Company
 import com.synloans.loans.model.entity.user.User
@@ -61,72 +61,90 @@ class ProfileServiceTest extends Specification {
 
     def "Тест. Редактирование информации о компании в профиле"(){
         given:
+            def inn = "123"
+            def kpp = "345"
+            def fullName = "PAO Sber"
+
             def username = "dross"
-            def company = Mock(Company){
-                it.id >> 10
-                it.inn >> "123"
-                it.kpp >> "345"
-                it.fullName >> "SberBank"
-                it.shortName >> "Sber"
-                it.actualAddress >> "Act Address"
-                it.legalAddress >> "Leg Address"
-            }
-            def user = Stub(User){
-                it.username >> username
-                it.company >> company
-            }
-            def newProfile = Stub(Profile){
-                fullName >> "VTB Bank"
-                shortName >> "VTB"
-                inn >> "123"
-                legalAddress >> "New"
-                email >> null
-            }
+            Company company = new Company()
+            company.id = 10
+            company.inn = inn
+            company.kpp = kpp
+            company.fullName = fullName
+            company.shortName = "Sber"
+            company.actualAddress = "Act"
+            company.legalAddress = "leg"
+
+            def user = new User()
+            user.company = company
+            user.username = username
+
+            def profileUpdateRequest = new ProfileUpdateRequest()
+            profileUpdateRequest.shortName = "New Short"
+            profileUpdateRequest.legalAddress = "New Legal address"
+            profileUpdateRequest.actualAddress = "New Actual address"
         when:
-            profileService.editProfile(username, newProfile)
+            profileService.editProfile(username, profileUpdateRequest)
         then:
             1 * userService.getUserByUsername(username) >> user
-            1 * company.setFullName(newProfile.fullName)
-            1 * company.setShortName(newProfile.shortName)
-            1 * company.setInn(newProfile.inn)
-            1 * company.setLegalAddress(newProfile.legalAddress)
             0 * userService.saveUser(_)
             1 * companyService.save(company)
+
+            verifyAll(company){
+                id == 10
+                it.inn == inn
+                it.kpp == kpp
+                it.fullName == fullName
+                shortName == profileUpdateRequest.shortName
+                legalAddress == profileUpdateRequest.legalAddress
+                actualAddress == profileUpdateRequest.actualAddress
+            }
     }
 
     def "Тест. Редактирование информации о компании и email в профиле"(){
         given:
+            def inn = "123"
+            def kpp = "345"
+            def fullName = "PAO Sber"
+            def actualAddress = "act"
+
             def username = "dross"
-            def company = Mock(Company){
-                it.id >> 10
-                it.inn >> "123"
-                it.kpp >> "345"
-                it.fullName >> "SberBank"
-                it.shortName >> "Sber"
-                it.actualAddress >> "Act Address"
-                it.legalAddress >> "Leg Address"
-            }
-            def user = Mock(User){
-                it.username >> username
-                it.company >> company
-            }
-            def newProfile = Stub(Profile){
-                fullName >> "VTB Bank"
-                shortName >> "VTB"
-                inn >> "123"
-                legalAddress >> "New"
-                email >> "newEmail"
-            }
+            Company company = new Company()
+            company.id = 10
+            company.inn = inn
+            company.kpp = kpp
+            company.fullName = fullName
+            company.shortName = "Sber"
+            company.actualAddress = actualAddress
+            company.legalAddress = "leg"
+
+            def user = new User()
+            user.company = company
+            user.username = username
+
+            def profileUpdateRequest = new ProfileUpdateRequest()
+            profileUpdateRequest.shortName = "New Short"
+            profileUpdateRequest.legalAddress = "New Legal address"
+            profileUpdateRequest.email = "newEmail"
+
         when:
-            profileService.editProfile(username, newProfile)
+            profileService.editProfile(username, profileUpdateRequest)
         then:
             1 * userService.getUserByUsername(username) >> user
-            1 * company.setFullName(newProfile.fullName)
-            1 * company.setShortName(newProfile.shortName)
-            1 * company.setInn(newProfile.inn)
-            1 * company.setLegalAddress(newProfile.legalAddress)
-            1 * user.setUsername(newProfile.email)
             1 * userService.saveUser(user)
             1 * companyService.save(company)
+
+            user.username == profileUpdateRequest.email
+
+            verifyAll(company){
+                id == 10
+                it.inn == inn
+                it.kpp == kpp
+                it.fullName == fullName
+                shortName == profileUpdateRequest.shortName
+                legalAddress == profileUpdateRequest.legalAddress
+                it.actualAddress == actualAddress
+            }
+
     }
 }

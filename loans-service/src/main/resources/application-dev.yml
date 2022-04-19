@@ -12,8 +12,9 @@ spring:
 
 blockchain:
   service:
-    host:
-      http://localhost:9393
+    host: http://localhost:9393
+    connectionTimeout: PT5S
+    readTimeout: PT2M
 
 jwt:
   key: secretKey

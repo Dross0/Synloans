@@ -11,10 +11,15 @@ public class SyndicateParticipantConverter implements Converter<SyndicatePartici
 
     @Override
     public BankParticipantInfo convert(SyndicateParticipant participant){
+        long issuedLoanSum = 0;
+        if (participant.getIssuedLoanSum() != null){
+            issuedLoanSum = participant.getIssuedLoanSum();
+        }
         return BankParticipantInfo.builder()
                 .id(participant.getBank().getId())
                 .name(participant.getBank().getCompany().getFullName())
                 .sum(LoanSum.valueOf(participant.getLoanSum()))
+                .issuedSum(issuedLoanSum)
                 .approveBankAgent(participant.isApproveBankAgent())
                 .build();
     }

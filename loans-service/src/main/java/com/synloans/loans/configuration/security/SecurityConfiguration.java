@@ -1,8 +1,10 @@
-package com.synloans.loans.security;
+package com.synloans.loans.configuration.security;
 
+import com.synloans.loans.configuration.properties.security.JwtProperties;
 import com.synloans.loans.security.filter.JwtRequestFilter;
 import com.synloans.loans.service.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableConfigurationProperties(JwtProperties.class)
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private static final String[] AUTH_WHITELIST = {

@@ -1,7 +1,8 @@
 package com.synloans.loans.controller.user
 
-import com.synloans.loans.controller.user.UserProfileController
-import com.synloans.loans.model.dto.Profile
+
+import com.synloans.loans.model.dto.profile.Profile
+import com.synloans.loans.model.dto.profile.ProfileUpdateRequest
 import com.synloans.loans.service.user.ProfileService
 import org.springframework.security.core.Authentication
 import spock.lang.Specification
@@ -33,11 +34,11 @@ class UserProfileControllerTest extends Specification{
             def username = "dross"
             def auth = Stub(Authentication)
             auth.getName() >> username
-            def newProfile = Stub(Profile)
+            def updateRequest = new ProfileUpdateRequest()
         when:
-            userProfileController.editProfile(newProfile, auth)
+            userProfileController.editProfile(updateRequest, auth)
         then:
-            1 * profileService.editProfile(username, newProfile)
+            1 * profileService.editProfile(username, updateRequest)
     }
 
 }

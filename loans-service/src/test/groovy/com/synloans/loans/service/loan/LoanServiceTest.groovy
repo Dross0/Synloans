@@ -299,24 +299,75 @@ class LoanServiceTest extends Specification{
 
             List<PlannedPayment> expectedPayments = [new PlannedPayment(), new PlannedPayment()]
 
+            Company company = new Company()
+            company.id = 12
+
+            Syndicate syndicate = new Syndicate()
+            syndicate.participants = []
+
             Loan loan = new Loan()
             loan.plannedPayments = expectedPayments
 
             LoanRequest loanRequest = new LoanRequest()
             loanRequest.loan = loan
+            loanRequest.company = company
+            loanRequest.syndicate = syndicate
+
+            loan.request = loanRequest
         when:
-            def payments = loanService.getPlannedPaymentsByRequestId(requestId)
+            def payments = loanService.getPlannedPaymentsByRequestId(requestId, company)
         then:
             1 * loanRequestService.getById(requestId) >> Optional.of(loanRequest)
             payments == expectedPayments
     }
+
+    def "Тест. Получение планновых платежей кредита по id заявки не от участника кредита"(){
+        given:
+            def requestId = 10
+
+            List<PlannedPayment> expectedPayments = [new PlannedPayment(), new PlannedPayment()]
+
+            Company company = new Company()
+            company.id = 12
+
+            Company participantCompany = new Company()
+            participantCompany.id = 99
+            Bank bank = new Bank()
+            bank.company = participantCompany
+            SyndicateParticipant syndicateParticipant = new SyndicateParticipant()
+            syndicateParticipant.bank = bank
+            syndicateParticipant.issuedLoanSum = 1000L
+
+            Syndicate syndicate = new Syndicate()
+            syndicate.participants = [syndicateParticipant] as Set
+
+            Loan loan = new Loan()
+            loan.plannedPayments = expectedPayments
+
+            Company borrower = new Company()
+            borrower.id = 134
+
+            LoanRequest loanRequest = new LoanRequest()
+            loanRequest.loan = loan
+            loanRequest.company = borrower
+            loanRequest.syndicate = syndicate
+
+            loan.request = loanRequest
+        when:
+            loanService.getPlannedPaymentsByRequestId(requestId, company)
+        then:
+            1 * loanRequestService.getById(requestId) >> Optional.of(loanRequest)
+            thrown(ForbiddenResourceException)
+    }
+
+
 
     def "Тест. Ошибка при получении планновых платежей кредита по id несуществующей заявки"(){
         given:
             def requestId = 10
 
         when:
-            loanService.getPlannedPaymentsByRequestId(requestId)
+            loanService.getPlannedPaymentsByRequestId(requestId, new Company())
 
         then:
             1 * loanRequestService.getById(requestId) >> Optional.empty()
@@ -330,7 +381,7 @@ class LoanServiceTest extends Specification{
             loanRequest.loan == null
 
         when:
-            loanService.getPlannedPaymentsByRequestId(requestId)
+            loanService.getPlannedPaymentsByRequestId(requestId, new Company())
 
         then:
             1 * loanRequestService.getById(requestId) >> Optional.of(loanRequest)
@@ -343,16 +394,65 @@ class LoanServiceTest extends Specification{
 
             List<ActualPayment> expectedPayments = [new ActualPayment(), new ActualPayment()]
 
+            Company company = new Company()
+            company.id = 12
+
+            Syndicate syndicate = new Syndicate()
+            syndicate.participants = []
+
             Loan loan = new Loan()
             loan.actualPayments = expectedPayments
 
             LoanRequest loanRequest = new LoanRequest()
             loanRequest.loan = loan
+            loanRequest.company = company
+            loanRequest.syndicate = syndicate
+
+            loan.request = loanRequest
         when:
-            def payments = loanService.getActualPaymentsByRequestId(requestId)
+            def payments = loanService.getActualPaymentsByRequestId(requestId, company)
         then:
             1 * loanRequestService.getById(requestId) >> Optional.of(loanRequest)
             payments == expectedPayments
+    }
+
+    def "Тест. Получение фактических платежей кредита по id заявки не от участника кредита"(){
+        given:
+            def requestId = 10
+
+            List<ActualPayment> expectedPayments = [new ActualPayment(), new ActualPayment()]
+
+            Company company = new Company()
+            company.id = 12
+
+            Company participantCompany = new Company()
+            participantCompany.id = 99
+            Bank bank = new Bank()
+            bank.company = participantCompany
+            SyndicateParticipant syndicateParticipant = new SyndicateParticipant()
+            syndicateParticipant.bank = bank
+            syndicateParticipant.issuedLoanSum = 1000L
+
+            Syndicate syndicate = new Syndicate()
+            syndicate.participants = [syndicateParticipant] as Set
+
+            Loan loan = new Loan()
+            loan.actualPayments = expectedPayments
+
+            Company borrower = new Company()
+            borrower.id = 134
+
+            LoanRequest loanRequest = new LoanRequest()
+            loanRequest.loan = loan
+            loanRequest.company = borrower
+            loanRequest.syndicate = syndicate
+
+            loan.request = loanRequest
+        when:
+            loanService.getActualPaymentsByRequestId(requestId, company)
+        then:
+            1 * loanRequestService.getById(requestId) >> Optional.of(loanRequest)
+            thrown(ForbiddenResourceException)
     }
 
     def "Тест. Ошибка при получении фактических платежей кредита по id несуществующей заявки"(){
@@ -360,7 +460,7 @@ class LoanServiceTest extends Specification{
             def requestId = 10
 
         when:
-            loanService.getActualPaymentsByRequestId(requestId)
+            loanService.getActualPaymentsByRequestId(requestId, new Company())
 
         then:
             1 * loanRequestService.getById(requestId) >> Optional.empty()
@@ -374,7 +474,7 @@ class LoanServiceTest extends Specification{
             loanRequest.loan == null
 
         when:
-            loanService.getActualPaymentsByRequestId(requestId)
+            loanService.getActualPaymentsByRequestId(requestId, new Company())
 
         then:
             1 * loanRequestService.getById(requestId) >> Optional.of(loanRequest)

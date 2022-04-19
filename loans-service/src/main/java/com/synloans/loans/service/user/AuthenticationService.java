@@ -8,7 +8,6 @@ import com.synloans.loans.security.UserRole;
 import com.synloans.loans.security.util.JwtService;
 import com.synloans.loans.service.company.BankService;
 import com.synloans.loans.service.company.CompanyService;
-import com.synloans.loans.service.exception.CreateUserException;
 import com.synloans.loans.service.exception.notfound.BankNotFoundException;
 import com.synloans.loans.service.exception.notfound.CompanyNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -84,7 +83,7 @@ public class AuthenticationService {
         if (company != null){
             bank = bankService.getByCompany(company);
             if (bank == null){
-                throw new CreateUserException("Пользователь пытается зарегистрироваться по реквизитам компании, которая не является банком");
+                throw new BankNotFoundException("Пользователь пытается зарегистрироваться по реквизитам компании, которая не является банком");
             }
         } else{
             company = companyService.create(companyInfo);

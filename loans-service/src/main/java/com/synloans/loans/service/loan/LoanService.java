@@ -17,6 +17,7 @@ import com.synloans.loans.model.entity.loan.Loan;
 import com.synloans.loans.model.entity.loan.LoanRequest;
 import com.synloans.loans.model.entity.loan.payment.ActualPayment;
 import com.synloans.loans.model.entity.loan.payment.PlannedPayment;
+import com.synloans.loans.model.entity.node.CompanyNode;
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant;
 import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.payment.LoanPayment;
@@ -59,7 +60,7 @@ public class LoanService {
     private final ActualPaymentService actualPaymentService;
     private final BlockchainService blockchainService;
 
-    private final Converter<Company, NodeUserInfo> nodeUserInfoConverter;
+    private final Converter<CompanyNode, NodeUserInfo> nodeUserInfoConverter;
 
     @Transactional
     public Loan getLoanByRequestId(long loanRequestId){
@@ -73,14 +74,18 @@ public class LoanService {
     }
 
     @Transactional
-    public List<PlannedPayment> getPlannedPaymentsByRequestId(long loanRequestId){
-        return getLoanByRequestId(loanRequestId).getPlannedPayments();
+    public List<PlannedPayment> getPlannedPaymentsByRequestId(long loanRequestId, Company company){
+        Loan loan = getLoanByRequestId(loanRequestId);
+        validateLoanParticipant(company, loan);
+        return loan.getPlannedPayments();
     }
 
 
     @Transactional
-    public List<ActualPayment> getActualPaymentsByRequestId(long loanRequestId) {
-        return getLoanByRequestId(loanRequestId).getActualPayments();
+    public List<ActualPayment> getActualPaymentsByRequestId(long loanRequestId, Company company) {
+        Loan loan = getLoanByRequestId(loanRequestId);
+        validateLoanParticipant(company, loan);
+        return loan.getActualPayments();
     }
 
     @Transactional
@@ -95,14 +100,14 @@ public class LoanService {
 
     private void persistToBlockchain(Loan loan) {
         Company bankAgentCompany = loan.getBankAgent().getCompany();
-        NodeUserInfo bankAgentNode = nodeUserInfoConverter.convert(bankAgentCompany);
-        if (bankAgentNode == null){
+        if (bankAgentCompany.getNodes().isEmpty()){
             log.error("Bank agent={} at loan='{}' without nodes",
                     bankAgentCompany.getFullName(),
                     loan.getRequest().getId()
             );
             throw new NodeNotFoundException("Not found node of bank agent=" + bankAgentCompany.getFullName());
         }
+        NodeUserInfo bankAgentNode = nodeUserInfoConverter.convert(bankAgentCompany.getNodes().get(0));
 
         LoanCreateRequest loanCreateRequest = new LoanCreateRequest();
         loanCreateRequest.setBankAgent(bankAgentNode);
@@ -137,11 +142,11 @@ public class LoanService {
 
     private BankJoinRequest buildBankJoinRequest(SyndicateParticipant participant, LoanId loanId){
         Company bank = participant.getBank().getCompany();
-        NodeUserInfo bankNode = nodeUserInfoConverter.convert(bank);
-        if (bankNode == null){
+        if (bank.getNodes().isEmpty()){
             log.error("Participant bank={} without nodes", bank.getFullName());
             throw new NodeNotFoundException("Not found node of bank=" + bank.getFullName());
         }
+        NodeUserInfo bankNode = nodeUserInfoConverter.convert(bank.getNodes().get(0));
         return new BankJoinRequest(
                 bankNode,
                 loanId,
@@ -185,11 +190,12 @@ public class LoanService {
         );
 
         Company borrower = actualPayment.getLoan().getRequest().getCompany();
-        NodeUserInfo payerNode = nodeUserInfoConverter.convert(borrower);
-        if (payerNode == null){
+        if (borrower.getNodes().isEmpty()){
             log.error("No nodes for borrower company='{}'", borrower.getFullName());
             throw new NodeNotFoundException("Not found nodes of borrower: " + borrower.getFullName());
         }
+
+        NodeUserInfo payerNode = nodeUserInfoConverter.convert(borrower.getNodes().get(0));
 
         PaymentBlockchainRequest paymentRequest = new PaymentBlockchainRequest(
                 payerNode,
@@ -203,6 +209,19 @@ public class LoanService {
     private void validateBorrower(User borrower, LoanRequest loanRequest){
         if (!Objects.equals(loanRequest.getCompany().getId(), borrower.getCompany().getId())) {
             throw new ForbiddenResourceException("Операция выполняется не от создателя заявки");
+        }
+    }
+
+    private void validateLoanParticipant(Company company, Loan loan){
+        boolean isLoanBank = loan.getRequest()
+                .getSyndicate()
+                .getParticipants()
+                .stream()
+                .filter(syndicateParticipant -> syndicateParticipant.getIssuedLoanSum() > 0)
+                .anyMatch(bank -> Objects.equals(company.getId(), bank.getBank().getCompany().getId()));
+        Company borrower = loan.getRequest().getCompany();
+        if (!isLoanBank && !Objects.equals(company.getId(), borrower.getId())){
+            throw new ForbiddenResourceException("Операция выполняется не участником кредита");
         }
     }
 

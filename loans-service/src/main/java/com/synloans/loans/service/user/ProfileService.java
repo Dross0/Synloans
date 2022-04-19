@@ -1,6 +1,7 @@
 package com.synloans.loans.service.user;
 
-import com.synloans.loans.model.dto.Profile;
+import com.synloans.loans.model.dto.profile.Profile;
+import com.synloans.loans.model.dto.profile.ProfileUpdateRequest;
 import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.service.company.BankService;
@@ -27,19 +28,17 @@ public class ProfileService {
     }
 
     @Transactional
-    public void editProfile(String username, Profile newProfile){
+    public void editProfile(String username, ProfileUpdateRequest updateRequest){
         User user = userService.getUserByUsername(username);
-        if (newProfile.getEmail() != null){
-            user.setUsername(newProfile.getEmail());
+        if (updateRequest.getEmail() != null){
+            user.setUsername(updateRequest.getEmail());
             userService.saveUser(user);
         }
         Company company = user.getCompany();
-        applyIfNotNull(company::setFullName, newProfile.getFullName());
-        applyIfNotNull(company::setShortName, newProfile.getShortName());
-        applyIfNotNull(company::setInn, newProfile.getInn());
-        applyIfNotNull(company::setKpp, newProfile.getKpp());
-        applyIfNotNull(company::setActualAddress, newProfile.getActualAddress());
-        applyIfNotNull(company::setLegalAddress, newProfile.getLegalAddress());
+
+        applyIfNotNull(company::setShortName, updateRequest.getShortName());
+        applyIfNotNull(company::setActualAddress, updateRequest.getActualAddress());
+        applyIfNotNull(company::setLegalAddress, updateRequest.getLegalAddress());
 
         companyService.save(company);
     }

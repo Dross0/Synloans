@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.synloans'
-version = '0.0.2-SNAPSHOT'
+version = '0.0.4-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
@@ -34,8 +34,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    implementation 'io.springfox:springfox-boot-starter:3.0.0'
-    implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+    implementation('org.springdoc:springdoc-openapi-ui:1.6.6') {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-autoconfigure'
+    }
+
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

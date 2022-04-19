@@ -32,6 +32,7 @@ public class CompanyService {
         return Optional.ofNullable(companyRepository.findByInnAndKpp(inn, kpp));
     }
 
+    @Transactional
     public Company create(Company company){
         if (companyRepository.existsByInnAndKpp(company.getInn(), company.getKpp())){
             log.error("Компания с инн={} и кпп={} существует", company.getInn(), company.getKpp());

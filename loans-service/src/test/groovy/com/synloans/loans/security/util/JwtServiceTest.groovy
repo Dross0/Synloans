@@ -1,15 +1,17 @@
 package com.synloans.loans.security.util
 
+import com.synloans.loans.configuration.properties.security.JwtProperties
 import com.synloans.loans.model.entity.user.User
-import com.synloans.loans.security.config.JwtConfig
 import spock.lang.Specification
+
+import java.time.Duration
 
 class JwtServiceTest extends Specification{
     private JwtService jwtService
-    private JwtConfig jwtConfig
+    private JwtProperties jwtConfig
 
     def setup(){
-        jwtConfig = new JwtConfig("secret", 2000)
+        jwtConfig = new JwtProperties("secret", Duration.ofSeconds(2000))
         jwtService = new JwtService(jwtConfig)
     }
 
@@ -20,7 +22,7 @@ class JwtServiceTest extends Specification{
             }
 
         when:
-            def dateBeforeExp = new Date(System.currentTimeMillis() + 1000 * jwtConfig.expirationTime - 1000)
+            def dateBeforeExp = new Date(System.currentTimeMillis() + jwtConfig.expirationTime.toMillis() - 1000)
             def token = jwtService.generateToken(user)
             def usernameFromToken = jwtService.extractUsername(token)
             def expDate = jwtService.extractExpiration(token)

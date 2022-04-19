@@ -9,7 +9,6 @@ import com.synloans.loans.security.UserRole
 import com.synloans.loans.security.util.JwtService
 import com.synloans.loans.service.company.BankService
 import com.synloans.loans.service.company.CompanyService
-import com.synloans.loans.service.exception.CreateUserException
 import com.synloans.loans.service.exception.notfound.BankNotFoundException
 import com.synloans.loans.service.exception.notfound.CompanyNotFoundException
 import org.springframework.security.authentication.AuthenticationManager
@@ -148,7 +147,7 @@ class AuthenticationServiceTest extends Specification{
         then:
             1 * companyService.getByInnAndKpp(inn, kpp) >> Optional.of(company)
             1 * bankService.getByCompany(company) >> null
-            thrown(CreateUserException)
+            thrown(BankNotFoundException)
     }
 
     def "Тест. Ошибка при создании банка для нового пользователя"(){

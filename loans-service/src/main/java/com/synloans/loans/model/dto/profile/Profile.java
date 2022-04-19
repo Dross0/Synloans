@@ -1,4 +1,4 @@
-package com.synloans.loans.model.dto;
+package com.synloans.loans.model.dto.profile;
 
 import lombok.*;
 

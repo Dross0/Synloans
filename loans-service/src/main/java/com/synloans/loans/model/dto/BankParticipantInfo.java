@@ -14,5 +14,7 @@ public class BankParticipantInfo {
 
     private LoanSum sum;
 
+    private long issuedSum;
+
     private boolean approveBankAgent;
 }

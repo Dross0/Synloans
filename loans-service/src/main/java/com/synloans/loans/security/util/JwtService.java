@@ -1,6 +1,6 @@
 package com.synloans.loans.security.util;
 
-import com.synloans.loans.security.config.JwtConfig;
+import com.synloans.loans.configuration.properties.security.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -16,7 +16,7 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-    private final JwtConfig config;
+    private final JwtProperties jwtProperties;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -32,7 +32,7 @@ public class JwtService {
     }
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .setSigningKey(config.getKey())
+                .setSigningKey(jwtProperties.getKey())
                 .parseClaimsJws(token)
                 .getBody();
     }
@@ -52,8 +52,8 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * config.getExpirationTime()))
-                .signWith(SignatureAlgorithm.HS256, config.getKey())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpirationTime().toMillis()))
+                .signWith(SignatureAlgorithm.HS256, jwtProperties.getKey())
                 .compact();
     }
 

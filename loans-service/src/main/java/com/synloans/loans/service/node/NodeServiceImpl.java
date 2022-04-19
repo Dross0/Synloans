@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -26,5 +28,13 @@ public class NodeServiceImpl implements NodeService {
         node.setPassword(nodeRequest.getPassword());
 
         persistedCompany.addNode(node);
+    }
+
+    @Transactional
+    @Override
+    public List<CompanyNode> getCompanyNodes(Company company) {
+        company = companyRepository.save(company);
+
+        return company.getNodes();
     }
 }

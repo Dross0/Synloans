@@ -1,7 +1,7 @@
 package com.synloans.loans.mapper.converter
 
 
-import com.synloans.loans.model.dto.Profile
+import com.synloans.loans.model.dto.profile.Profile
 import com.synloans.loans.model.entity.company.Company
 import com.synloans.loans.model.entity.user.User
 import spock.lang.Specification

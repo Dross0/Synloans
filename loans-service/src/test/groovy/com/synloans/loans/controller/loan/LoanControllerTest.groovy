@@ -6,6 +6,7 @@ import com.synloans.loans.model.dto.loan.LoanCreateResponse
 import com.synloans.loans.model.dto.loan.payments.ActualPaymentDto
 import com.synloans.loans.model.dto.loan.payments.PaymentRequest
 import com.synloans.loans.model.dto.loan.payments.PlannedPaymentDto
+import com.synloans.loans.model.entity.company.Company
 import com.synloans.loans.model.entity.loan.Loan
 import com.synloans.loans.model.entity.loan.payment.ActualPayment
 import com.synloans.loans.model.entity.loan.payment.PlannedPayment
@@ -65,6 +66,12 @@ class LoanControllerTest extends Specification{
         given:
             def requestId = 10
 
+            Authentication authentication = Mock(Authentication)
+
+            User user = new User()
+            Company company = new Company()
+            user.setCompany(company)
+
             PlannedPayment payment1 = new PlannedPayment()
             PlannedPayment payment2 = new PlannedPayment()
 
@@ -72,10 +79,11 @@ class LoanControllerTest extends Specification{
             PlannedPaymentDto dto2 = Mock(PlannedPaymentDto)
 
         when:
-            List<PlannedPaymentDto> paymentDtoList = loanController.getPlannedPayments(requestId)
+            List<PlannedPaymentDto> paymentDtoList = loanController.getPlannedPayments(requestId, authentication)
 
         then:
-            1 * loanService.getPlannedPaymentsByRequestId(requestId) >> [payment1, payment2]
+            1 * userService.getCurrentUser(authentication) >> user
+            1 * loanService.getPlannedPaymentsByRequestId(requestId, company) >> [payment1, payment2]
             1 * plannedPaymentConverter.convert(payment1) >> dto1
             1 * plannedPaymentConverter.convert(payment2) >> dto2
             paymentDtoList == [dto1, dto2]
@@ -85,6 +93,12 @@ class LoanControllerTest extends Specification{
         given:
             def requestId = 10
 
+            Authentication authentication = Mock(Authentication)
+
+            User user = new User()
+            Company company = new Company()
+            user.setCompany(company)
+
             ActualPayment payment1 = new ActualPayment()
             ActualPayment payment2 = new ActualPayment()
 
@@ -92,10 +106,11 @@ class LoanControllerTest extends Specification{
             ActualPaymentDto dto2 = Mock(ActualPaymentDto)
 
         when:
-            List<ActualPaymentDto> paymentDtoList = loanController.getActualPayments(requestId)
+            List<ActualPaymentDto> paymentDtoList = loanController.getActualPayments(requestId, authentication)
 
         then:
-            1 * loanService.getActualPaymentsByRequestId(requestId) >> [payment1, payment2]
+            1 * userService.getCurrentUser(authentication) >> user
+            1 * loanService.getActualPaymentsByRequestId(requestId, company) >> [payment1, payment2]
             1 * actualPaymentConverter.convert(payment1) >> dto1
             1 * actualPaymentConverter.convert(payment2) >> dto2
             paymentDtoList == [dto1, dto2]

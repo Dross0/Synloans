@@ -28,6 +28,7 @@ class SyndicateParticipantConverterTest extends Specification{
             syndicateParticipant.id = 12
             syndicateParticipant.loanSum = 102L
             syndicateParticipant.approveBankAgent = true
+            syndicateParticipant.issuedLoanSum = 10223L
             syndicateParticipant.bank = bank
 
         when:
@@ -36,6 +37,7 @@ class SyndicateParticipantConverterTest extends Specification{
             verifyAll(bankParticipantInfo){
                 id == bank.id
                 name == company.fullName
+                issuedSum == syndicateParticipant.issuedLoanSum
                 sum == LoanSum.valueOf(syndicateParticipant.loanSum)
                 approveBankAgent == syndicateParticipant.approveBankAgent
             }

@@ -18,5 +18,12 @@ spring:
 
 blockchain:
   service:
-    host:
-      ${BLOCKCHAIN_ADAPTER_HOST}
+    host: ${BLOCKCHAIN_ADAPTER_HOST}
+    connectionTimeout: ${BLOCKCHAIN_ADAPTER_CONNECTION_TIMEOUT}
+    readTimeout: ${BLOCKCHAIN_ADAPTER_READ_TIMEOUT}
+
+
+springdoc:
+  api-docs:
+    enabled: true
+  show-actuator: false

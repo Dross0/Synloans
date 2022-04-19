@@ -1,6 +1,6 @@
 package com.synloans.loans.service.blockchain.url;
 
-import com.synloans.loans.configuration.properties.BlockchainServiceProperties;
+import com.synloans.loans.configuration.properties.blockchain.BlockchainServiceProperties;
 import com.synloans.loans.configuration.url.BlockchainServiceUrls;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;

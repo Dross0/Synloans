@@ -3,6 +3,8 @@ package com.synloans.loans.controller.loan
 
 import com.synloans.loans.mapper.LoanRequestCollectionConverter
 import com.synloans.loans.mapper.converter.LoanRequestConverter
+import com.synloans.loans.mapper.converter.SyndicateParticipantConverter
+import com.synloans.loans.model.dto.BankParticipantInfo
 import com.synloans.loans.model.dto.collection.LoanRequestCollection
 import com.synloans.loans.model.dto.collection.LoanRequestCollectionResponse
 import com.synloans.loans.model.dto.loanrequest.LoanRequestDto
@@ -25,7 +27,8 @@ class LoanRequestControllerTest extends Specification{
     private LoanRequestService loanRequestService
     private SyndicateParticipantService syndicateParticipantService
     private LoanRequestConverter loanRequestConverter
-    private LoanRequestCollectionConverter loanRequestCollectionConverter;
+    private LoanRequestCollectionConverter loanRequestCollectionConverter
+    private SyndicateParticipantConverter syndicateParticipantConverter
     private UserService userService
 
     def setup(){
@@ -34,12 +37,14 @@ class LoanRequestControllerTest extends Specification{
         syndicateParticipantService = Mock(SyndicateParticipantService)
         loanRequestConverter = Mock(LoanRequestConverter)
         loanRequestCollectionConverter = Mock(LoanRequestCollectionConverter)
+        syndicateParticipantConverter = Mock(SyndicateParticipantConverter)
         loanRequestController = new LoanRequestController(
                 loanRequestService,
                 userService,
                 syndicateParticipantService,
                 loanRequestConverter,
-                loanRequestCollectionConverter
+                loanRequestCollectionConverter,
+                syndicateParticipantConverter
         )
     }
 
@@ -80,12 +85,17 @@ class LoanRequestControllerTest extends Specification{
     def "Тест. Получение участников синдиката под заявкой"(){
         given:
             def loanRqId = 11
-            def participants = [Stub(SyndicateParticipant), Stub(SyndicateParticipant), Stub(SyndicateParticipant)]
+            def participant1 = new SyndicateParticipant()
+            def participant2 = new SyndicateParticipant()
+            def info1 = Stub(BankParticipantInfo)
+            def info2 = Stub(BankParticipantInfo)
         when:
             def result = loanRequestController.getSyndicateParticipantsForRequest(loanRqId)
         then:
-            1 * syndicateParticipantService.getSyndicateParticipantsByRequestId(loanRqId) >> participants
-            result == participants
+            1 * syndicateParticipantConverter.convert(participant1) >> info1
+            1 * syndicateParticipantConverter.convert(participant2) >> info2
+            1 * syndicateParticipantService.getSyndicateParticipantsByRequestId(loanRqId) >> [participant1, participant2]
+            result == [info1, info2]
     }
 
     def  "Тест. Получение личной заявки по id"(){

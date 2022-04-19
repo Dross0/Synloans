@@ -2,7 +2,7 @@ package com.synloans.loans.service.blockchain;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.synloans.loans.configuration.properties.BlockchainServiceProperties;
+import com.synloans.loans.configuration.properties.blockchain.BlockchainServiceProperties;
 import com.synloans.loans.model.blockchain.BankJoinRequest;
 import com.synloans.loans.model.blockchain.LoanCreateRequest;
 import com.synloans.loans.model.blockchain.LoanId;
@@ -27,6 +27,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +58,11 @@ class BlockchainServiceImplTest {
         objectMapper = new ObjectMapper();
         mockServer = MockRestServiceServer.createServer(restTemplate);
         blockchainServiceUrlFactory = new BlockchainServiceUrlFactoryImpl(
-                new BlockchainServiceProperties("http://blockchain-service:9933")
+                new BlockchainServiceProperties(
+                        "http://blockchain-service:9933",
+                        Duration.ofDays(1),
+                        Duration.ofDays(1)
+                )
         );
         blockchainService = new BlockchainServiceImpl(blockchainServiceUrlFactory, restTemplate);
     }

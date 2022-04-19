@@ -1,6 +1,7 @@
 package com.synloans.loans.service.exception.advice;
 
 import com.synloans.loans.service.exception.AcceptPaymentException;
+import com.synloans.loans.service.exception.InvalidLoanRequestException;
 import com.synloans.loans.service.exception.SyndicateJoinException;
 import com.synloans.loans.service.exception.advice.response.ErrorResponse;
 import com.synloans.loans.service.exception.blockchain.BlockchainPersistException;
@@ -26,6 +27,19 @@ public class ServiceLogicErrorControllerAdvice extends ResponseEntityExceptionHa
         log.error("Service logic exception handle at controller advice", ex);
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
+                ex.getClass().getSimpleName(),
+                ex.getMessage()
+        );
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), errorResponse.getStatus(), request);
+    }
+
+    @ExceptionHandler({
+            InvalidLoanRequestException.class
+    })
+    public ResponseEntity<Object> handleBadRequestError(RuntimeException ex, WebRequest request){
+        log.error("Service logic bad request exception handle at controller advice", ex);
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST,
                 ex.getClass().getSimpleName(),
                 ex.getMessage()
         );
