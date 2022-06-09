@@ -2,7 +2,6 @@ package com.synloans.loans.service.loan;
 
 import com.synloans.loans.AnnuityLoan;
 import com.synloans.loans.factory.AnnuityLoanFactory;
-import com.synloans.loans.info.LoanInfo;
 import com.synloans.loans.model.blockchain.BankJoinRequest;
 import com.synloans.loans.model.blockchain.LoanCreateRequest;
 import com.synloans.loans.model.blockchain.LoanId;
@@ -20,7 +19,8 @@ import com.synloans.loans.model.entity.loan.payment.PlannedPayment;
 import com.synloans.loans.model.entity.node.CompanyNode;
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant;
 import com.synloans.loans.model.entity.user.User;
-import com.synloans.loans.payment.LoanPayment;
+import com.synloans.loans.model.info.LoanInfo;
+import com.synloans.loans.model.payment.LoanPayment;
 import com.synloans.loans.repository.loan.LoanRepository;
 import com.synloans.loans.service.blockchain.BlockchainService;
 import com.synloans.loans.service.exception.AcceptPaymentException;
@@ -94,7 +94,7 @@ public class LoanService {
                 .orElseThrow(LoanRequestNotFoundException::new);
         validateBorrower(user, loanRequest);
         Loan loan = startLoan(loanRequest);
-        //persistToBlockchain(loan);
+        persistToBlockchain(loan);
         return loan;
     }
 
@@ -175,7 +175,7 @@ public class LoanService {
         validateBorrower(user, loan.getRequest());
         try {
             ActualPayment payment = actualPaymentService.createPayment(loan, paymentRequest);
-            //persistPaymentToBlockchain(loan, payment);
+            persistPaymentToBlockchain(loan, payment);
             return payment;
         } catch (Exception e) {
             log.error("Ошибка создания платежа по кредиту с id='{}'", loanRequestId, e);

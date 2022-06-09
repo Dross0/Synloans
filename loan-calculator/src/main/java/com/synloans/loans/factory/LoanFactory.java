@@ -2,7 +2,7 @@ package com.synloans.loans.factory;
 
 
 import com.synloans.loans.Loan;
-import com.synloans.loans.info.LoanInfo;
+import com.synloans.loans.model.info.LoanInfo;
 import org.jetbrains.annotations.NotNull;
 
 public interface LoanFactory {

@@ -1,4 +1,4 @@
-package com.synloans.loans.payment;
+package com.synloans.loans.model.payment;
 
 import lombok.NonNull;
 import lombok.Value;

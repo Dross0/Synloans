@@ -3,7 +3,10 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
     id 'groovy'
+    id 'jacoco'
 }
+
+
 
 group = 'com.synloans'
 version = '0.0.4-SNAPSHOT'
@@ -63,6 +66,29 @@ dependencies {
     implementation 'org.javamoney:moneta:1.4.2'
 }
 
+jacoco {
+    toolVersion = '0.8.6'
+}
+
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+
+
+jacocoTestReport {
+    dependsOn test
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: [
+                            'com/synloans/loans/service/exception/**',
+                            'com/synloans/loans/model/**',
+                            'com/synloans/loans/configuration/**'
+
+                    ])
+        }))
+    }
 }

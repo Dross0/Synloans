@@ -1,10 +1,12 @@
 package com.synloans.loans.service.syndicate
 
 import com.synloans.loans.model.entity.company.Bank
+import com.synloans.loans.model.entity.loan.Loan
 import com.synloans.loans.model.entity.loan.LoanRequest
 import com.synloans.loans.model.entity.syndicate.Syndicate
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
 import com.synloans.loans.repository.syndicate.SyndicateParticipantRepository
+import com.synloans.loans.service.exception.SyndicateQuitException
 import com.synloans.loans.service.exception.notfound.LoanRequestNotFoundException
 import com.synloans.loans.service.loan.LoanRequestService
 import spock.lang.Specification
@@ -40,12 +42,12 @@ class SyndicateParticipantServiceTest extends Specification{
     def "Тест. Выход участника из синдиката"(){
         given:
             def idToDelete = 103
-            def participantToDelete = createParticipantStub(idToDelete)
+            def participantToDelete = createParticipant(idToDelete)
             Set<SyndicateParticipant> participants = [
-                    createParticipantStub(1),
+                    createParticipant(1),
                     participantToDelete,
-                    createParticipantStub(3),
-                    createParticipantStub(111)
+                    createParticipant(3),
+                    createParticipant(111)
             ] as Set
             def bank = Stub(Bank)
             bank.syndicates >> participants
@@ -53,9 +55,26 @@ class SyndicateParticipantServiceTest extends Specification{
             participantService.quitFromSyndicate(idToDelete, bank)
         then:
             1 * participantRepository.delete(participantToDelete)
+    }
 
-
-
+    def "Тест. Выход участника из синдиката, когда кредит выдан"(){
+        given:
+            def idToDelete = 103
+            def participantToDelete = createParticipant(idToDelete)
+            participantToDelete.syndicate.request.loan = new Loan()
+            Set<SyndicateParticipant> participants = [
+                    createParticipant(1),
+                    participantToDelete,
+                    createParticipant(3),
+                    createParticipant(111)
+            ] as Set
+            def bank = Stub(Bank)
+            bank.syndicates >> participants
+        when:
+            participantService.quitFromSyndicate(idToDelete, bank)
+        then:
+            0 * participantRepository.delete(_)
+            thrown(SyndicateQuitException)
     }
 
     def "Тест. Участники синдиката по id заявки"(){
@@ -109,13 +128,13 @@ class SyndicateParticipantServiceTest extends Specification{
             participants == savedPart
     }
 
-    SyndicateParticipant createParticipantStub(long loanRequestId){
-        def loanRequest = Stub(LoanRequest)
-        loanRequest.getId() >> loanRequestId
-        def syndicate = Stub(Syndicate)
-        syndicate.getRequest() >> loanRequest
-        def participant = Stub(SyndicateParticipant)
-        participant.getSyndicate() >> syndicate
+    static SyndicateParticipant createParticipant(long loanRequestId){
+        def loanRequest = new LoanRequest()
+        loanRequest.id = loanRequestId
+        def syndicate = new Syndicate()
+        syndicate.request = loanRequest
+        def participant = new SyndicateParticipant()
+        participant.syndicate = syndicate
         return participant
     }
 }

@@ -91,6 +91,14 @@ public class SyndicateController {
             description = "Участник успешно вышел из синдиката"
     )
     @ApiResponse(
+            responseCode = "500",
+            description = "Выход из синдиката, при выданном кредите",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)
+            )
+    )
+    @ApiResponse(
             responseCode = "404",
             description = "Не найден банк текущего пользователя",
             content = @Content(

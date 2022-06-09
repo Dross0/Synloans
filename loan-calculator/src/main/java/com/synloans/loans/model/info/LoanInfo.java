@@ -1,4 +1,4 @@
-package com.synloans.loans.info;
+package com.synloans.loans.model.info;
 
 
 import lombok.NonNull;

@@ -42,7 +42,7 @@ class JwtServiceTest extends Specification{
             def userToCheck = Stub(User){
                 it.username >> username
             }
-            def valid = jwtService.validateToken(token, userToCheck)
+            def valid = jwtService.isValidToken(token, userToCheck)
         then:
             valid == isValid
         where:

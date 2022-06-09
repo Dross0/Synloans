@@ -2,6 +2,7 @@ package com.synloans.loans.service.syndicate
 
 import com.synloans.loans.model.dto.SyndicateJoinRequest
 import com.synloans.loans.model.entity.company.Bank
+import com.synloans.loans.model.entity.loan.Loan
 import com.synloans.loans.model.entity.loan.LoanRequest
 import com.synloans.loans.model.entity.syndicate.Syndicate
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
@@ -67,18 +68,19 @@ class SyndicateServiceTest extends Specification {
 
     def "Тест. Вступление банка в новый синдикат"(){
         given:
-            def joinRq = Stub(SyndicateJoinRequest){
-                requestId >> 20
-                sum >> 100_000
-                approveBankAgent >> true
-            }
+            def joinRq = new SyndicateJoinRequest()
+            joinRq.sum = 100_000
+            joinRq.requestId = 20
+            joinRq.approveBankAgent = true
+            LoanRequest loanRequest = new LoanRequest()
+            loanRequest.loan = null
             def bank = Stub(Bank)
             def participant = Stub(SyndicateParticipant)
         when:
             def participantOp = syndicateService.joinBankToSyndicate(joinRq, bank)
         then:
             1 * syndicateRepository.findByRequest_Id(joinRq.requestId) >> null
-            1 * loanRequestService.getById(joinRq.requestId) >> Optional.of(Stub(LoanRequest))
+            1 * loanRequestService.getById(joinRq.requestId) >> Optional.of(loanRequest)
             1 * syndicateRepository.save(_ as Syndicate) >> {Syndicate s -> s}
             1 * syndicateParticipantService.createNewParticipant(
                     _ as Syndicate,
@@ -107,6 +109,27 @@ class SyndicateServiceTest extends Specification {
             0 * syndicateRepository.save(_ as Syndicate)
             0 * syndicateParticipantService.createNewParticipant(_, _ , _, _)
             thrown(LoanRequestNotFoundException)
+    }
+
+    def "Тест. Вступление банка в синдикат, когда кредит уже выдан"(){
+        given:
+            def joinRq = new SyndicateJoinRequest()
+            joinRq.sum = 100_000
+            joinRq.requestId = 20
+            joinRq.approveBankAgent = true
+            LoanRequest loanRequest = new LoanRequest()
+            loanRequest.loan = new Loan()
+            def syndicate = new Syndicate()
+            syndicate.setRequest(loanRequest)
+            def bank = Stub(Bank)
+        when:
+            def participantOp = syndicateService.joinBankToSyndicate(joinRq, bank)
+        then:
+            1 * syndicateRepository.findByRequest_Id(joinRq.requestId) >> syndicate
+            0 * syndicateRepository.save(_)
+            0 * syndicateParticipantService.createNewParticipant(_, _, _, _)
+
+            participantOp.isEmpty()
     }
 
 }

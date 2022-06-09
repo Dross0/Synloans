@@ -1,0 +1,4 @@
+springdoc:
+  api-docs:
+    enabled: false
+  show-actuator: false

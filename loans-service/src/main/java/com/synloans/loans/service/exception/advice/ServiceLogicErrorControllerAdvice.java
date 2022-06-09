@@ -3,6 +3,7 @@ package com.synloans.loans.service.exception.advice;
 import com.synloans.loans.service.exception.AcceptPaymentException;
 import com.synloans.loans.service.exception.InvalidLoanRequestException;
 import com.synloans.loans.service.exception.SyndicateJoinException;
+import com.synloans.loans.service.exception.SyndicateQuitException;
 import com.synloans.loans.service.exception.advice.response.ErrorResponse;
 import com.synloans.loans.service.exception.blockchain.BlockchainPersistException;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,8 @@ public class ServiceLogicErrorControllerAdvice extends ResponseEntityExceptionHa
     @ExceptionHandler({
             SyndicateJoinException.class,
             AcceptPaymentException.class,
-            BlockchainPersistException.class
+            BlockchainPersistException.class,
+            SyndicateQuitException.class
     })
     public ResponseEntity<Object> handleServiceLogicError(RuntimeException ex, WebRequest request){
         log.error("Service logic exception handle at controller advice", ex);

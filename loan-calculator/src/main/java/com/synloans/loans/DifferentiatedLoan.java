@@ -1,8 +1,8 @@
 package com.synloans.loans;
 
-import com.synloans.loans.info.LoanInfo;
-import com.synloans.loans.payment.LoanPayment;
-import com.synloans.loans.payment.PaymentSum;
+import com.synloans.loans.model.info.LoanInfo;
+import com.synloans.loans.model.payment.LoanPayment;
+import com.synloans.loans.model.payment.PaymentSum;
 import lombok.NonNull;
 import org.javamoney.moneta.Money;
 import org.jetbrains.annotations.NotNull;

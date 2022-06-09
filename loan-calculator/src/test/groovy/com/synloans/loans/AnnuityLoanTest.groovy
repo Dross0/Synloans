@@ -1,6 +1,6 @@
 package com.synloans.loans
 
-import com.synloans.loans.info.LoanInfo
+import com.synloans.loans.model.info.LoanInfo
 import org.javamoney.moneta.Money
 import spock.lang.Specification
 
