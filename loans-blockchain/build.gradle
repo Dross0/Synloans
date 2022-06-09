@@ -87,7 +87,14 @@ dependencies {
 }
 
 
+//Task to deploy the nodes in order to bootstrap a network
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
+
+    /* This property will load the CorDapps to each of the node by default, including the Notary. You can find them
+     * in the cordapps folder of the node at build/nodes/Notary/cordapps. However, the notary doesn't really understand
+     * the notion of cordapps. In production, Notary does not need cordapps as well. This is just a short cut to load
+     * the Corda network bootstrapper.
+     */
     nodeDefaults {
         projectCordapp {
             deploy = false
@@ -97,5 +104,41 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         runSchemaMigration = true //This configuration is for any CorDapps with custom schema, We will leave this as true to avoid
         //problems for developers who are not familiar with Corda. If you are not using custom schemas, you can change
         //it to false for quicker project compiling time.
+    }
+    node {
+        name "O=Notary,L=London,C=GB"
+        notary = [validating : false]
+        p2pPort 10002
+        rpcSettings {
+            address("localhost:10003")
+            adminAddress("localhost:10043")
+        }
+    }
+    node {
+        name "O=ОАО Газпром,L=London,C=GB"
+        p2pPort 10005
+        rpcSettings {
+            address("localhost:10006")
+            adminAddress("localhost:10046")
+        }
+        rpcUsers = [[ user: "gazprom", "password": "password1", "permissions": ["ALL"]]]
+    }
+    node {
+        name "O=ОАО ВТБ,L=New York,C=US"
+        p2pPort 10019
+        rpcSettings {
+            address("localhost:10032")
+            adminAddress("localhost:10052")
+        }
+        rpcUsers = [[ user: "vtb", "password": "password2", "permissions": ["ALL"]]]
+    }
+    node {
+        name "O=ПАО Сбербанк,L=New York,C=US"
+        p2pPort 10014
+        rpcSettings {
+            address("localhost:10016")
+            adminAddress("localhost:10056")
+        }
+        rpcUsers = [[ user: "sber", "password": "password3", "permissions": ["ALL"]]]
     }
 }
