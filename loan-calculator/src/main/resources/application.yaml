@@ -1,0 +1,8 @@
+
+money:
+  round:
+    scale: 3
+
+server:
+  port: ${PAYMENT_SCHEDULE_CALCULATOR_PORT}
+

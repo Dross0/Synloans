@@ -1,15 +1,26 @@
 package com.synloans.loans.model.payment;
 
-import lombok.NonNull;
-import lombok.Value;
-import org.javamoney.moneta.Money;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
-@Value
+import javax.money.MonetaryAmount;
+import javax.validation.constraints.NotNull;
+
+@Schema(description = "Сумма платежа по кредиту")
+@RequiredArgsConstructor
+@Getter
+@EqualsAndHashCode
+@ToString
 public class PaymentSum {
-    @NonNull Money principalPart;
-    @NonNull Money percentPart;
 
-    public Money getAmount(){
-        return principalPart.add(percentPart);
-    }
+    @Schema(description = "Сумма оплаты основного долга")
+    @NotNull
+    private final MonetaryAmount principalPart;
+
+    @Schema(description = "Сумма оплаты процентной части")
+    @NotNull
+    private final MonetaryAmount percentPart;
 }
