@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import javax.money.MonetaryAmount;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 
 @Schema(description = "Сумма платежа по кредиту")
 @RequiredArgsConstructor
@@ -17,10 +17,10 @@ import javax.validation.constraints.NotNull;
 public class PaymentSum {
 
     @Schema(description = "Сумма оплаты основного долга")
-    @NotNull
+    @PositiveOrZero(message = "Сумма оплаты основного долга должна быть больше или равна 0")
     private final MonetaryAmount principalPart;
 
     @Schema(description = "Сумма оплаты процентной части")
-    @NotNull
+    @PositiveOrZero(message = "Сумма оплаты процентнов должна быть больше или равна 0")
     private final MonetaryAmount percentPart;
 }

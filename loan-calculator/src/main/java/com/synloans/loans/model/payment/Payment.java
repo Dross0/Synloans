@@ -9,6 +9,7 @@ import lombok.ToString;
 
 import javax.money.MonetaryAmount;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
 
 @Schema(description = "Информация о платеже по кредиту")
@@ -19,14 +20,14 @@ import java.time.LocalDate;
 public class Payment {
 
     @Schema(description = "Сумма платежа")
-    @NotNull
+    @NotNull(message = "Сумма платежа должна присутствовать")
     private final PaymentSum paymentSum;
 
     @Schema(description = "Остаток основного долга после совершения платежа")
-    @NotNull
+    @PositiveOrZero(message = "Остаток основного долга должен быть больше или равен 0")
     private final MonetaryAmount loanBalance;
 
     @Schema(description = "Дата платежа")
-    @NotNull
+    @NotNull(message = "Дата платежа должна присутствовать")
     private final LocalDate date;
 }

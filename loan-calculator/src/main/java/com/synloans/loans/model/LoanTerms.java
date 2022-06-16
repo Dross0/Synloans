@@ -20,20 +20,19 @@ import java.util.Objects;
 public class LoanTerms {
 
     @Schema(description = "Сумма кредита")
-    @NotNull(message = "Loan sum must be not null")
-    @PositiveOrZero(message = "Loan sum must be positive or zero")
+    @PositiveOrZero(message = "Сумма кредита должна быть больше или равна 0")
     private final MonetaryAmount loanSum;
 
     @Schema(description = "Процентная ставка по кредиту", example = "0.12")
-    @PositiveOrZero(message = "Loan rate must be positive or zero")
+    @PositiveOrZero(message = "Процентная ставка должна быть больше или равна 0")
     private final BigDecimal rate;
 
     @Schema(description = "Дата взятия кредита")
-    @NotNull(message = "Loan issue date must be not null")
+    @NotNull(message = "Дата взятия кредита должна присутсвовать")
     private final LocalDate issueDate;
 
     @Schema(description = "Срок кредитования в месяцах")
-    @Positive(message = "Months must be positive")
+    @Positive(message = "Количество месяцев должно быть больше 0")
     private final int months;
 
     @JsonCreator
