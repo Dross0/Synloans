@@ -84,6 +84,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         )
                 .andDo(print())
                 .andExpect(status().isForbidden())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         jsonPath("$.code").value(403),
                         jsonPath("$.status").value("FORBIDDEN"),
@@ -123,6 +124,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         )
                 .andDo(print())
                 .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         jsonPath("$.code").value(404),
                         jsonPath("$.status").value("NOT_FOUND"),
@@ -162,6 +164,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         )
                 .andDo(print())
                 .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         jsonPath("$.code").value(404),
                         jsonPath("$.status").value("NOT_FOUND"),
@@ -203,6 +206,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         )
                 .andDo(print())
                 .andExpect(status().isInternalServerError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         jsonPath("$.code").value(500),
                         jsonPath("$.status").value("INTERNAL_SERVER_ERROR"),
@@ -235,6 +239,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         )
                 .andDo(print())
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         jsonPath("$.code").value(400),
                         jsonPath("$.status").value("BAD_REQUEST"),
@@ -318,6 +323,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(BASE_PATH + "/{loanRequestId}", loanRequestId))
                 .andDo(print())
                 .andExpect(status().isForbidden())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         jsonPath("$.code").value(403),
                         jsonPath("$.status").value("FORBIDDEN"),
@@ -347,6 +353,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(BASE_PATH + "/{loanRequestId}", loanRequestId))
                 .andDo(print())
                 .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         jsonPath("$.code").value(404),
                         jsonPath("$.status").value("NOT_FOUND"),
@@ -383,6 +390,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(BASE_PATH + "/{loanRequestId}", loanRequestId))
                 .andDo(print())
                 .andExpect(status().isInternalServerError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         jsonPath("$.code").value(500),
                         jsonPath("$.status").value("INTERNAL_SERVER_ERROR"),
