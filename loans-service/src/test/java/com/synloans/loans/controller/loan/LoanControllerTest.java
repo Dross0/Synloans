@@ -21,6 +21,8 @@ import com.synloans.loans.service.loan.LoanService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -39,6 +41,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.blankOrNullString;
@@ -704,5 +707,51 @@ class LoanControllerTest extends BaseControllerTest {
 
         verify(loanService, times(1)).acceptPayment(requestId, paymentRequest, user);
         verify(actualPaymentConverter, times(1)).convert(actualPayment);
+    }
+
+    @ParameterizedTest
+    @MethodSource("notValidPaymentRequest")
+    @DisplayName("Внесение платежа с невалидными данными")
+    @WithMockUser
+    void acceptPaymentWithInvalidRequestTest(PaymentRequest paymentRequest) throws Exception {
+        long requestId = 12L;
+
+        mockMvc.perform(
+                post(BASE_PATH + "/{loanRequestId}/pay", requestId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(objectMapper, paymentRequest))
+        )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        jsonPath("$.code").value(400),
+                        jsonPath("$.status").value("BAD_REQUEST"),
+                        jsonPath("$.error").exists(),
+                        jsonPath("$.message").hasJsonPath(),
+                        jsonPath("$.timestamp").exists()
+                );
+
+        verify(userService, never()).getCurrentUser(any());
+
+        verify(loanService, never()).acceptPayment(anyLong(), any(), any());
+        verify(actualPaymentConverter, never()).convert(any());
+    }
+
+    private static Stream<Arguments> notValidPaymentRequest() {
+        return Stream.of(
+                Arguments.of(
+                        new PaymentRequest(
+                                -132,
+                                LocalDate.now()
+                        )
+                ),
+                Arguments.of(
+                        new PaymentRequest(
+                                131,
+                                LocalDate.now().plusDays(1)
+                        )
+                )
+        );
     }
 }
