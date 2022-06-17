@@ -1,21 +1,33 @@
 package com.synloans.loans.model.authentication;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
-@Setter
+@EqualsAndHashCode
 public class AuthenticationRequest {
-    @Email(message = "Невалидная электронная почта")
-    private String email;
 
+    @NotBlank(message = "Электронная почта не может быть пустой")
+    @Email(message = "Невалидная электронная почта")
+    private final String email;
+
+    @NotNull(message = "Пароль должен присутсвовать")
     @Size(min = 8, message = "Пароль должен быть не меньше 8 символов")
-    private String password;
+    private final String password;
+
+    @JsonCreator
+    public AuthenticationRequest(
+            @JsonProperty(value = "email", required = true) String email,
+            @JsonProperty(value = "password", required = true) String password
+    ){
+        this.email = email;
+        this.password = password;
+    }
 }
