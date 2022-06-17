@@ -20,6 +20,7 @@ import java.util.Objects;
 public class LoanTerms {
 
     @Schema(description = "Сумма кредита")
+    @NotNull(message = "Сумма кредита должна присутвовать")
     @PositiveOrZero(message = "Сумма кредита должна быть больше или равна 0")
     private final MonetaryAmount loanSum;
 
