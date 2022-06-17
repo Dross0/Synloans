@@ -27,7 +27,15 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -68,9 +76,9 @@ public class LoanRequestController {
     )
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public LoanRequestResponse createLoanRequest(
-            @RequestBody @Valid LoanRequestDto loanRequestDto,
-            Authentication authentication
+            @RequestBody @Valid LoanRequestDto loanRequestDto
     ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.getCurrentUser(authentication);
         LoanRequest loanRequest = loanRequestService.createRequest(
                 loanRequestDto,
@@ -129,9 +137,9 @@ public class LoanRequestController {
     @ResponseBody
     public LoanRequestResponse getRequestById(
             @Parameter(name = "id заявки на кредит")
-            @PathVariable("id") Long id,
-            Authentication authentication
+            @PathVariable("id") Long id
     ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.getCurrentUser(authentication);
         if (user.hasRole(UserRole.ROLE_BANK)){
             return loanRequestConverter.convert(
@@ -188,7 +196,8 @@ public class LoanRequestController {
     @Secured(UserRole.ROLE_BANK)
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public LoanRequestCollectionResponse getAllRequests(Authentication authentication){
+    public LoanRequestCollectionResponse getAllRequests(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.getCurrentUser(authentication);
         return requestCollectionConverter.convert(loanRequestService.getAll(user.getCompany()));
     }
@@ -217,9 +226,9 @@ public class LoanRequestController {
     @DeleteMapping(value = "/{id}")
     public void deleteRequest(
             @Parameter(name = "id заявки для удаления")
-            @PathVariable("id") Long id,
-            Authentication authentication
+            @PathVariable("id") Long id
     ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         getOwnedLoanRequestById(id, authentication);
         loanRequestService.deleteById(id);
     }
