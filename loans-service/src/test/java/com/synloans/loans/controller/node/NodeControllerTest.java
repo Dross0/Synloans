@@ -23,15 +23,25 @@ import org.springframework.test.web.servlet.MockMvc;
 import utils.JsonHelper;
 import utils.NoConvertersFilter;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.blankString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(
         value = NodeController.class,
@@ -85,6 +95,25 @@ class NodeControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @DisplayName("Регистрация нового узла без авторизации")
+    void registerNodeAccessDeniedTest() throws Exception {
+        NodeUserInfo nodeUserInfo = new NodeUserInfo(
+                "address-test",
+                "user-test",
+                "password-test"
+        );
+
+        mockMvc.perform(
+                post(BASE_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonHelper.asJsonString(objectMapper, nodeUserInfo))
+        )
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(content().string(blankOrNullString()));
+    }
+
+    @Test
     @DisplayName("Получение списка узлов компании")
     @WithMockUser
     void getNodesTest() throws Exception {
@@ -133,5 +162,41 @@ class NodeControllerTest extends BaseControllerTest {
         verify(nodeService, times(1)).getCompanyNodes(company);
         verify(nodeUserInfoConverter, times(1)).convert(companyNode1);
         verify(nodeUserInfoConverter, times(1)).convert(companyNode2);
+    }
+
+    @Test
+    @DisplayName("Получение пустого списка узлов компании")
+    @WithMockUser
+    void getNodesEmptyListTest() throws Exception {
+
+        User user = new User();
+        Company company = new Company();
+        user.setCompany(company);
+
+        when(userService.getCurrentUser(authenticationArgumentCaptor.capture())).thenReturn(user);
+        when(nodeService.getCompanyNodes(company)).thenReturn(Collections.emptyList());
+
+
+        mockMvc.perform(get(BASE_PATH ))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(0)));
+
+        Authentication authentication = authenticationArgumentCaptor.getValue();
+        assertThat(authentication.getName()).isEqualTo("user");
+
+        verify(nodeService, times(1)).getCompanyNodes(company);
+        verify(nodeUserInfoConverter, never()).convert(any());
+    }
+
+    @Test
+    @DisplayName("Получение узлов компании без авторизации")
+    void getCompanyNodesAccessDeniedTest() throws Exception {
+
+        mockMvc.perform(get(BASE_PATH))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(content().string(blankOrNullString()));
     }
 }

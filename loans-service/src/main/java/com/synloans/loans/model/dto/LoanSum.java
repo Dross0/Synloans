@@ -1,7 +1,11 @@
 package com.synloans.loans.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -15,7 +19,7 @@ public class LoanSum {
 
     @JsonIgnore
     public long getSum(){
-        return (long) unit.getValue() * value;
+        return unit.getValue() * value;
     }
 
     public static LoanSum valueOf(long value){
