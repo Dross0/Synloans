@@ -3,21 +3,24 @@ package com.synloans.loans.service.exception.advice.base;
 import com.synloans.loans.service.exception.advice.response.ErrorResponse;
 import com.synloans.loans.service.exception.notfound.base.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@ControllerAdvice
+@RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
 public class BaseControllerAdvice extends ResponseEntityExceptionHandler {
 

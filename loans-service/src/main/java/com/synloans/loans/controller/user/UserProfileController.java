@@ -13,7 +13,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
@@ -37,7 +43,8 @@ public class UserProfileController {
     )
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Profile getProfile(Authentication authentication){
+    public Profile getProfile(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return profileService.getProfile(authentication.getName());
     }
 
@@ -69,9 +76,10 @@ public class UserProfileController {
     @PutMapping(value = "/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void editProfile(
             @Parameter(name = "Новые данные профиля", required = true)
-            @RequestBody @Valid ProfileUpdateRequest profileUpdateRequest,
-            Authentication authentication
+            @RequestBody @Valid ProfileUpdateRequest profileUpdateRequest
     ){
+        //TODO remove edit, set only put method
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         profileService.editProfile(authentication.getName(), profileUpdateRequest);
     }
 }

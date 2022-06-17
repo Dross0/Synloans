@@ -77,7 +77,7 @@ class NodeControllerTest extends BaseControllerTest {
         Company company = new Company();
         user.setCompany(company);
 
-        when(userService.getCurrentUser(authenticationArgumentCaptor.capture())).thenReturn(user);
+        when(userService.getCurrentUser(any(Authentication.class))).thenReturn(user);
 
         mockMvc.perform(
                 post(BASE_PATH)
@@ -87,6 +87,9 @@ class NodeControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(blankString()));
+
+
+        verify(userService, times(1)).getCurrentUser(authenticationArgumentCaptor.capture());
 
         Authentication authentication = authenticationArgumentCaptor.getValue();
         assertThat(authentication.getName()).isEqualTo("user");
@@ -135,12 +138,12 @@ class NodeControllerTest extends BaseControllerTest {
         Company company = new Company();
         user.setCompany(company);
 
-        when(userService.getCurrentUser(authenticationArgumentCaptor.capture())).thenReturn(user);
         when(nodeService.getCompanyNodes(company)).thenReturn(List.of(companyNode1, companyNode2));
 
         when(nodeUserInfoConverter.convert(companyNode1)).thenReturn(nodeUserInfo1);
         when(nodeUserInfoConverter.convert(companyNode2)).thenReturn(nodeUserInfo2);
 
+        when(userService.getCurrentUser(any(Authentication.class))).thenReturn(user);
 
         mockMvc.perform(get(BASE_PATH))
                 .andDo(print())
@@ -155,6 +158,8 @@ class NodeControllerTest extends BaseControllerTest {
                         jsonPath("$[1].user", is(nodeUserInfo2.getUser())),
                         jsonPath("$[1].password", is(nodeUserInfo2.getPassword()))
                 );
+
+        verify(userService, times(1)).getCurrentUser(authenticationArgumentCaptor.capture());
 
         Authentication authentication = authenticationArgumentCaptor.getValue();
         assertThat(authentication.getName()).isEqualTo("user");
@@ -173,15 +178,16 @@ class NodeControllerTest extends BaseControllerTest {
         Company company = new Company();
         user.setCompany(company);
 
-        when(userService.getCurrentUser(authenticationArgumentCaptor.capture())).thenReturn(user);
         when(nodeService.getCompanyNodes(company)).thenReturn(Collections.emptyList());
-
+        when(userService.getCurrentUser(any(Authentication.class))).thenReturn(user);
 
         mockMvc.perform(get(BASE_PATH ))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(0)));
+
+        verify(userService, times(1)).getCurrentUser(authenticationArgumentCaptor.capture());
 
         Authentication authentication = authenticationArgumentCaptor.getValue();
         assertThat(authentication.getName()).isEqualTo("user");
