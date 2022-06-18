@@ -26,7 +26,7 @@ public class AdapterControllerAdvice extends ResponseEntityExceptionHandler {
             BankJoinException.class,
             PaymentException.class
     })
-    public ResponseEntity<Object> handleInternalError(RuntimeException ex, WebRequest request){
+    public ResponseEntity<Object> handleBusinessError(RuntimeException ex, WebRequest request){
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 ex.getClass().getSimpleName(),

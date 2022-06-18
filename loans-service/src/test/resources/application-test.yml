@@ -1,0 +1,24 @@
+spring:
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: url
+    username: user
+    password: password
+    driverClassName: org.postgresql.Driver
+
+blockchain:
+  service:
+    host: http://localhost:9393
+    connectionTimeout: PT5S
+    readTimeout: PT2M
+
+jwt:
+  key: secretKey
+  expiration-time: 5000000
+
+server:
+  port: 8080

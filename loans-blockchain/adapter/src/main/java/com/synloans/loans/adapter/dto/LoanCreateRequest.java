@@ -1,9 +1,11 @@
 package com.synloans.loans.adapter.dto;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -13,8 +15,10 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@EqualsAndHashCode
 public class LoanCreateRequest {
 
+    @Valid
     @NotNull(message = "Bank agent info cant be null")
     private NodeUserInfo bankAgent;
 

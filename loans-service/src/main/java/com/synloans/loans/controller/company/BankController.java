@@ -56,7 +56,7 @@ public class BankController {
             @Parameter(name = "id банка для поиска")
             @PathVariable("id") Long id
     ){
-        Bank bank = bankService.getById(id);
+        Bank bank = bankService.getById(id); //TODO Optional
         if (bank == null){
             throw new BankNotFoundException("Банк с id=" + id + " не найден");
         }

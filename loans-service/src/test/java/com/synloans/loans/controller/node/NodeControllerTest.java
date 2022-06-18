@@ -1,92 +1,208 @@
 package com.synloans.loans.controller.node;
 
+import com.synloans.loans.controller.BaseControllerTest;
+import com.synloans.loans.mapper.converter.CompanyNodeConverter;
 import com.synloans.loans.model.dto.NodeUserInfo;
 import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.model.entity.node.CompanyNode;
 import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.service.node.NodeService;
-import com.synloans.loans.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import utils.JsonHelper;
+import utils.NoConvertersFilter;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.blankOrNullString;
+import static org.hamcrest.Matchers.blankString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {NodeController.class})
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class NodeControllerTest {
+@WebMvcTest(
+        value = NodeController.class,
+        excludeFilters = @ComponentScan.Filter(type = FilterType.CUSTOM, classes = NoConvertersFilter.class)
+)
+class NodeControllerTest extends BaseControllerTest {
+
+    public static final String BASE_PATH = "/nodes";
 
     @Autowired
-    NodeController nodeController;
+    MockMvc mockMvc;
 
     @MockBean
     NodeService nodeService;
 
     @MockBean
-    UserService userService;
+    CompanyNodeConverter nodeUserInfoConverter;
 
-    @MockBean
-    Converter<CompanyNode, NodeUserInfo> nodeConverter;
+    @Captor
+    ArgumentCaptor<Authentication> authenticationArgumentCaptor;
 
     @Test
-    @DisplayName("Тест на регистрацию блокчейн узла")
-    void registerNodeTest(){
-        Authentication authentication = Mockito.mock(Authentication.class);
+    @DisplayName("Регистрация нового узла")
+    @WithMockUser
+    void registerNodeTest() throws Exception {
+        NodeUserInfo nodeUserInfo = new NodeUserInfo(
+                "address-test",
+                "user-test",
+                "password-test"
+        );
+
         User user = new User();
         Company company = new Company();
         user.setCompany(company);
 
-        NodeUserInfo nodeUserInfo = new NodeUserInfo("address", "admin", "password");
+        when(userService.getCurrentUser(any(Authentication.class))).thenReturn(user);
 
-        when(userService.getCurrentUser(authentication)).thenReturn(user);
+        mockMvc.perform(
+                post(BASE_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonHelper.asJsonString(objectMapper, nodeUserInfo))
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(blankString()));
 
-        nodeController.registerNode(nodeUserInfo, authentication);
 
-        verify(userService, times(1)).getCurrentUser(authentication);
+        verify(userService, times(1)).getCurrentUser(authenticationArgumentCaptor.capture());
+
+        Authentication authentication = authenticationArgumentCaptor.getValue();
+        assertThat(authentication.getName()).isEqualTo("user");
+
         verify(nodeService, times(1)).registerNode(company, nodeUserInfo);
     }
 
     @Test
-    @DisplayName("Тест на получение блокчейн узлов компании")
-    void getNodesTest(){
-        Authentication authentication = Mockito.mock(Authentication.class);
+    @DisplayName("Регистрация нового узла без авторизации")
+    void registerNodeAccessDeniedTest() throws Exception {
+        NodeUserInfo nodeUserInfo = new NodeUserInfo(
+                "address-test",
+                "user-test",
+                "password-test"
+        );
+
+        mockMvc.perform(
+                post(BASE_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonHelper.asJsonString(objectMapper, nodeUserInfo))
+        )
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(content().string(blankOrNullString()));
+    }
+
+    @Test
+    @DisplayName("Получение списка узлов компании")
+    @WithMockUser
+    void getNodesTest() throws Exception {
+        NodeUserInfo nodeUserInfo1 = new NodeUserInfo(
+                "address-test1",
+                "user-test1",
+                "password-test1"
+        );
+        NodeUserInfo nodeUserInfo2 = new NodeUserInfo(
+                "address-test2",
+                "user-test2",
+                "password-test2"
+        );
+
+        CompanyNode companyNode1 = new CompanyNode();
+        CompanyNode companyNode2 = new CompanyNode();
+
         User user = new User();
         Company company = new Company();
         user.setCompany(company);
 
-        CompanyNode node1 = new CompanyNode();
-        CompanyNode node2 = new CompanyNode();
+        when(nodeService.getCompanyNodes(company)).thenReturn(List.of(companyNode1, companyNode2));
 
-        NodeUserInfo convertedNode1 = new NodeUserInfo("a1", "b1", "c1");
-        NodeUserInfo convertedNode2 = new NodeUserInfo("a2", "b2", "c2");
+        when(nodeUserInfoConverter.convert(companyNode1)).thenReturn(nodeUserInfo1);
+        when(nodeUserInfoConverter.convert(companyNode2)).thenReturn(nodeUserInfo2);
 
-        when(nodeService.getCompanyNodes(company)).thenReturn(List.of(node1, node2));
-        when(nodeConverter.convert(node1)).thenReturn(convertedNode1);
-        when(nodeConverter.convert(node2)).thenReturn(convertedNode2);
+        when(userService.getCurrentUser(any(Authentication.class))).thenReturn(user);
 
-        when(userService.getCurrentUser(authentication)).thenReturn(user);
+        mockMvc.perform(get(BASE_PATH))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        jsonPath("$", hasSize(2)),
+                        jsonPath("$[0].address", is(nodeUserInfo1.getAddress())),
+                        jsonPath("$[0].user", is(nodeUserInfo1.getUser())),
+                        jsonPath("$[0].password", is(nodeUserInfo1.getPassword())),
+                        jsonPath("$[1].address", is(nodeUserInfo2.getAddress())),
+                        jsonPath("$[1].user", is(nodeUserInfo2.getUser())),
+                        jsonPath("$[1].password", is(nodeUserInfo2.getPassword()))
+                );
 
-        List<NodeUserInfo> nodes = nodeController.getNodes(authentication);
+        verify(userService, times(1)).getCurrentUser(authenticationArgumentCaptor.capture());
 
-        assertThat(nodes).containsExactly(convertedNode1, convertedNode2);
+        Authentication authentication = authenticationArgumentCaptor.getValue();
+        assertThat(authentication.getName()).isEqualTo("user");
 
-        verify(userService, times(1)).getCurrentUser(authentication);
         verify(nodeService, times(1)).getCompanyNodes(company);
-        verify(nodeConverter, times(1)).convert(node1);
-        verify(nodeConverter, times(1)).convert(node2);
+        verify(nodeUserInfoConverter, times(1)).convert(companyNode1);
+        verify(nodeUserInfoConverter, times(1)).convert(companyNode2);
+    }
+
+    @Test
+    @DisplayName("Получение пустого списка узлов компании")
+    @WithMockUser
+    void getNodesEmptyListTest() throws Exception {
+
+        User user = new User();
+        Company company = new Company();
+        user.setCompany(company);
+
+        when(nodeService.getCompanyNodes(company)).thenReturn(Collections.emptyList());
+        when(userService.getCurrentUser(any(Authentication.class))).thenReturn(user);
+
+        mockMvc.perform(get(BASE_PATH ))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(0)));
+
+        verify(userService, times(1)).getCurrentUser(authenticationArgumentCaptor.capture());
+
+        Authentication authentication = authenticationArgumentCaptor.getValue();
+        assertThat(authentication.getName()).isEqualTo("user");
+
+        verify(nodeService, times(1)).getCompanyNodes(company);
+        verify(nodeUserInfoConverter, never()).convert(any());
+    }
+
+    @Test
+    @DisplayName("Получение узлов компании без авторизации")
+    void getCompanyNodesAccessDeniedTest() throws Exception {
+
+        mockMvc.perform(get(BASE_PATH))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(content().string(blankOrNullString()));
     }
 }

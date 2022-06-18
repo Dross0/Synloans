@@ -28,7 +28,10 @@ public class SyndicateService {
     }
 
     private Syndicate createSyndicateForLoanRequest(Long loanRequestId){
-        LoanRequest loanRequest = loanRequestService.getById(loanRequestId).orElseThrow(LoanRequestNotFoundException::new);
+        LoanRequest loanRequest = loanRequestService.getById(loanRequestId)
+                .orElseThrow(() ->
+                        new LoanRequestNotFoundException("Заявка на кредит с id=" + loanRequestId +" не найдена")
+                );
         Syndicate syndicate = new Syndicate();
         syndicate.setRequest(loanRequest);
         return syndicateRepository.save(syndicate);

@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,9 +45,9 @@ public class NodeController { //TODO добавить удаление и изм
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public void registerNode(
             @Parameter(name = "Информация о блокчейн узле", required = true)
-            @RequestBody NodeUserInfo nodeUserInfo,
-            Authentication authentication
+            @RequestBody NodeUserInfo nodeUserInfo
     ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userService.getCurrentUser(authentication);
         log.info("Register node with address='{}' to user='{}'", nodeUserInfo.getAddress(), currentUser.getUsername());
         nodeService.registerNode(currentUser.getCompany(), nodeUserInfo);
@@ -63,7 +64,8 @@ public class NodeController { //TODO добавить удаление и изм
             )
     )
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<NodeUserInfo> getNodes(Authentication authentication){
+    public List<NodeUserInfo> getNodes(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userService.getCurrentUser(authentication);
         return nodeService.getCompanyNodes(currentUser.getCompany())
                 .stream()

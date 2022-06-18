@@ -22,7 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
@@ -72,11 +78,11 @@ public class SyndicateController {
             description = "Компания текущего пользователя не является банком"
     )
     @Secured(UserRole.ROLE_BANK)
-    @PostMapping(value = "/join", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/join", consumes = MediaType.APPLICATION_JSON_VALUE)  //FIXME refactor path
     public void joinTo(
-            @RequestBody @Valid SyndicateJoinRequest joinRequest,
-            Authentication authentication
+            @RequestBody @Valid SyndicateJoinRequest joinRequest
     ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Bank bank = getBankByUsername(authentication);
         syndicateService.joinBankToSyndicate(joinRequest, bank)
                 .orElseThrow(() ->
@@ -114,9 +120,9 @@ public class SyndicateController {
     @DeleteMapping(value = "/{loanRequestId}")
     public void quitFrom(
             @Parameter(name = "Id заявки из синдиката которой нужно выйти")
-            @PathVariable("loanRequestId") Long id,
-            Authentication authentication
+            @PathVariable("loanRequestId") Long id
     ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         syndicateParticipantService.quitFromSyndicate(id,  getBankByUsername(authentication));
     }
 

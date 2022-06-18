@@ -22,7 +22,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -85,9 +91,9 @@ public class LoanController {
     @PostMapping(value = "/{loanRequestId}/start", produces = MediaType.APPLICATION_JSON_VALUE)
     public LoanCreateResponse startLoan(
             @Parameter(name = "id заявки на кредит")
-            @PathVariable("loanRequestId") long loanRequestId,
-            Authentication authentication
+            @PathVariable("loanRequestId") long loanRequestId
     ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userService.getCurrentUser(authentication);
         Loan loan = loanService.startLoanByRequestId(loanRequestId, currentUser);
         return new LoanCreateResponse(loanRequestId, loan.getId());
@@ -122,9 +128,9 @@ public class LoanController {
     @GetMapping(value = "/{loanRequestId}/payments/plan", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<PlannedPaymentDto> getPlannedPayments(
             @Parameter(name = "id кредитной заявки")
-            @PathVariable("loanRequestId") long loanRequestId,
-            Authentication authentication
+            @PathVariable("loanRequestId") long loanRequestId
     ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userService.getCurrentUser(authentication);
         return loanService.getPlannedPaymentsByRequestId(loanRequestId, currentUser.getCompany())
                 .stream()
@@ -161,9 +167,9 @@ public class LoanController {
     @GetMapping(value = "/{loanRequestId}/payments/actual", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ActualPaymentDto> getActualPayments(
             @Parameter(name = "id кредитной заявки")
-            @PathVariable("loanRequestId") long loanRequestId,
-            Authentication authentication
+            @PathVariable("loanRequestId") long loanRequestId
     ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userService.getCurrentUser(authentication);
         return loanService.getActualPaymentsByRequestId(loanRequestId, currentUser.getCompany())
                 .stream()
@@ -224,9 +230,9 @@ public class LoanController {
     public ActualPaymentDto acceptPayment(
             @Parameter(name = "id кредитной заявки")
             @PathVariable("loanRequestId") long loanRequestId,
-            @RequestBody @Valid PaymentRequest paymentRequest,
-            Authentication authentication
+            @RequestBody @Valid PaymentRequest paymentRequest
     ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userService.getCurrentUser(authentication);
         ActualPayment actualPayment = loanService.acceptPayment(loanRequestId, paymentRequest, currentUser);
         return actualPaymentConverter.convert(actualPayment);
