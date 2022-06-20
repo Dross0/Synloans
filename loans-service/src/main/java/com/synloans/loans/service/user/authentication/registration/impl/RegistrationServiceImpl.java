@@ -1,20 +1,19 @@
-package com.synloans.loans.service.user;
+package com.synloans.loans.service.user.authentication.registration.impl;
 
+import com.synloans.loans.model.authentication.RegistrationRequest;
 import com.synloans.loans.model.entity.company.Bank;
 import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.repository.user.RoleRepository;
 import com.synloans.loans.security.UserRole;
-import com.synloans.loans.security.util.JwtService;
 import com.synloans.loans.service.company.BankService;
 import com.synloans.loans.service.company.CompanyService;
 import com.synloans.loans.service.exception.notfound.BankNotFoundException;
 import com.synloans.loans.service.exception.notfound.CompanyNotFoundException;
+import com.synloans.loans.service.user.UserService;
+import com.synloans.loans.service.user.authentication.registration.RegistrationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,37 +23,41 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthenticationService {
+public class RegistrationServiceImpl implements RegistrationService {
+
     private final UserService userService;
     private final CompanyService companyService;
     private final BankService bankService;
     private final RoleRepository roleRepository;
-    private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
 
     private final BCryptPasswordEncoder passwordEncoder;
 
-
-    public String login(String username, String password){
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
-        );
-        UserDetails user = userService.loadUserByUsername(username);
-        return jwtService.generateToken(user);
-    }
-
-
+    @Override
     @Transactional
-    public User register(String username, String password, Company companyInfo, boolean isCreditOrganisation){
-        if (isCreditOrganisation){
-            return registerBank(username, password, companyInfo);
+    public User register(RegistrationRequest registrationRequest){
+        Company company = new Company();
+        company.setInn(registrationRequest.getInn());
+        company.setKpp(registrationRequest.getKpp());
+        company.setFullName(registrationRequest.getFullName());
+        company.setShortName(registrationRequest.getShortName());
+        company.setActualAddress(registrationRequest.getActualAddress());
+        company.setLegalAddress(registrationRequest.getLegalAddress());
+        if (registrationRequest.isCreditOrganisation()){
+            return registerBank(
+                    registrationRequest.getEmail(),
+                    registrationRequest.getPassword(),
+                    company
+            );
         } else {
-            return registerCompany(username, password, companyInfo);
+            return registerCompany(
+                    registrationRequest.getEmail(),
+                    registrationRequest.getPassword(),
+                    company
+            );
         }
     }
 
-    @Transactional
-    public User registerCompany(String username, String password, Company companyInfo){
+    private User registerCompany(String username, String password, Company companyInfo){
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(username, encodedPassword);
         Company company = companyService.getByInnAndKpp(companyInfo.getInn(), companyInfo.getKpp())
@@ -74,8 +77,7 @@ public class AuthenticationService {
     }
 
 
-    @Transactional
-    public User registerBank(String email, String password, Company companyInfo) {
+    private User registerBank(String email, String password, Company companyInfo) {
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(email, encodedPassword);
         Company company = companyService.getByInnAndKpp(companyInfo.getInn(), companyInfo.getKpp()).orElse(null);

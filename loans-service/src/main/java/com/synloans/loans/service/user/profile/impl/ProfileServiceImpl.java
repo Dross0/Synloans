@@ -1,4 +1,4 @@
-package com.synloans.loans.service.user;
+package com.synloans.loans.service.user.profile.impl;
 
 import com.synloans.loans.model.dto.profile.Profile;
 import com.synloans.loans.model.dto.profile.ProfileUpdateRequest;
@@ -6,6 +6,8 @@ import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.service.company.BankService;
 import com.synloans.loans.service.company.CompanyService;
+import com.synloans.loans.service.user.UserService;
+import com.synloans.loans.service.user.profile.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Service;
@@ -15,19 +17,21 @@ import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
-public class ProfileService {
+public class ProfileServiceImpl implements ProfileService {
     private final UserService userService;
     private final BankService bankService;
     private final CompanyService companyService;
 
     private final Converter<User, Profile> userProfileConverter;
 
+    @Override
     public Profile getProfile(String username){
         User user = userService.getUserByUsername(username);
         return fillProfile(user);
     }
 
     @Transactional
+    @Override
     public void editProfile(String username, ProfileUpdateRequest updateRequest){
         User user = userService.getUserByUsername(username);
         if (updateRequest.getEmail() != null){

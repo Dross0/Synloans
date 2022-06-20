@@ -3,7 +3,7 @@ package com.synloans.loans.controller.user;
 import com.synloans.loans.model.dto.profile.Profile;
 import com.synloans.loans.model.dto.profile.ProfileUpdateRequest;
 import com.synloans.loans.service.exception.advice.response.ErrorResponse;
-import com.synloans.loans.service.user.ProfileService;
+import com.synloans.loans.service.user.profile.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

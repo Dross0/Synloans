@@ -3,7 +3,7 @@ package com.synloans.loans.controller.user;
 import com.synloans.loans.controller.BaseControllerTest;
 import com.synloans.loans.model.dto.profile.Profile;
 import com.synloans.loans.model.dto.profile.ProfileUpdateRequest;
-import com.synloans.loans.service.user.ProfileService;
+import com.synloans.loans.service.user.profile.ProfileService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
