@@ -12,7 +12,7 @@ import com.synloans.loans.security.UserRole;
 import com.synloans.loans.service.exception.advice.response.ErrorResponse;
 import com.synloans.loans.service.exception.notfound.LoanRequestNotFoundException;
 import com.synloans.loans.service.loan.LoanRequestService;
-import com.synloans.loans.service.syndicate.SyndicateParticipantService;
+import com.synloans.loans.service.syndicate.participant.SyndicateParticipantService;
 import com.synloans.loans.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

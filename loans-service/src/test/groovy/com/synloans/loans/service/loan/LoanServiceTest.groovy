@@ -19,9 +19,10 @@ import com.synloans.loans.service.exception.ForbiddenResourceException
 import com.synloans.loans.service.exception.InvalidLoanRequestException
 import com.synloans.loans.service.exception.notfound.LoanNotFoundException
 import com.synloans.loans.service.exception.notfound.LoanRequestNotFoundException
-import com.synloans.loans.service.loan.payment.ActualPaymentService
-import com.synloans.loans.service.loan.payment.PlannedPaymentService
-import com.synloans.loans.service.syndicate.SyndicateParticipantService
+import com.synloans.loans.service.loan.payment.actual.ActualPaymentService
+import com.synloans.loans.service.loan.payment.planned.PlannedPaymentService
+import com.synloans.loans.service.syndicate.participant.SyndicateParticipantService
+import com.synloans.loans.service.syndicate.participant.impl.SyndicateParticipantServiceImpl
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -39,7 +40,7 @@ class LoanServiceTest extends Specification{
     def setup(){
         loanRepository = Mock(LoanRepository)
         loanRequestService = Mock(LoanRequestService)
-        participantService = Mock(SyndicateParticipantService)
+        participantService = Mock(SyndicateParticipantServiceImpl)
         plannedPaymentService = Mock(PlannedPaymentService)
         actualPaymentService = Mock(ActualPaymentService)
         blockchainService = Mock(BlockchainService)

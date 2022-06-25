@@ -22,7 +22,7 @@ import com.synloans.loans.security.UserRole;
 import com.synloans.loans.service.exception.ForbiddenResourceException;
 import com.synloans.loans.service.exception.notfound.LoanRequestNotFoundException;
 import com.synloans.loans.service.loan.LoanRequestService;
-import com.synloans.loans.service.syndicate.SyndicateParticipantService;
+import com.synloans.loans.service.syndicate.participant.SyndicateParticipantService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

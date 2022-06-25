@@ -1,9 +1,10 @@
-package com.synloans.loans.service.node;
+package com.synloans.loans.service.node.impl;
 
 import com.synloans.loans.model.dto.NodeUserInfo;
 import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.model.entity.node.CompanyNode;
 import com.synloans.loans.repository.company.CompanyRepository;
+import com.synloans.loans.service.node.NodeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
