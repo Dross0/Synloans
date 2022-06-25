@@ -7,7 +7,7 @@ import com.synloans.loans.model.entity.user.Role;
 import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.repository.user.RoleRepository;
 import com.synloans.loans.security.UserRole;
-import com.synloans.loans.service.company.BankService;
+import com.synloans.loans.service.bank.BankService;
 import com.synloans.loans.service.company.CompanyService;
 import com.synloans.loans.service.exception.notfound.BankNotFoundException;
 import com.synloans.loans.service.exception.notfound.CompanyNotFoundException;
@@ -261,7 +261,7 @@ class RegistrationServiceImplTest {
 
         when(companyService.getByInnAndKpp(inn, kpp)).thenReturn(Optional.of(company));
 
-        when(bankService.getByCompany(company)).thenReturn(bank);
+        when(bankService.getByCompany(company)).thenReturn(Optional.of(bank));
 
         when(roleRepository.findByName(UserRole.ROLE_COMPANY)).thenReturn(companyRole);
         when(roleRepository.findByName(UserRole.ROLE_BANK)).thenReturn(bankRole);
@@ -314,7 +314,7 @@ class RegistrationServiceImplTest {
 
         when(companyService.getByInnAndKpp(inn, kpp)).thenReturn(Optional.of(company));
 
-        when(bankService.getByCompany(company)).thenReturn(null);
+        when(bankService.getByCompany(company)).thenReturn(Optional.empty());
 
         Throwable throwable = catchThrowable(() -> registrationService.register(registrationRequest));
         assertThat(throwable).isInstanceOf(BankNotFoundException.class);

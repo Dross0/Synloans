@@ -4,7 +4,7 @@ import com.synloans.loans.model.dto.SyndicateJoinRequest;
 import com.synloans.loans.model.entity.company.Bank;
 import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.security.UserRole;
-import com.synloans.loans.service.company.BankService;
+import com.synloans.loans.service.bank.BankService;
 import com.synloans.loans.service.exception.SyndicateJoinException;
 import com.synloans.loans.service.exception.advice.response.ErrorResponse;
 import com.synloans.loans.service.exception.notfound.BankNotFoundException;
@@ -128,11 +128,10 @@ public class SyndicateController {
 
     private Bank getBankByUsername(Authentication authentication) {
         User user = userService.getCurrentUser(authentication);
-        Bank bank = bankService.getByCompany(user.getCompany());
-        if (bank == null){
-            log.error("Not found bank at user='{}' with company='{}'", user.getUsername(), user.getCompany().getFullName());
-            throw new BankNotFoundException("Не найден банк пользователя");
-        }
-        return bank;
+        return bankService.getByCompany(user.getCompany())
+                .orElseThrow(() -> {
+                    log.error("Not found bank at user='{}' with company='{}'", user.getUsername(), user.getCompany().getFullName());
+                    return new BankNotFoundException("Не найден банк пользователя");
+                });
     }
 }

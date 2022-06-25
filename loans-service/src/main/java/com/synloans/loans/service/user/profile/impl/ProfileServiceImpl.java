@@ -4,7 +4,7 @@ import com.synloans.loans.model.dto.profile.Profile;
 import com.synloans.loans.model.dto.profile.ProfileUpdateRequest;
 import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.model.entity.user.User;
-import com.synloans.loans.service.company.BankService;
+import com.synloans.loans.service.bank.BankService;
 import com.synloans.loans.service.company.CompanyService;
 import com.synloans.loans.service.user.UserService;
 import com.synloans.loans.service.user.profile.ProfileService;
@@ -25,14 +25,14 @@ public class ProfileServiceImpl implements ProfileService {
     private final Converter<User, Profile> userProfileConverter;
 
     @Override
-    public Profile getProfile(String username){
+    public Profile getByUsername(String username){
         User user = userService.getUserByUsername(username);
         return fillProfile(user);
     }
 
     @Transactional
     @Override
-    public void editProfile(String username, ProfileUpdateRequest updateRequest){
+    public void update(String username, ProfileUpdateRequest updateRequest){
         User user = userService.getUserByUsername(username);
         if (updateRequest.getEmail() != null){
             user.setUsername(updateRequest.getEmail());
@@ -55,7 +55,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     private Profile fillProfile(User user) {
         Profile profile = userProfileConverter.convert(user);
-        profile.setCreditOrganisation(bankService.getByCompany(user.getCompany()) != null);
+        profile.setCreditOrganisation(bankService.getByCompany(user.getCompany()).isPresent());
         return profile;
     }
 }

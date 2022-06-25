@@ -5,7 +5,8 @@ import com.synloans.loans.model.dto.profile.ProfileUpdateRequest
 import com.synloans.loans.model.entity.company.Bank
 import com.synloans.loans.model.entity.company.Company
 import com.synloans.loans.model.entity.user.User
-import com.synloans.loans.service.company.BankService
+import com.synloans.loans.service.bank.BankService
+import com.synloans.loans.service.bank.impl.BankServiceImpl
 import com.synloans.loans.service.company.CompanyService
 import com.synloans.loans.service.user.profile.ProfileService
 import com.synloans.loans.service.user.profile.impl.ProfileServiceImpl
@@ -19,7 +20,7 @@ class ProfileServiceTest extends Specification {
 
     def setup(){
         userService = Mock(UserService)
-        bankService = Mock(BankService)
+        bankService = Mock(BankServiceImpl)
         companyService = Mock(CompanyService)
         profileService = new ProfileServiceImpl(userService, bankService, companyService, new UserProfileConverter())
     }
@@ -41,10 +42,10 @@ class ProfileServiceTest extends Specification {
                 it.company >> company
             }
         when:
-            def profile = profileService.getProfile(username)
+            def profile = profileService.getByUsername(username)
         then:
             1 * userService.getUserByUsername(username) >> user
-            1 * bankService.getByCompany(user.getCompany()) >> bank
+            1 * bankService.getByCompany(user.getCompany()) >> Optional.ofNullable(bank)
             with(profile){
                 email == username
                 inn == company.inn
@@ -81,12 +82,14 @@ class ProfileServiceTest extends Specification {
             user.company = company
             user.username = username
 
-            def profileUpdateRequest = new ProfileUpdateRequest()
-            profileUpdateRequest.shortName = "New Short"
-            profileUpdateRequest.legalAddress = "New Legal address"
-            profileUpdateRequest.actualAddress = "New Actual address"
+            def profileUpdateRequest = new ProfileUpdateRequest(
+                    "New Short",
+                    "New Legal address",
+                    "New Actual address",
+                    null
+            )
         when:
-            profileService.editProfile(username, profileUpdateRequest)
+            profileService.update(username, profileUpdateRequest)
         then:
             1 * userService.getUserByUsername(username) >> user
             0 * userService.saveUser(_)
@@ -124,13 +127,15 @@ class ProfileServiceTest extends Specification {
             user.company = company
             user.username = username
 
-            def profileUpdateRequest = new ProfileUpdateRequest()
-            profileUpdateRequest.shortName = "New Short"
-            profileUpdateRequest.legalAddress = "New Legal address"
-            profileUpdateRequest.email = "newEmail"
+            def profileUpdateRequest = new ProfileUpdateRequest(
+                    "New Short",
+                    "New Legal address",
+                    null,
+                    "new Email"
+            )
 
         when:
-            profileService.editProfile(username, profileUpdateRequest)
+            profileService.update(username, profileUpdateRequest)
         then:
             1 * userService.getUserByUsername(username) >> user
             1 * userService.saveUser(user)

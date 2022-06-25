@@ -54,9 +54,10 @@ class ActualPaymentServiceTest extends Specification {
         Loan loan = new Loan()
         loan.actualPayments = []
 
-        PaymentRequest paymentRequest = new PaymentRequest()
-        paymentRequest.payment = 1000l
-        paymentRequest.date = LocalDate.now()
+        PaymentRequest paymentRequest = new PaymentRequest(
+                1000L,
+                LocalDate.now()
+        )
 
         when:
             ActualPayment actualPayment = paymentService.createPayment(loan, paymentRequest)

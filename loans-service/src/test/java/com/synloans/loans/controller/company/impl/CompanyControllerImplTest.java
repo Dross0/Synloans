@@ -1,10 +1,11 @@
-package com.synloans.loans.controller.company;
+package com.synloans.loans.controller.company.impl;
 
 import com.synloans.loans.controller.BaseControllerTest;
-import com.synloans.loans.mapper.converter.BankToCompanyConverter;
+import com.synloans.loans.controller.company.CompanyController;
+import com.synloans.loans.mapper.CompanyMapper;
 import com.synloans.loans.model.dto.CompanyDto;
-import com.synloans.loans.model.entity.company.Bank;
-import com.synloans.loans.service.company.BankService;
+import com.synloans.loans.model.entity.company.Company;
+import com.synloans.loans.service.company.CompanyService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import utils.NoConvertersFilter;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.blankOrNullString;
 import static org.hamcrest.Matchers.hasSize;
@@ -35,33 +37,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(
-        value = BankController.class,
+        value = CompanyController.class,
         excludeFilters = @ComponentScan.Filter(type = FilterType.CUSTOM, classes = NoConvertersFilter.class)
 )
-class BankControllerTest extends BaseControllerTest {
+class CompanyControllerImplTest extends BaseControllerTest {
 
-    public static final String BASE_PATH = "/banks";
+    public static final String BASE_PATH = "/companies";
 
     @Autowired
     MockMvc mockMvc;
 
     @MockBean
-    BankService bankService;
+    CompanyService companyService;
 
     @MockBean
-    BankToCompanyConverter bankToCompanyConverter;
+    CompanyMapper companyMapper;
 
 
     @Test
-    @DisplayName("Получение банка по id")
+    @DisplayName("Получение компании по id")
     @WithMockUser
-    void getBankByIdTest() throws Exception {
-        long bankId = 12L;
+    void getCompanyByIdTest() throws Exception {
+        long companyId = 12L;
 
-        Bank bank = new Bank();
+        Company company = new Company();
 
         CompanyDto companyDto = CompanyDto.builder()
-                .id(bankId)
+                .id(companyId)
                 .fullName("cFn")
                 .shortName("cSn")
                 .actualAddress("cAa")
@@ -70,16 +72,15 @@ class BankControllerTest extends BaseControllerTest {
                 .kpp("123456789")
                 .build();
 
+        when(companyService.getById(companyId)).thenReturn(Optional.of(company));
+        when(companyMapper.mapFrom(company)).thenReturn(companyDto);
 
-        when(bankService.getById(bankId)).thenReturn(bank);
-        when(bankToCompanyConverter.convert(bank)).thenReturn(companyDto);
-
-        mockMvc.perform(get(BASE_PATH + "/{id}", bankId))
+        mockMvc.perform(get(BASE_PATH + "/{id}", companyId))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
-                        jsonPath("$.id").value(bankId),
+                        jsonPath("$.id").value(companyId),
                         jsonPath("$.fullName").value(companyDto.getFullName()),
                         jsonPath("$.shortName").value(companyDto.getShortName()),
                         jsonPath("$.actualAddress").value(companyDto.getActualAddress()),
@@ -88,19 +89,19 @@ class BankControllerTest extends BaseControllerTest {
                         jsonPath("$.kpp").value(companyDto.getKpp())
                 );
 
-        verify(bankService, times(1)).getById(bankId);
-        verify(bankToCompanyConverter, times(1)).convert(bank);
+        verify(companyService, times(1)).getById(companyId);
+        verify(companyMapper, times(1)).mapFrom(company);
     }
 
     @Test
-    @DisplayName("Получение несуществующего банка по id")
+    @DisplayName("Получение несуществующей компании по id")
     @WithMockUser
-    void getBankByIdNotFoundTest() throws Exception {
-        long bankId = 12L;
+    void getCompanyByIdNotFoundTest() throws Exception {
+        long companyId = 12L;
 
-        when(bankService.getById(bankId)).thenReturn(null);
+        when(companyService.getById(companyId)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get(BASE_PATH + "/{id}", bankId))
+        mockMvc.perform(get(BASE_PATH + "/{id}", companyId))
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -112,28 +113,28 @@ class BankControllerTest extends BaseControllerTest {
                         jsonPath("$.timestamp").exists()
                 );
 
-        verify(bankService, times(1)).getById(bankId);
+        verify(companyService, times(1)).getById(companyId);
     }
 
     @Test
-    @DisplayName("Получение банка по id без авторизации")
-    void getBankByIdAccessDeniedTest() throws Exception {
-        long bankId = 12L;
+    @DisplayName("Получение компании по id без авторизации")
+    void getCompanyByIdAccessDeniedTest() throws Exception {
+        long companyId = 12L;
 
-        mockMvc.perform(get(BASE_PATH + "/{id}", bankId))
+        mockMvc.perform(get(BASE_PATH + "/{id}", companyId))
                 .andDo(print())
                 .andExpect(status().isForbidden())
                 .andExpect(content().string(blankOrNullString()));
 
-        verify(bankService, never()).getById(bankId);
+        verify(companyService, never()).getById(companyId);
     }
 
     @Test
-    @DisplayName("Получение всех банков")
+    @DisplayName("Получение всех компаний")
     @WithMockUser
-    void getBanksTest() throws Exception {
-        Bank bank1 = new Bank();
-        Bank bank2 = new Bank();
+    void getCompaniesTest() throws Exception {
+        Company company1 = new Company();
+        Company company2 = new Company();
 
         CompanyDto companyDto1 = CompanyDto.builder()
                 .id(12L)
@@ -154,9 +155,9 @@ class BankControllerTest extends BaseControllerTest {
                 .kpp("222202222")
                 .build();
 
-        when(bankService.getAll()).thenReturn(List.of(bank1, bank2));
-        when(bankToCompanyConverter.convert(bank1)).thenReturn(companyDto1);
-        when(bankToCompanyConverter.convert(bank2)).thenReturn(companyDto2);
+        when(companyService.getAll()).thenReturn(List.of(company1, company2));
+        when(companyMapper.mapFrom(company1)).thenReturn(companyDto1);
+        when(companyMapper.mapFrom(company2)).thenReturn(companyDto2);
 
         mockMvc.perform(get(BASE_PATH))
                 .andDo(print())
@@ -180,17 +181,17 @@ class BankControllerTest extends BaseControllerTest {
                         jsonPath("$[1].kpp").value(companyDto2.getKpp())
                 );
 
-        verify(bankService, times(1)).getAll();
-        verify(bankToCompanyConverter, times(1)).convert(bank1);
-        verify(bankToCompanyConverter, times(1)).convert(bank2);
+        verify(companyService, times(1)).getAll();
+        verify(companyMapper, times(1)).mapFrom(company1);
+        verify(companyMapper, times(1)).mapFrom(company2);
     }
 
     @Test
-    @DisplayName("Получение пустого списка банков")
+    @DisplayName("Получение пустого списка компаний")
     @WithMockUser
-    void getBanksEmptyListTest() throws Exception {
+    void getCompaniesEmptyListTest() throws Exception {
 
-        when(bankService.getAll()).thenReturn(Collections.emptyList());
+        when(companyService.getAll()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get(BASE_PATH ))
                 .andDo(print())
@@ -198,19 +199,22 @@ class BankControllerTest extends BaseControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(0)));
 
-        verify(bankService, times(1)).getAll();
-        verify(bankToCompanyConverter, never()).convert(any());
+        verify(companyService, times(1)).getAll();
+        verify(companyMapper, never()).mapFrom(any());
     }
 
     @Test
-    @DisplayName("Получение всех банков без авторизации")
-    void getBanksAccessDeniedTest() throws Exception {
+    @DisplayName("Получение всех компаний без авторизации")
+    void getCompaniesAccessDeniedTest() throws Exception {
 
         mockMvc.perform(get(BASE_PATH))
                 .andDo(print())
                 .andExpect(status().isForbidden())
                 .andExpect(content().string(blankOrNullString()));
 
-        verify(bankService, never()).getAll();
+        verify(companyService, never()).getAll();
     }
+
+
+
 }

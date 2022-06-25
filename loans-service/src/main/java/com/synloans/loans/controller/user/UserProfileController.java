@@ -45,7 +45,7 @@ public class UserProfileController {
     @ResponseBody
     public Profile getProfile(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return profileService.getProfile(authentication.getName());
+        return profileService.getByUsername(authentication.getName());
     }
 
     @Operation(
@@ -80,6 +80,6 @@ public class UserProfileController {
     ){
         //TODO remove edit, set only put method
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        profileService.editProfile(authentication.getName(), profileUpdateRequest);
+        profileService.update(authentication.getName(), profileUpdateRequest);
     }
 }

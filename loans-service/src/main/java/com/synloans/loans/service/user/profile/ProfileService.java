@@ -5,8 +5,8 @@ import com.synloans.loans.model.dto.profile.ProfileUpdateRequest;
 
 public interface ProfileService {
 
-    Profile getProfile(String username);
+    Profile getByUsername(String username);
 
-    void editProfile(String username, ProfileUpdateRequest updateRequest);
+    void update(String username, ProfileUpdateRequest updateRequest);
 
 }

@@ -68,10 +68,11 @@ class SyndicateServiceTest extends Specification {
 
     def "Тест. Вступление банка в новый синдикат"(){
         given:
-            def joinRq = new SyndicateJoinRequest()
-            joinRq.sum = 100_000
-            joinRq.requestId = 20
-            joinRq.approveBankAgent = true
+            def joinRq = new SyndicateJoinRequest(
+                    20,
+                    100_000,
+                    true
+            )
             LoanRequest loanRequest = new LoanRequest()
             loanRequest.loan = null
             def bank = Stub(Bank)
@@ -95,11 +96,11 @@ class SyndicateServiceTest extends Specification {
 
     def "Тест. Вступление банка в новый синдикат с несуществующей заявкой"(){
         given:
-            def joinRq = Stub(SyndicateJoinRequest){
-                requestId >> 20
-                sum >> 100_000
-                approveBankAgent >> true
-            }
+            def joinRq = new SyndicateJoinRequest(
+                    20,
+                    100_000,
+                    true
+            )
             def bank = Stub(Bank)
         when:
             syndicateService.joinBankToSyndicate(joinRq, bank)
@@ -113,10 +114,11 @@ class SyndicateServiceTest extends Specification {
 
     def "Тест. Вступление банка в синдикат, когда кредит уже выдан"(){
         given:
-            def joinRq = new SyndicateJoinRequest()
-            joinRq.sum = 100_000
-            joinRq.requestId = 20
-            joinRq.approveBankAgent = true
+            def joinRq = new SyndicateJoinRequest(
+                    20,
+                    100_000,
+                    true
+            )
             LoanRequest loanRequest = new LoanRequest()
             loanRequest.loan = new Loan()
             def syndicate = new Syndicate()

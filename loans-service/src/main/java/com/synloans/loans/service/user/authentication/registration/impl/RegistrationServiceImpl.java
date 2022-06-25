@@ -1,12 +1,11 @@
 package com.synloans.loans.service.user.authentication.registration.impl;
 
 import com.synloans.loans.model.authentication.RegistrationRequest;
-import com.synloans.loans.model.entity.company.Bank;
 import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.repository.user.RoleRepository;
 import com.synloans.loans.security.UserRole;
-import com.synloans.loans.service.company.BankService;
+import com.synloans.loans.service.bank.BankService;
 import com.synloans.loans.service.company.CompanyService;
 import com.synloans.loans.service.exception.notfound.BankNotFoundException;
 import com.synloans.loans.service.exception.notfound.CompanyNotFoundException;
@@ -81,12 +80,9 @@ public class RegistrationServiceImpl implements RegistrationService {
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(email, encodedPassword);
         Company company = companyService.getByInnAndKpp(companyInfo.getInn(), companyInfo.getKpp()).orElse(null);
-        Bank bank;
         if (company != null){
-            bank = bankService.getByCompany(company);
-            if (bank == null){
-                throw new BankNotFoundException("Пользователь пытается зарегистрироваться по реквизитам компании, которая не является банком");
-            }
+            bankService.getByCompany(company)
+                    .orElseThrow(() -> new BankNotFoundException("Пользователь пытается зарегистрироваться по реквизитам компании, которая не является банком"));
         } else{
             company = companyService.create(companyInfo);
             if (bankService.createBank(company) == null){

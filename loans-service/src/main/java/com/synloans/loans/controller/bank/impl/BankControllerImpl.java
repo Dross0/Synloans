@@ -1,8 +1,9 @@
-package com.synloans.loans.controller.company;
+package com.synloans.loans.controller.bank.impl;
 
+import com.synloans.loans.controller.bank.BankController;
 import com.synloans.loans.model.dto.CompanyDto;
 import com.synloans.loans.model.entity.company.Bank;
-import com.synloans.loans.service.company.BankService;
+import com.synloans.loans.service.bank.BankService;
 import com.synloans.loans.service.exception.advice.response.ErrorResponse;
 import com.synloans.loans.service.exception.notfound.BankNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/banks")
 @RequiredArgsConstructor
 @Slf4j
-public class BankController {
+public class BankControllerImpl implements BankController {
     private final BankService bankService;
 
     private final Converter<Bank, CompanyDto> bankToCompanyConverter;
@@ -52,14 +53,13 @@ public class BankController {
             )
     )
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Override
     public CompanyDto getBankById(
             @Parameter(name = "id банка для поиска")
-            @PathVariable("id") Long id
+            @PathVariable("id") long id
     ){
-        Bank bank = bankService.getById(id); //TODO Optional
-        if (bank == null){
-            throw new BankNotFoundException("Банк с id=" + id + " не найден");
-        }
+        Bank bank = bankService.getById(id)
+                .orElseThrow(() -> new BankNotFoundException("Банк с id=" + id + " не найден"));
         return bankToCompanyConverter.convert(bank);
     }
 
@@ -74,6 +74,7 @@ public class BankController {
             )
     )
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @Override
     public List<CompanyDto> getAllBanks(){
         return bankService.getAll().stream()
                 .map(bankToCompanyConverter::convert)
