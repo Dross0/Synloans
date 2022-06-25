@@ -1,16 +1,17 @@
-package com.synloans.loans.service.company
+package com.synloans.loans.service.company.impl
 
 import com.synloans.loans.model.entity.company.Company
 import com.synloans.loans.repository.company.CompanyRepository
+import com.synloans.loans.service.company.CompanyService
 import spock.lang.Specification
 
-class CompanyServiceTest extends Specification{
+class CompanyServiceImplTest extends Specification{
     private CompanyService companyService
     private CompanyRepository companyRepository
 
     def setup(){
         companyRepository = Mock(CompanyRepository)
-        companyService = new CompanyService(companyRepository)
+        companyService = new CompanyServiceImpl(companyRepository)
     }
 
     def "Тест. Создание компании с существующими ИНН и КПП"(){

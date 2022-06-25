@@ -8,6 +8,7 @@ import com.synloans.loans.model.entity.user.User
 import com.synloans.loans.service.bank.BankService
 import com.synloans.loans.service.bank.impl.BankServiceImpl
 import com.synloans.loans.service.company.CompanyService
+import com.synloans.loans.service.company.impl.CompanyServiceImpl
 import com.synloans.loans.service.user.profile.ProfileService
 import com.synloans.loans.service.user.profile.impl.ProfileServiceImpl
 import spock.lang.Specification
@@ -21,7 +22,7 @@ class ProfileServiceTest extends Specification {
     def setup(){
         userService = Mock(UserService)
         bankService = Mock(BankServiceImpl)
-        companyService = Mock(CompanyService)
+        companyService = Mock(CompanyServiceImpl)
         profileService = new ProfileServiceImpl(userService, bankService, companyService, new UserProfileConverter())
     }
 
