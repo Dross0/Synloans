@@ -1,5 +1,6 @@
 package com.synloans.loans.controller.user;
 
+import com.synloans.loans.configuration.api.Api;
 import com.synloans.loans.model.dto.profile.Profile;
 import com.synloans.loans.model.dto.profile.ProfileUpdateRequest;
 import com.synloans.loans.service.exception.advice.response.ErrorResponse;
@@ -25,7 +26,7 @@ import javax.validation.Valid;
 
 @Tag(name = "Контроллер профиля пользователя", description = "Операции с профилем текущего пользователя")
 @RestController
-@RequestMapping("/profile")
+@RequestMapping(Api.V1 + Api.PROFILE)
 @RequiredArgsConstructor
 public class UserProfileController {
 

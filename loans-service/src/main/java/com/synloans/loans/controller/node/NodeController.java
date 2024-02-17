@@ -1,5 +1,6 @@
 package com.synloans.loans.controller.node;
 
+import com.synloans.loans.configuration.api.Api;
 import com.synloans.loans.model.dto.NodeUserInfo;
 import com.synloans.loans.model.entity.node.CompanyNode;
 import com.synloans.loans.model.entity.user.User;
@@ -18,14 +19,18 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Tag(name = "Контроллер блокчейн узлов", description = "Служит для обслуживание блокчейн узлов компаний")
 @RestController
-@RequestMapping("/nodes")
+@RequestMapping(Api.V1 + Api.NODE)
 @RequiredArgsConstructor
 @Slf4j
 public class NodeController { //TODO добавить удаление и изменений узла (идентификатор - адрес)

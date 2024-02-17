@@ -46,12 +46,7 @@ public class LoanRequestService {
         Collection<LoanRequest> allRequest = loanRequestRepository.findAll();
         for (LoanRequest loanRequest: allRequest){
             if (loanRequest.getSyndicate() != null){
-                boolean isOwn = loanRequest.getSyndicate().getParticipants()
-                        .stream()
-                        .anyMatch(syndicateParticipant ->
-                                Objects.equals(syndicateParticipant.getBank().getCompany(), company)
-                        );
-                if (isOwn){
+                if (isLoanRequestParticipant(loanRequest, company)){
                     loanRequestCollection.addOwn(loanRequest);
                 } else {
                     loanRequestCollection.addOther(loanRequest);
@@ -62,6 +57,14 @@ public class LoanRequestService {
             }
         }
         return loanRequestCollection;
+    }
+
+    public boolean isLoanRequestParticipant(LoanRequest loanRequest, Company company) {
+        return loanRequest.getSyndicate().getParticipants()
+                .stream()
+                .anyMatch(syndicateParticipant ->
+                        Objects.equals(syndicateParticipant.getBank().getCompany(), company)
+                );
     }
 
     public void deleteById(Long id) {

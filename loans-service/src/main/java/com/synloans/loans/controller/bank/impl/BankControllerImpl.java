@@ -1,5 +1,6 @@
 package com.synloans.loans.controller.bank.impl;
 
+import com.synloans.loans.configuration.api.Api;
 import com.synloans.loans.controller.bank.BankController;
 import com.synloans.loans.model.dto.CompanyDto;
 import com.synloans.loans.model.entity.company.Bank;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Tag(name = "Контроллер банков", description = "Служит для получения информации о банках")
 @RestController
-@RequestMapping("/banks")
+@RequestMapping(Api.V1 + Api.BANK )
 @RequiredArgsConstructor
 @Slf4j
 public class BankControllerImpl implements BankController {

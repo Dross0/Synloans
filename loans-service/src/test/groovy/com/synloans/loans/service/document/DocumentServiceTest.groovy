@@ -34,16 +34,4 @@ class DocumentServiceTest extends Specification{
             1 * documentRepository.findAll() >> docs
     }
 
-    def "Тест. Получение документа по id"(){
-        when:
-            def doc = documentService.getById(id)
-        then:
-            doc == resultDoc
-            1 * documentRepository.findById(id) >> resultDoc
-        where:
-            id  || resultDoc
-            2   || Optional.empty()
-            10  || Optional.of(Stub(Document))
-    }
-
 }

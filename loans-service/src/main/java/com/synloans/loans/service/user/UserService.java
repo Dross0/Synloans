@@ -9,6 +9,8 @@ public interface UserService {
 
     User getCurrentUser(Authentication authentication);
 
+    User getCurrentUser();
+
     User getUserByUsername(String username);
 
     Collection<User> getAllUsers();

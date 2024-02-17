@@ -1,5 +1,6 @@
 package com.synloans.loans.controller.syndicate;
 
+import com.synloans.loans.configuration.api.Api;
 import com.synloans.loans.model.dto.SyndicateJoinRequest;
 import com.synloans.loans.model.entity.company.Bank;
 import com.synloans.loans.model.entity.user.User;
@@ -34,7 +35,7 @@ import javax.validation.Valid;
 
 @Tag(name = "Контроллер участников синдиката", description = "Управление участием в синдикате")
 @RestController
-@RequestMapping("/syndicates")
+@RequestMapping(Api.V1 + Api.SYNDICATE)
 @RequiredArgsConstructor
 @Slf4j
 public class SyndicateController {

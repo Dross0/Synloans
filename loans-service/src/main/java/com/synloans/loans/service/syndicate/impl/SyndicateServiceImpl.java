@@ -26,7 +26,7 @@ public class SyndicateServiceImpl implements SyndicateService {
     private final SyndicateParticipantService syndicateParticipantService;
 
     @Override
-    public Syndicate getByLoanRequestId(Long loanRequestId){
+    public Optional<Syndicate> getByLoanRequestId(long loanRequestId){
         return syndicateRepository.findByRequest_Id(loanRequestId);
     }
 
@@ -43,10 +43,8 @@ public class SyndicateServiceImpl implements SyndicateService {
     @Transactional
     @Override
     public Optional<SyndicateParticipant> joinBankToSyndicate(SyndicateJoinRequest joinRequest, Bank bank) {
-        Syndicate syndicate = getByLoanRequestId(joinRequest.getRequestId());
-        if (syndicate == null){
-            syndicate = createSyndicateForLoanRequest(joinRequest.getRequestId());
-        }
+        Syndicate syndicate = getByLoanRequestId(joinRequest.getRequestId())
+                .orElseGet(() -> createSyndicateForLoanRequest(joinRequest.getRequestId()));
         if (syndicate.getRequest().getLoan() != null){
             log.error("Попытка банка={} присоединиться в синдикат по заявке с id={}, когда кредит уже выдан",
                     bank.getCompany().getFullName(),

@@ -1,4 +1,4 @@
-package com.synloans.loans.service.loan.payment;
+package com.synloans.loans.service.loan.payment.planned;
 
 import com.synloans.loans.model.entity.loan.payment.PlannedPayment;
 import com.synloans.loans.repository.loan.payment.PlannedPaymentRepository;

@@ -8,7 +8,7 @@ import com.synloans.loans.model.entity.syndicate.SyndicateParticipant;
 import java.util.Optional;
 
 public interface SyndicateService {
-    Syndicate getByLoanRequestId(Long loanRequestId);
+    Optional<Syndicate> getByLoanRequestId(long loanRequestId);
 
     Optional<SyndicateParticipant> joinBankToSyndicate(SyndicateJoinRequest joinRequest, Bank bank);
 }

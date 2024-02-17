@@ -1,7 +1,6 @@
 package com.synloans.loans.service.loan;
 
-import com.synloans.loans.AnnuityLoan;
-import com.synloans.loans.factory.AnnuityLoanFactory;
+
 import com.synloans.loans.model.blockchain.BankJoinRequest;
 import com.synloans.loans.model.blockchain.LoanCreateRequest;
 import com.synloans.loans.model.blockchain.LoanId;
@@ -19,8 +18,6 @@ import com.synloans.loans.model.entity.loan.payment.PlannedPayment;
 import com.synloans.loans.model.entity.node.CompanyNode;
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant;
 import com.synloans.loans.model.entity.user.User;
-import com.synloans.loans.model.info.LoanInfo;
-import com.synloans.loans.model.payment.LoanPayment;
 import com.synloans.loans.repository.loan.LoanRepository;
 import com.synloans.loans.service.blockchain.BlockchainService;
 import com.synloans.loans.service.exception.AcceptPaymentException;
@@ -29,17 +26,16 @@ import com.synloans.loans.service.exception.InvalidLoanRequestException;
 import com.synloans.loans.service.exception.notfound.LoanNotFoundException;
 import com.synloans.loans.service.exception.notfound.LoanRequestNotFoundException;
 import com.synloans.loans.service.exception.notfound.NodeNotFoundException;
-import com.synloans.loans.service.loan.payment.ActualPaymentService;
-import com.synloans.loans.service.loan.payment.PlannedPaymentService;
-import com.synloans.loans.service.syndicate.SyndicateParticipantService;
+import com.synloans.loans.service.loan.payment.actual.ActualPaymentService;
+import com.synloans.loans.service.loan.payment.planned.PlannedPaymentService;
+import com.synloans.loans.service.loan.payment.schedule.PaymentScheduleCalculator;
+import com.synloans.loans.service.syndicate.participant.SyndicateParticipantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.javamoney.moneta.Money;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -59,6 +55,7 @@ public class LoanService {
     private final PlannedPaymentService plannedPaymentService;
     private final ActualPaymentService actualPaymentService;
     private final BlockchainService blockchainService;
+    private final PaymentScheduleCalculator paymentScheduleCalculator;
 
     private final Converter<CompanyNode, NodeUserInfo> nodeUserInfoConverter;
 
@@ -226,35 +223,9 @@ public class LoanService {
     }
 
     private List<PlannedPayment> buildPlannedPayments(Loan loan) {
-        BigDecimal rate = BigDecimal.valueOf(loan.getRate() / 100);
-        Money loanSum = Money.of(loan.getSum(), CURRENCY_CODE);
-        LoanInfo loanInfo = new LoanInfo(
-                loanSum,
-                rate,
-                loan.getRegistrationDate(),
-                loan.getRequest().getTerm()
-        );
-        AnnuityLoan annuityLoan = new AnnuityLoanFactory().create(loanInfo);
-        return annuityLoan.getPaymentsList().stream()
-                .map(this::toPlannedPayment)
-                .map(plannedPayment -> {plannedPayment.setLoan(loan); return plannedPayment;})
-                .collect(Collectors.toList());
-    }
-
-    private PlannedPayment toPlannedPayment(LoanPayment loanPayment) {
-        PlannedPayment plannedPayment = new PlannedPayment();
-        plannedPayment.setPrincipal(
-                loanPayment.getPaymentSum()
-                        .getPrincipalPart()
-                        .getNumberStripped()
-        );
-        plannedPayment.setPercent(
-                loanPayment.getPaymentSum()
-                        .getPercentPart()
-                        .getNumberStripped()
-        );
-        plannedPayment.setDate(loanPayment.getDate());
-        return plannedPayment;
+        List<PlannedPayment> plannedPayments = paymentScheduleCalculator.calculatePlannedPayments(loan);
+        plannedPayments.forEach(plannedPayment -> plannedPayment.setLoan(loan));
+        return plannedPayments;
     }
 
     private Loan buildLoan(LoanRequest loanRequest, Bank bankAgent) {

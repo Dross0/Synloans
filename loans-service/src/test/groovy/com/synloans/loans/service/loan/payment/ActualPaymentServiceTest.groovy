@@ -4,6 +4,7 @@ import com.synloans.loans.model.dto.loan.payments.PaymentRequest
 import com.synloans.loans.model.entity.loan.Loan
 import com.synloans.loans.model.entity.loan.payment.ActualPayment
 import com.synloans.loans.repository.loan.payment.ActualPaymentRepository
+import com.synloans.loans.service.loan.payment.actual.ActualPaymentService
 import spock.lang.Specification
 
 import java.time.LocalDate

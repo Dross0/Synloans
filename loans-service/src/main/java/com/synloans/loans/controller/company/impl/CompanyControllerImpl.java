@@ -1,5 +1,6 @@
 package com.synloans.loans.controller.company.impl;
 
+import com.synloans.loans.configuration.api.Api;
 import com.synloans.loans.controller.company.CompanyController;
 import com.synloans.loans.mapper.Mapper;
 import com.synloans.loans.model.dto.CompanyDto;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Tag(name = "Контроллер компаний", description = "Служит для получения информации о компаниях")
 @RestController
-@RequestMapping("/companies")
+@RequestMapping(Api.V1 + Api.COMPANY )
 @RequiredArgsConstructor
 public class CompanyControllerImpl implements CompanyController {
 

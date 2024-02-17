@@ -22,6 +22,15 @@ blockchain:
     connectionTimeout: ${BLOCKCHAIN_ADAPTER_CONNECTION_TIMEOUT}
     readTimeout: ${BLOCKCHAIN_ADAPTER_READ_TIMEOUT}
 
+payments-calculator:
+  service:
+    host: ${PAYMENTS_CALCULATOR_HOST}
+    connectionTimeout: ${PAYMENTS_CALCULATOR_CONNECTION_TIMEOUT}
+    readTimeout: ${PAYMENTS_CALCULATOR_READ_TIMEOUT}
+
+contract:
+  validation:
+    delay: PT1M
 
 springdoc:
   api-docs:

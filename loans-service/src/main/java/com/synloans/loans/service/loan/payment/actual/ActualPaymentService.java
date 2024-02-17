@@ -1,4 +1,4 @@
-package com.synloans.loans.service.loan.payment;
+package com.synloans.loans.service.loan.payment.actual;
 
 import com.synloans.loans.model.dto.loan.payments.PaymentRequest;
 import com.synloans.loans.model.entity.loan.Loan;

@@ -1,5 +1,6 @@
 package com.synloans.loans.controller.loan;
 
+import com.synloans.loans.configuration.api.Api;
 import com.synloans.loans.model.dto.BankParticipantInfo;
 import com.synloans.loans.model.dto.collection.LoanRequestCollection;
 import com.synloans.loans.model.dto.collection.LoanRequestCollectionResponse;
@@ -45,7 +46,7 @@ import java.util.stream.Collectors;
 @Tag(name = "Контроллер заявок на кредит", description = "Предоставляет операции по работе с заявками на кредит")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/loans/requests")
+@RequestMapping(Api.V1 + Api.LOAN_REQUEST)
 @Slf4j
 public class LoanRequestController {
 

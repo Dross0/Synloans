@@ -2,6 +2,7 @@ package com.synloans.loans.service.loan.payment
 
 import com.synloans.loans.model.entity.loan.payment.PlannedPayment
 import com.synloans.loans.repository.loan.payment.PlannedPaymentRepository
+import com.synloans.loans.service.loan.payment.planned.PlannedPaymentService
 import spock.lang.Specification
 
 class PlannedPaymentServiceTest extends Specification {
