@@ -3,7 +3,7 @@ package com.synloans.loans.controller.user;
 import com.synloans.loans.controller.BaseControllerTest;
 import com.synloans.loans.model.dto.profile.Profile;
 import com.synloans.loans.model.dto.profile.ProfileUpdateRequest;
-import com.synloans.loans.service.user.ProfileService;
+import com.synloans.loans.service.user.profile.ProfileService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -67,7 +67,7 @@ class UserProfileControllerTest extends BaseControllerTest {
 
 
         String username = "user";
-        when(profileService.getProfile(username)).thenReturn(profile);
+        when(profileService.getByUsername(username)).thenReturn(profile);
 
         mockMvc.perform(get(BASE_PATH))
                 .andDo(print())
@@ -84,7 +84,7 @@ class UserProfileControllerTest extends BaseControllerTest {
                         jsonPath("$.email").value(profile.getEmail())
                 );
 
-        verify(profileService, times(1)).getProfile(username);
+        verify(profileService, times(1)).getByUsername(username);
     }
 
     @Test
@@ -96,7 +96,7 @@ class UserProfileControllerTest extends BaseControllerTest {
                 .andExpect(status().isForbidden())
                 .andExpect(content().string(blankOrNullString()));
 
-        verify(profileService, never()).getProfile(any());
+        verify(profileService, never()).getByUsername(any());
     }
 
     @Test
@@ -117,7 +117,7 @@ class UserProfileControllerTest extends BaseControllerTest {
                 .andExpect(status().isForbidden())
                 .andExpect(content().string(blankOrNullString()));
 
-        verify(profileService, never()).editProfile(any(), any());
+        verify(profileService, never()).update(any(), any());
     }
 
     @ParameterizedTest
@@ -136,7 +136,7 @@ class UserProfileControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(blankOrNullString()));
 
-        verify(profileService, times(1)).editProfile(username, updateRequest);
+        verify(profileService, times(1)).update(username, updateRequest);
     }
 
     @ParameterizedTest
@@ -162,7 +162,7 @@ class UserProfileControllerTest extends BaseControllerTest {
                         jsonPath("$.timestamp").exists()
                 );
 
-        verify(profileService, never()).editProfile(username, updateRequest);
+        verify(profileService, never()).update(username, updateRequest);
     }
 
     private static Stream<Arguments> notValidProfileUpdates() {

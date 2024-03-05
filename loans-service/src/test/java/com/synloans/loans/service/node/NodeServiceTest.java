@@ -4,6 +4,7 @@ import com.synloans.loans.model.dto.NodeUserInfo;
 import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.model.entity.node.CompanyNode;
 import com.synloans.loans.repository.company.CompanyRepository;
+import com.synloans.loans.service.node.impl.NodeServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -18,7 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {NodeServiceImpl.class})

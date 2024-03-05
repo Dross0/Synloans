@@ -2,12 +2,24 @@ package com.synloans.loans.model.entity.loan;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.synloans.loans.model.entity.company.Company;
+import com.synloans.loans.model.entity.document.Contract;
 import com.synloans.loans.model.entity.syndicate.Syndicate;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "loan_request")
@@ -41,4 +53,7 @@ public class LoanRequest {
     @OneToOne(mappedBy = "request")
     @JsonIgnore
     private Loan loan;
+
+    @OneToMany(mappedBy = "loanRequest")
+    private List<Contract> contracts;
 }

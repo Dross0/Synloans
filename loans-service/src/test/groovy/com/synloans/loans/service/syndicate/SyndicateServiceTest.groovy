@@ -9,6 +9,9 @@ import com.synloans.loans.model.entity.syndicate.SyndicateParticipant
 import com.synloans.loans.repository.syndicate.SyndicateRepository
 import com.synloans.loans.service.exception.notfound.LoanRequestNotFoundException
 import com.synloans.loans.service.loan.LoanRequestService
+import com.synloans.loans.service.syndicate.impl.SyndicateServiceImpl
+import com.synloans.loans.service.syndicate.participant.SyndicateParticipantService
+import com.synloans.loans.service.syndicate.participant.impl.SyndicateParticipantServiceImpl
 import spock.lang.Specification
 
 class SyndicateServiceTest extends Specification {
@@ -20,8 +23,8 @@ class SyndicateServiceTest extends Specification {
     def setup(){
         syndicateRepository = Mock(SyndicateRepository)
         loanRequestService = Mock(LoanRequestService)
-        syndicateParticipantService = Mock(SyndicateParticipantService)
-        syndicateService = new SyndicateService(syndicateRepository, loanRequestService, syndicateParticipantService)
+        syndicateParticipantService = Mock(SyndicateParticipantServiceImpl)
+        syndicateService = new SyndicateServiceImpl(syndicateRepository, loanRequestService, syndicateParticipantService)
     }
 
 
@@ -36,8 +39,8 @@ class SyndicateServiceTest extends Specification {
             createdSyndicate == syndicate
         where:
             loanRequestId || syndicate
-            101           || null
-            190           || Stub(Syndicate)
+            101           || Optional.empty()
+            190           || Optional.of(Stub(Syndicate))
     }
 
     def "Тест. Вступление банка в существующий синдикат"(){
@@ -48,12 +51,15 @@ class SyndicateServiceTest extends Specification {
                 approveBankAgent >> true
             }
             def syndicate = Stub(Syndicate)
+            LoanRequest loanRequest = new LoanRequest()
+            loanRequest.loan = null
+            syndicate.request = loanRequest
             def bank = Stub(Bank)
             def participant = Stub(SyndicateParticipant)
         when:
             def participantOp = syndicateService.joinBankToSyndicate(joinRq, bank)
         then:
-            1 * syndicateRepository.findByRequest_Id(joinRq.requestId) >> syndicate
+            1 * syndicateRepository.findByRequest_Id(joinRq.requestId) >> Optional.of(syndicate)
             0 * syndicateRepository.save(_)
             1 * syndicateParticipantService.createNewParticipant(
                     syndicate,
@@ -68,10 +74,11 @@ class SyndicateServiceTest extends Specification {
 
     def "Тест. Вступление банка в новый синдикат"(){
         given:
-            def joinRq = new SyndicateJoinRequest()
-            joinRq.sum = 100_000
-            joinRq.requestId = 20
-            joinRq.approveBankAgent = true
+            def joinRq = new SyndicateJoinRequest(
+                    20,
+                    100_000,
+                    true
+            )
             LoanRequest loanRequest = new LoanRequest()
             loanRequest.loan = null
             def bank = Stub(Bank)
@@ -79,7 +86,7 @@ class SyndicateServiceTest extends Specification {
         when:
             def participantOp = syndicateService.joinBankToSyndicate(joinRq, bank)
         then:
-            1 * syndicateRepository.findByRequest_Id(joinRq.requestId) >> null
+            1 * syndicateRepository.findByRequest_Id(joinRq.requestId) >> Optional.empty()
             1 * loanRequestService.getById(joinRq.requestId) >> Optional.of(loanRequest)
             1 * syndicateRepository.save(_ as Syndicate) >> {Syndicate s -> s}
             1 * syndicateParticipantService.createNewParticipant(
@@ -95,16 +102,16 @@ class SyndicateServiceTest extends Specification {
 
     def "Тест. Вступление банка в новый синдикат с несуществующей заявкой"(){
         given:
-            def joinRq = Stub(SyndicateJoinRequest){
-                requestId >> 20
-                sum >> 100_000
-                approveBankAgent >> true
-            }
+            def joinRq = new SyndicateJoinRequest(
+                    20,
+                    100_000,
+                    true
+            )
             def bank = Stub(Bank)
         when:
             syndicateService.joinBankToSyndicate(joinRq, bank)
         then:
-            1 * syndicateRepository.findByRequest_Id(joinRq.requestId) >> null
+            1 * syndicateRepository.findByRequest_Id(joinRq.requestId) >> Optional.empty()
             1 * loanRequestService.getById(joinRq.requestId) >> Optional.empty()
             0 * syndicateRepository.save(_ as Syndicate)
             0 * syndicateParticipantService.createNewParticipant(_, _ , _, _)
@@ -113,10 +120,11 @@ class SyndicateServiceTest extends Specification {
 
     def "Тест. Вступление банка в синдикат, когда кредит уже выдан"(){
         given:
-            def joinRq = new SyndicateJoinRequest()
-            joinRq.sum = 100_000
-            joinRq.requestId = 20
-            joinRq.approveBankAgent = true
+            def joinRq = new SyndicateJoinRequest(
+                    20,
+                    100_000,
+                    true
+            )
             LoanRequest loanRequest = new LoanRequest()
             loanRequest.loan = new Loan()
             def syndicate = new Syndicate()
@@ -125,7 +133,7 @@ class SyndicateServiceTest extends Specification {
         when:
             def participantOp = syndicateService.joinBankToSyndicate(joinRq, bank)
         then:
-            1 * syndicateRepository.findByRequest_Id(joinRq.requestId) >> syndicate
+            1 * syndicateRepository.findByRequest_Id(joinRq.requestId) >> Optional.of(syndicate)
             0 * syndicateRepository.save(_)
             0 * syndicateParticipantService.createNewParticipant(_, _, _, _)
 

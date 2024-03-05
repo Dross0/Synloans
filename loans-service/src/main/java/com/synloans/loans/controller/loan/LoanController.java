@@ -1,5 +1,6 @@
 package com.synloans.loans.controller.loan;
 
+import com.synloans.loans.configuration.api.Api;
 import com.synloans.loans.model.dto.loan.LoanCreateResponse;
 import com.synloans.loans.model.dto.loan.payments.ActualPaymentDto;
 import com.synloans.loans.model.dto.loan.payments.PaymentRequest;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 
 @Tag(name = "Контроллер кредитов", description = "Обслуживание кредита")
 @RestController
-@RequestMapping("/loans")
+@RequestMapping(Api.V1 + Api.LOAN)
 @RequiredArgsConstructor
 public class LoanController {
 

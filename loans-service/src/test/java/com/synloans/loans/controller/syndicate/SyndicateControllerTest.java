@@ -6,11 +6,11 @@ import com.synloans.loans.model.entity.company.Bank;
 import com.synloans.loans.model.entity.company.Company;
 import com.synloans.loans.model.entity.syndicate.SyndicateParticipant;
 import com.synloans.loans.model.entity.user.User;
-import com.synloans.loans.service.company.BankService;
+import com.synloans.loans.service.bank.BankService;
 import com.synloans.loans.service.exception.SyndicateQuitException;
 import com.synloans.loans.service.exception.notfound.LoanRequestNotFoundException;
-import com.synloans.loans.service.syndicate.SyndicateParticipantService;
 import com.synloans.loans.service.syndicate.SyndicateService;
+import com.synloans.loans.service.syndicate.participant.SyndicateParticipantService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -114,7 +114,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         Bank bank = new Bank();
 
         when(userService.getCurrentUser(any(Authentication.class))).thenReturn(user);
-        when(bankService.getByCompany(company)).thenReturn(bank);
+        when(bankService.getByCompany(company)).thenReturn(Optional.of(bank));
         when(syndicateService.joinBankToSyndicate(joinRequest, bank)).thenThrow(LoanRequestNotFoundException.class);
 
         mockMvc.perform(
@@ -155,7 +155,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         user.setCompany(company);
 
         when(userService.getCurrentUser(any(Authentication.class))).thenReturn(user);
-        when(bankService.getByCompany(company)).thenReturn(null);
+        when(bankService.getByCompany(company)).thenReturn(Optional.empty());
 
         mockMvc.perform(
                 post(BASE_PATH + "/join")
@@ -196,7 +196,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         Bank bank = new Bank();
 
         when(userService.getCurrentUser(any(Authentication.class))).thenReturn(user);
-        when(bankService.getByCompany(company)).thenReturn(bank);
+        when(bankService.getByCompany(company)).thenReturn(Optional.of(bank));
         when(syndicateService.joinBankToSyndicate(joinRequest, bank)).thenReturn(Optional.empty());
 
         mockMvc.perform(
@@ -270,7 +270,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         Bank bank = new Bank();
 
         when(userService.getCurrentUser(any(Authentication.class))).thenReturn(user);
-        when(bankService.getByCompany(company)).thenReturn(bank);
+        when(bankService.getByCompany(company)).thenReturn(Optional.of(bank));
         when(syndicateService.joinBankToSyndicate(joinRequest, bank))
                 .thenReturn(Optional.of(new SyndicateParticipant()));
 
@@ -348,7 +348,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         user.setCompany(company);
 
         when(userService.getCurrentUser(any(Authentication.class))).thenReturn(user);
-        when(bankService.getByCompany(company)).thenReturn(null);
+        when(bankService.getByCompany(company)).thenReturn(Optional.empty());
 
         mockMvc.perform(delete(BASE_PATH + "/{loanRequestId}", loanRequestId))
                 .andDo(print())
@@ -381,7 +381,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         Bank bank = new Bank();
 
         when(userService.getCurrentUser(any(Authentication.class))).thenReturn(user);
-        when(bankService.getByCompany(company)).thenReturn(bank);
+        when(bankService.getByCompany(company)).thenReturn(Optional.of(bank));
         doThrow(SyndicateQuitException.class)
                 .when(syndicateParticipantService)
                 .quitFromSyndicate(loanRequestId, bank);
@@ -419,7 +419,7 @@ class SyndicateControllerTest extends BaseControllerTest {
         Bank bank = new Bank();
 
         when(userService.getCurrentUser(any(Authentication.class))).thenReturn(user);
-        when(bankService.getByCompany(company)).thenReturn(bank);
+        when(bankService.getByCompany(company)).thenReturn(Optional.of(bank));
 
 
         mockMvc.perform(delete(BASE_PATH + "/{loanRequestId}", loanRequestId))

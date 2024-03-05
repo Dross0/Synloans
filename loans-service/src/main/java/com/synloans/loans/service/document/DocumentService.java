@@ -1,26 +1,29 @@
 package com.synloans.loans.service.document;
 
+import com.synloans.loans.model.dto.document.DocumentDto;
+import com.synloans.loans.model.dto.document.DocumentMetadata;
 import com.synloans.loans.model.entity.document.Document;
-import com.synloans.loans.repository.document.DocumentRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.synloans.loans.model.entity.user.User;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
-@Service
-@RequiredArgsConstructor
-public class DocumentService {
-    private final DocumentRepository documentRepository;
+public interface DocumentService {
+    Document save(Document document);
 
-    public Document save(Document document){
-        return documentRepository.save(document);
-    }
+    Document findById(UUID documentId);
 
-    public Collection<Document> getAll(){
-        return documentRepository.findAll();
-    }
+    Collection<Document> getAll();
 
-    public Document getById(Long id){
-        return documentRepository.findById(id).orElse(null);
-    }
+    DocumentDto getDocument(UUID documentId, User user);
+
+    DocumentDto getDocument(UUID documentId);
+
+    DocumentMetadata upload(MultipartFile file, User user);
+
+    List<DocumentMetadata> getAllUserDocuments(User user);
+
+    boolean hasPermission(Document document, User user);
 }

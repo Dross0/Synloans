@@ -5,6 +5,7 @@ import com.synloans.loans.model.entity.user.User
 import com.synloans.loans.repository.user.UserRepository
 import com.synloans.loans.service.exception.CreateUserException
 import com.synloans.loans.service.exception.UserUnauthorizedException
+import com.synloans.loans.service.user.impl.UserServiceImpl
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import spock.lang.Specification
@@ -15,7 +16,7 @@ class UserServiceTest extends Specification{
 
     def setup(){
         userRepository = Mock(UserRepository)
-        userService = new UserService(userRepository)
+        userService = new UserServiceImpl(userRepository)
     }
 
 

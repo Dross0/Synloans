@@ -3,6 +3,7 @@ package com.synloans.loans.model.authentication;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +21,7 @@ import javax.validation.constraints.Size;
 @ToString
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@EqualsAndHashCode
 public class RegistrationRequest {
     @NotBlank(message = "Полное название организации не может быть пустым")
     private String fullName;

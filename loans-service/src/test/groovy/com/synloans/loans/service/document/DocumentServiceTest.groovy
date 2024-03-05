@@ -2,6 +2,7 @@ package com.synloans.loans.service.document
 
 import com.synloans.loans.model.entity.document.Document
 import com.synloans.loans.repository.document.DocumentRepository
+import com.synloans.loans.service.document.impl.DocumentServiceImpl
 import spock.lang.Specification
 
 class DocumentServiceTest extends Specification{
@@ -10,7 +11,7 @@ class DocumentServiceTest extends Specification{
 
     def setup(){
         documentRepository = Mock(DocumentRepository)
-        documentService = new DocumentService(documentRepository)
+        documentService = new DocumentServiceImpl(documentRepository)
     }
 
     def "Тест. Сохранение документа"(){
@@ -31,18 +32,6 @@ class DocumentServiceTest extends Specification{
         then:
             allDocs == docs
             1 * documentRepository.findAll() >> docs
-    }
-
-    def "Тест. Получение документа по id"(){
-        when:
-            def doc = documentService.getById(id)
-        then:
-            doc == resultDoc.orElse(null)
-            1 * documentRepository.findById(id) >> resultDoc
-        where:
-            id  || resultDoc
-            2   || Optional.empty()
-            10  || Optional.of(Stub(Document))
     }
 
 }

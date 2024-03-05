@@ -9,6 +9,8 @@ import com.synloans.loans.repository.syndicate.SyndicateParticipantRepository
 import com.synloans.loans.service.exception.SyndicateQuitException
 import com.synloans.loans.service.exception.notfound.LoanRequestNotFoundException
 import com.synloans.loans.service.loan.LoanRequestService
+import com.synloans.loans.service.syndicate.participant.SyndicateParticipantService
+import com.synloans.loans.service.syndicate.participant.impl.SyndicateParticipantServiceImpl
 import spock.lang.Specification
 
 class SyndicateParticipantServiceTest extends Specification{
@@ -19,7 +21,7 @@ class SyndicateParticipantServiceTest extends Specification{
     def setup(){
         participantRepository = Mock(SyndicateParticipantRepository)
         loanRequestService = Mock(LoanRequestService)
-        participantService = new SyndicateParticipantService(participantRepository, loanRequestService)
+        participantService = new SyndicateParticipantServiceImpl(participantRepository, loanRequestService)
     }
 
     def "Тест. Создание участника синдиката"(){

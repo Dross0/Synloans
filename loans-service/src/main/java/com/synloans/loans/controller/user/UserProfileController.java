@@ -1,9 +1,10 @@
 package com.synloans.loans.controller.user;
 
+import com.synloans.loans.configuration.api.Api;
 import com.synloans.loans.model.dto.profile.Profile;
 import com.synloans.loans.model.dto.profile.ProfileUpdateRequest;
 import com.synloans.loans.service.exception.advice.response.ErrorResponse;
-import com.synloans.loans.service.user.ProfileService;
+import com.synloans.loans.service.user.profile.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,7 +26,7 @@ import javax.validation.Valid;
 
 @Tag(name = "Контроллер профиля пользователя", description = "Операции с профилем текущего пользователя")
 @RestController
-@RequestMapping("/profile")
+@RequestMapping(Api.V1 + Api.PROFILE)
 @RequiredArgsConstructor
 public class UserProfileController {
 
@@ -45,7 +46,7 @@ public class UserProfileController {
     @ResponseBody
     public Profile getProfile(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return profileService.getProfile(authentication.getName());
+        return profileService.getByUsername(authentication.getName());
     }
 
     @Operation(
@@ -80,6 +81,6 @@ public class UserProfileController {
     ){
         //TODO remove edit, set only put method
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        profileService.editProfile(authentication.getName(), profileUpdateRequest);
+        profileService.update(authentication.getName(), profileUpdateRequest);
     }
 }

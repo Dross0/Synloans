@@ -1,15 +1,16 @@
 package com.synloans.loans.controller.syndicate;
 
+import com.synloans.loans.configuration.api.Api;
 import com.synloans.loans.model.dto.SyndicateJoinRequest;
 import com.synloans.loans.model.entity.company.Bank;
 import com.synloans.loans.model.entity.user.User;
 import com.synloans.loans.security.UserRole;
-import com.synloans.loans.service.company.BankService;
+import com.synloans.loans.service.bank.BankService;
 import com.synloans.loans.service.exception.SyndicateJoinException;
 import com.synloans.loans.service.exception.advice.response.ErrorResponse;
 import com.synloans.loans.service.exception.notfound.BankNotFoundException;
-import com.synloans.loans.service.syndicate.SyndicateParticipantService;
 import com.synloans.loans.service.syndicate.SyndicateService;
+import com.synloans.loans.service.syndicate.participant.SyndicateParticipantService;
 import com.synloans.loans.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,7 +35,7 @@ import javax.validation.Valid;
 
 @Tag(name = "Контроллер участников синдиката", description = "Управление участием в синдикате")
 @RestController
-@RequestMapping("/syndicates")
+@RequestMapping(Api.V1 + Api.SYNDICATE)
 @RequiredArgsConstructor
 @Slf4j
 public class SyndicateController {
@@ -128,11 +129,10 @@ public class SyndicateController {
 
     private Bank getBankByUsername(Authentication authentication) {
         User user = userService.getCurrentUser(authentication);
-        Bank bank = bankService.getByCompany(user.getCompany());
-        if (bank == null){
-            log.error("Not found bank at user='{}' with company='{}'", user.getUsername(), user.getCompany().getFullName());
-            throw new BankNotFoundException("Не найден банк пользователя");
-        }
-        return bank;
+        return bankService.getByCompany(user.getCompany())
+                .orElseThrow(() -> {
+                    log.error("Not found bank at user='{}' with company='{}'", user.getUsername(), user.getCompany().getFullName());
+                    return new BankNotFoundException("Не найден банк пользователя");
+                });
     }
 }
